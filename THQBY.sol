@@ -212,15 +212,7 @@ contract ChatMessage
 
 
 
-contract ITimeLimitable is IClock
-{
 
-	function  IsOverTime() public returns(bool);
-	function  SetTimeLimit(uint secondss) public ;
-	function  IncrementTimeLimit(int secondss) public ;
-	function  SetTimerOn() public ;
-
-}
 
 
 
@@ -300,60 +292,6 @@ contract TimeLimitable is IClock, ITimeLimitable
 
 
 
-
-
-
-
-
-
-contract ITimeLimitForwardable is ITimeLimitable
-{
-
-	function  TryMoveForward(IPlayer player) public returns(bool);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-contract IVoteHistory
-{
-	function WhoDidThePlayerVote(IPlayer player) public  returns(IPlayer);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-contract IBallot is IVoteHistory, IParticipatable
-{
-	function DidVote(IPlayer player) public  returns(bool);
-	function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool);
-
-	function GetWinners() public returns(IPlayer[] memory);
-
-	function IsSoloWinder() public returns(bool);
-	function IsZeroWinders() public returns(bool);
-	function IsEveryVotableOnesVoted() public returns(bool);
-
-}
 
 
 
@@ -546,20 +484,6 @@ contract ChatLog is ParticipatableBase , IChatLog
 
 
 
-contract IChatter is IChatLog, ITimeLimitable, IInitializableIPlayerArr
-{
-
-
-
-}
-
-
-contract ISequentialChatter is IChatter, ITimeLimitForwardable
-{
-
-	function  GetSpeakingPlayer() public returns(IPlayer);
-	function  HaveEveryoneSpoke() public returns(bool);
-}
 
 
 
@@ -573,75 +497,11 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 
 
 
-contract ISceneManager is ITimeLimitForwardable, IInitializable
-{
-
-
-	function  GetCurrentScene() public returns(IScene);
-
-}
-
-contract ISceneManagerFriendToScene is ISceneManager
-{
-
-	function  MoveForwardToNewScene(IScene newScene) public ;
-
-}
-
-contract IScene is ITimeLimitable, ITimeLimitForwardable
-{
-	function Initialize(ISceneManagerFriendToScene  sceneMng, IPlayer[] memory players) public ;
-
-	function  GetSceneName() public returns(string memory);//return this.GetType().ToString();
-
-	function  Ballot() public returns(IBallot);
-	function  Chatter() public returns(IChatter);
-
-	function  Refresh() public ;
 
 
 
 
 
-}
-
-contract IPrivateScene is IScene
-{
-	function  ZeroVotingResultHandler() public ;
-	function  OneVotingResultHandler(IPlayer result) public ;
-	function  MoreVotingResultHandler(IPlayer[] memory result) public ;
-
-	function  DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool);
-
-}
-
-contract ITHQBYPlayerInterface
-{
-	//starting game
-	function Bid(string memory role, uint bidAmount) public ;
-
-	//accessing 
-	function  getID(uint id) public returns(uint);
-	function  getRole(string memory role) public returns(string memory);
-	function  getChatLog(ChatMessage[] memory msgs) public returns(IChatLog);
-
-	//communicating
-	function  TryChat(string memory message) public returns(bool);
-
-	//action method
-	function  TryVote(uint playerID) public returns(bool);
-
-}
-
-
-
-
-contract ITHQBY_PlayerManager is IPlayerManager
-{
-	function  GetLivingPolicePlayers() public  returns(IPlayer[] memory);
-	function  GetLivingCitizenPlayers() public returns(IPlayer[] memory);
-	function  GetLivingKillerPlayers() public returns(IPlayer[] memory);
-}
 
 
 contract ITHQBY_Settings

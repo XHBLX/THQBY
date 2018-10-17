@@ -80,7 +80,6 @@ contract IGameController
 	function GetLivingPlayers() public returns(IPlayer[] memory);
 	function GetDeadPlayers() public returns(IPlayer[] memory);
 	function RegisterNewPlayerAndReturnID(object address) public returns(uint);
-
 }
 
 
@@ -125,10 +124,10 @@ contract IPlayerFactory
 
 contract IPlayerManager is IInitializableIPlayerArr
 {
-	function  GetPlayer(uint id) public returns(IPlayer);
-	function  GetAllPlayers() public returns(IPlayer[] memory);
-	function  GetAllLivingPlayers() public returns(IPlayer[] memory);
-	function  GetDeadPlayers() public returns(IPlayer[] memory);
+	function GetPlayer(uint id) public returns(IPlayer);
+	function GetAllPlayers() public returns(IPlayer[] memory);
+	function GetAllLivingPlayers() public returns(IPlayer[] memory);
+	function GetDeadPlayers() public returns(IPlayer[] memory);
 }
 
 
@@ -141,11 +140,102 @@ contract IInitializableIPlayerArr
 contract IRoleBidder is IInitializable
 {
 	function Bid(uint playerID, string memory role, uint bidAmount) public ;
-	function  HasEveryoneBid() public returns(bool);
-	function  SetPlayersCount(uint playersCount) public ;
-
+	function HasEveryoneBid() public returns(bool);
+	function SetPlayersCount(uint playersCount) public ;
 	function CreateRoles() public returns(IPlayer[] memory);
-	function  GetIsActive() public returns(bool);
+	function GetIsActive() public returns(bool);
 }
+
+
+contract IScene is ITimeLimitable, ITimeLimitForwardable
+{
+	function Initialize(ISceneManagerFriendToScene  sceneMng, IPlayer[] memory players) public ;
+	function GetSceneName() public returns(string memory);//return this.GetType().ToString();
+	function Ballot() public returns(IBallot);
+	function Chatter() public returns(IChatter);
+	function Refresh() public ;
+}
+
+
+contract IPrivateScene is IScene
+{
+	function ZeroVotingResultHandler() public ;
+	function OneVotingResultHandler(IPlayer result) public ;
+	function MoreVotingResultHandler(IPlayer[] memory result) public ;
+	function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool);
+}
+
+
+contract ISceneManager is ITimeLimitForwardable, IInitializable
+{
+	function GetCurrentScene() public returns(IScene);
+}
+
+
+contract ISceneManagerFriendToScene is ISceneManager
+{
+	function MoveForwardToNewScene(IScene newScene) public ;
+}
+
+
+contract ISpokenEvent
+{
+	/// Occurs when event spoken. arguments are timestamp, player, message.
+	event eventSpoken(uint timestamp, Iplayer player, string message);
+}
+
+
+
+contract ITHQBYPlayerInterface
+{
+	//starting game
+	function Bid(string memory role, uint bidAmount) public ;
+	//accessing 
+	function getID(uint id) public returns(uint);
+	function getRole(string memory role) public returns(string memory);
+	function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog);
+	//communicating
+	function TryChat(string memory message) public returns(bool);
+	//action method
+	function TryVote(uint playerID) public returns(bool);
+}
+
+
+contract ITHQBY_PlayerManager is IPlayerManager
+{
+	function GetLivingPolicePlayers() public returns(IPlayer[] memory);
+	function GetLivingCitizenPlayers() public returns(IPlayer[] memory);
+	function GetLivingKillerPlayers() public returns(IPlayer[] memory);
+}
+
+
+contract ITHQBY_Settings
+{
+	function  DAY() public  returns(string memory);
+	function  DAY_PK() public  returns(string memory);
+	function  NIGHT_KILLER() public  returns(string memory);
+	function  NIGHT_POLICE() public  returns(string memory);
+	function  POLICE() public  returns(string memory);
+	function  CITIZEN() public  returns(string memory);
+	function  KILLER() public  returns(string memory);
+}
+
+contract ITimeLimitable is IClock
+{
+	function  IsOverTime() public returns(bool);
+	function  SetTimeLimit(uint secondss) public ;
+	function  IncrementTimeLimit(int secondss) public ;
+	function  SetTimerOn() public ;
+}
+
+
+
+contract ITimeLimitForwardable is ITimeLimitable
+{
+	event moveForward(Action); // ??? and I may in the future put all event in a seperate contract
+	function  TryMoveForward(IPlayer player) public returns(bool);
+}
+
+
 
 
