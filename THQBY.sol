@@ -29,7 +29,6 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 	//Feasible structure
 
 
-
     /*
      * Public functions
      */
@@ -59,40 +58,11 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 
 
 
-contract IPlayer 
-{
-
-	function SenderAddress() public returns(address);
-	function  GetVotingWeightAsPercent() public returns(uint);
-	function  GetRole() public returns(string memory);
-	function  GetId() public returns(uint);
-
-	function  SetId(uint id) public ;
-	function  GetIsAlive() public returns(bool);
-	function  KillMe() public ;
-	//function  Speak(string message) public ;
-	//bool TryVote(uint playerID) public ;
-
-}
 
 
 
-contract IParticipatable 
-{
-	function  GetParticipants() public returns(IPlayer[] memory);
-	function  EnableParticipant(IPlayer player)  public ;
-	function  DisableParticipant(IPlayer player) public ;
-	function  DisableAllParticipants() public ;
-	function  EnableAllParticipants() public ;
-
-	function  IInitializable(IPlayer[] memory players) public ;
 
 
-	function  IsRegisteredParticipant(IPlayer player) public  returns(bool);
-	function  CanParticipate(IPlayer player) public  returns(bool);
-	function  ParticipatablePlayersCount()  public returns(uint);
-
-}
 
 
 
@@ -217,10 +187,7 @@ contract IInitializable
 }
 
 
-contract IInitializableIPlayerArr
-{
-	function Initialize(IPlayer[] memory) public;
-}
+
 
 
 
@@ -595,42 +562,9 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 }
 
 
-contract IPlayerFactory 
-{
-
-	function Create(string memory str) public returns(IPlayer);
-}
-
-
-contract IPlayerManager is IInitializableIPlayerArr
-{
-	function  GetPlayer(uint id) public returns(IPlayer);
-
-
-	function  GetAllPlayers() public returns(IPlayer[] memory);
-	function  GetAllLivingPlayers() public returns(IPlayer[] memory);
-
-	
 
 
 
-	function  GetDeadPlayers() public returns(IPlayer[] memory);
-}
-
-
-
-contract IRoleBidder is IInitializable
-{
-
-
-	function Bid(uint playerID, string memory role, uint bidAmount) public ;
-	function  HasEveryoneBid() public returns(bool);
-	function  SetPlayersCount(uint playersCount) public ;
-
-
-	function CreateRoles() public returns(IPlayer[] memory);
-	function  GetIsActive() public returns(bool);
-}
 
 
 
