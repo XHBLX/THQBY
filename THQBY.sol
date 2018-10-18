@@ -1,6 +1,9 @@
 pragma solidity ^0.4.25;
 
 
+/////////////////////// Main Function To Be ReModeled ////////////////////
+
+/*
 contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 	//fields from DependencyInjection
 	ITHQBY_PlayerManager  _playerManager;
@@ -29,9 +32,6 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 	//Feasible structure
 
 
-    /*
-     * Public functions
-     */
     // contract constructor
 	constructor () public {
 		//bid for 5 players (from previous test)
@@ -49,12 +49,12 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 		}
 	}
 
-	function Players() public returns(IPlayer[] _players) {
+	function Players() public returns(IPlayer[]) {
 		return this._PLayers;
 	}
 
 	//AsTransient
-	function BallotFactory() public return(IBallot _ballot) {
+	function BallotFactory() public returns(IBallot) {
 		
 
 	}
@@ -70,21 +70,49 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 		_roleBidder.Bid(_id, _settings.CITIZEN(), citizenAmount);
 	}
 
+	//AsTransient
+	function ChatLogFactory() public returns(IChatLog) 
+	{
+		IClock clock = ClockFactory();
+		return new ChatLog(clock);
+	}
 
+	//AsTransient
+	function ChatterFactory() public returns(IChatter)
+	{
+		ITimeLimitable TimeLimitableFact = TimeLimitableFactory();
+		IChatLog chatLog = ChatLogFactory();
+		return new Chatter(TimeLimitableFact, chatLog);
+	}
 
+	//AsSingle
+	function ClockFactory() public returns(IClock)
+	{
+
+	}
 }
+
+*/
+
+          
+//////////////////////////////////////////////////////////////////////////
+
+
+
 
 
 contract THQBYRoleBidder is RoleBidderBase
 {
-	ITHQBY_Settings internal _settings;
+	ITHQBY_Settings     _settings;
 
 	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
 	{
 		RoleBidderBase._playerFactory = PlayerFactory;
-		this._settings = settings;
+		_settings = settings;
 	}
 }
+
+
 
 
 contract RoleBidderBase is IRoleBidder {
@@ -216,10 +244,6 @@ contract IInitializable
 {
 	function Initialize() public;
 }
-
-
-
-
 
 
 contract ChatMessage
