@@ -32,7 +32,7 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
     /*
      * Public functions
      */
-     /// contract constructor
+    // contract constructor
 	constructor () public {
 		//bid for 5 players (from previous test)
 
@@ -45,20 +45,52 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 
 		//assign id
 		for (uint i = 0; i < 5; i++) {
-			_players[i].SetId
+			_players[i].SetId(i);
 		}
-
-
-
 	}
 
 	function Players() public returns(IPlayer[] _players) {
 		return this._PLayers;
 	}
 
+	//AsTransient
+	function BallotFactory() public return(IBallot _ballot) {
+		
+
+	}
+
+	function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount)
+	{
+		_roleBidder = RoleBidderFactory();
+		_roleBidder = Initialize();
+		_roleBidder = InitRoles();
+
+		_roleBidder.Bid(_id, _settings.POLICE(), policeAmount);
+		_roleBidder.Bid(_id, _settings.KILLER(), KillerAmount);
+		_roleBidder.Bid(_id, _settings.CITIZEN(), citizenAmount);
+	}
+
+
+
 }
 
 
+contract THQBYRoleBidder is RoleBidderBase
+{
+	ITHQBY_Settings internal _settings;
+
+	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
+	{
+		RoleBidderBase._playerFactory = PlayerFactory;
+		this._settings = settings;
+	}
+}
+
+
+contract RoleBidderBase is IRoleBidder {
+
+
+}
 
 
 
@@ -152,12 +184,6 @@ contract ParticipatableBase is IParticipatable
 	}
 }
 
-contract IClock
-{
-	function  GetNth_day() public returns(uint);
-	function  DayPlusPlus() public ;
-	function  GetRealTimeInSeconds() public returns(uint);
-}
 
 contract Clock
 {
@@ -198,8 +224,8 @@ contract IInitializable
 
 contract ChatMessage
 {
-	uint public  timestamp;
-	int public  byWho;
+	uint   public  timestamp;
+	int    public  byWho;
 	string public  message;
 
 
@@ -609,7 +635,6 @@ contract ISpokenEvent
 }
 
 
-
 contract ITHQBYPlayerInterface
 {
 	//starting game
@@ -644,6 +669,7 @@ contract ITHQBY_Settings
 	function  KILLER() public  returns(string memory);
 }
 
+
 contract ITimeLimitable is IClock
 {
 	function  IsOverTime() public returns(bool);
@@ -651,7 +677,6 @@ contract ITimeLimitable is IClock
 	function  IncrementTimeLimit(int secondss) public ;
 	function  SetTimerOn() public ;
 }
-
 
 
 contract ITimeLimitForwardable is ITimeLimitable
