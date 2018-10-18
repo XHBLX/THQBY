@@ -98,12 +98,9 @@ contract Main is ITHQBYPlayerInterface, IDependencyInjection {
 //////////////////////////////////////////////////////////////////////////
 
 
-
-
-
 contract THQBYRoleBidder is RoleBidderBase
 {
-	ITHQBY_Settings     _settings;
+	ITHQBY_Settings _settings;
 
 	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
 	{
@@ -113,17 +110,24 @@ contract THQBYRoleBidder is RoleBidderBase
 }
 
 
+contract RoleBidderBase is IRoleBidder 
+{
+	IPlayerFactory                    _playerFactory;
 
+	bool                    internal  _isClassActive    = true; //init usable 
+	uint                    internal  _playerCount;
+	uint                    internal  _numRoles;
 
-contract RoleBidderBase is IRoleBidder {
+	int[][]                           _matrix;
+	bool[]                            isVote;
+
+	mapping(uint => string) internal  _roleOfPlayerID;
+	mapping(string => int)  internal  _string2RoleIndx;
+	mapping(int => string)  internal  _roleIndx2String;
+	mapping(string => uint) internal  _spotsOfRole;
 
 
 }
-
-
-
-
-
 
 
 
@@ -134,7 +138,9 @@ contract RoleBidderBase is IRoleBidder {
 contract ParticipatableBase is IParticipatable
 {
 	IPlayer[]                internal  _players;
-	mapping(address => bool) internal  _canParticipate;
+
+	//我暂时把 address 改成IPlayer
+	mapping(IPlayer => bool) internal  _canParticipate;
 
 
 
@@ -468,11 +474,13 @@ contract ChatLog is ParticipatableBase, IChatLog
 
 
 
-
-
-
+/*
+ * The following bellow should be categorized as 'abstract contract'
+ * rather than 'interface' since interface cannot inherit any other 
+ * contract or interface.
+ */
 /////////////////////////////////////////////////////////////////////////
-////////////////////////// Interfaces ///////////////////////////////////
+////////////////////////// Abstact Contracts ////////////////////////////
 
 contract IBallot is IVoteHistory, IParticipatable
 {
@@ -516,6 +524,7 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 }
 
 
+// this abstact contract should be added by field to implement 'null' case 
 contract IClock
 {
 	function GetNth_day() public returns(uint);

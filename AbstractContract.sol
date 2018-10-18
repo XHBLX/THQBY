@@ -45,8 +45,8 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 contract IClock
 {
 	bool status;
-	
-	function 
+
+	function ToggleStatus() public;
 	function GetNth_day() public returns(uint);
 	function DayPlusPlus() public;
 	function GetRealTimeInSeconds() public returns(uint);
