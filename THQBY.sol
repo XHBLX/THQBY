@@ -116,22 +116,23 @@ contract THQBYRoleBidder is RoleBidderBase
 /// SetSpotsOfRoles and InitRoles shall be tracked.
 contract RoleBidderBase is IRoleBidder 
 {
-	IPlayerFactory           _playerFactory;
-	bool                     _isClassActive    = true; //init usable 
-	uint                     _playerCount;
-	uint                     _numRoles;
-	int[][]                  _matrix;
-	bool[]                   isVote;
-	mapping(uint => string)  _roleOfPlayerID;
-	mapping(string => int[]) _string2RoleIndx;
-	mapping(int => string)   _roleIndx2String;
-	mapping(string => uint)  _spotsOfRole;
+	IPlayerFactory               _playerFactory;
+	bool                         _isClassActive    = true; //init usable 
+	uint                         _playerCount;
+	uint                         _numRoles;
+	int[][]                      _matrix;
+	bool[]                       isVote;
+	mapping(uint => string)      _roleOfPlayerID;
+	mapping(string => uint[](2)) _string2RoleIndx;
+	mapping(int => string)       _roleIndx2String;
+	mapping(string => uint)      _spotsOfRole;
 
 	/*
 	 * Abstract Contracts
 	 */
 	function InitRoles() public;
 	function SetSpotsOfRoles() public; 
+	function Initialize() public;
 
 	/*
 	 * Public finctions
@@ -195,11 +196,11 @@ contract RoleBidderBase is IRoleBidder
 			{
 				continue;
 			}
-			for (uint i = 0; i < _playerCount; i++) {
-				if (!isAssignedRole[i] && (_matrix[i][matrixColumn] > tempMax))
+			for (uint k = 0; k < _playerCount; k++) {
+				if (!isAssignedRole[k] && (_matrix[k][matrixColumn] > tempMax))
 				{
-					tempMax = _matrix[i][matrixColumn];
-					tempPos = i;
+					tempMax = _matrix[k][matrixColumn];
+					tempPos = k;
 				}
 			}
 			isAssignedRole[tempPos] = true;
@@ -214,44 +215,70 @@ contract RoleBidderBase is IRoleBidder
 		return res;
 	}
 
+	function GetIsActive() returns(bool)
+	{
+		return _isClassActive;
+	}
 
+	function HasEveryoneBid() returns(bool) 
+	{
+		for (uint i = 0; i < _matrix.length; i++) 
+		{
+			for (uint j = 0; j < _matrix[0].length; j++)
+			{
+				if (_matrix[i][j] < 0)
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
+	function SetPlayersCount(uint playersCount)
+	{
+		_playerCount = playersCount;
+		isVote = new bool[](playersCount);
+		_matrix = new int[][](playersCount);
+		for (uint i = 0; i < playersCount; i++) 
+		{
+			_matrix[i] = new int[](_numRoles);
+			for (uint j = 0; j < _numRoles; j++) 
+			{
+				_matrix[i][j] = -1;
+			}
+		}
 
-
+	}
 
 }
-
-
-
-
-
 
 
 contract ParticipatableBase is IParticipatable
 {
 	IPlayer[]                internal  _players;
-
-	//我暂时把 address 改成IPlayer
-	mapping(IPlayer => bool) internal  _canParticipate;
-
-
+	mapping(IPlayer => bool) internal  _canParticipate; //我暂时把 address 改成IPlayer
 
 	function  GetParticipants() public returns(IPlayer[] memory)
 	{
 		return _players;
 	}
+
 	function  EnableParticipant(IPlayer player)  public 
 	{
 		_canParticipate[player.SenderAddress()] = true;
 	}
+
 	function  DisableParticipant(IPlayer player) public 
 	{
 		_canParticipate[player.SenderAddress()] = false;
 	}
+
 	function  DisableAllParticipants() public 
 	{
 		SetAllParticibility(false);
 	}
+
 	function  EnableAllParticipants() public 
 	{
 		SetAllParticibility(true);
@@ -263,8 +290,6 @@ contract ParticipatableBase is IParticipatable
 		{
 			_canParticipate[_players[i].SenderAddress()] = canParticipate;
 		}
-
-
 	}
 
 	function  IInitializable(IPlayer[] memory players) public 
@@ -273,7 +298,6 @@ contract ParticipatableBase is IParticipatable
 
 		EnableAllParticipants();
 	}
-
 
 	function  IsRegisteredParticipant(IPlayer player) public  returns(bool)
 	{
@@ -285,15 +309,16 @@ contract ParticipatableBase is IParticipatable
 		}
 		return false;
 	}
+
 	function  CanParticipate(IPlayer player) public  returns(bool)
 	{
 		if (!IsRegisteredParticipant(player))
 		{
 			return false;
 		}
-
 		return _canParticipate[player.SenderAddress()];
 	}
+
 	function  ParticipatablePlayersCount()  public returns(uint)
 	{
 		uint ans = 0;
@@ -305,7 +330,6 @@ contract ParticipatableBase is IParticipatable
 				ans++;
 			}
 		}
-
 		return ans;
 	}
 }
