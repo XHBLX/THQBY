@@ -112,7 +112,8 @@ contract THQBYRoleBidder is RoleBidderBase
 }
 
 
-/// @dev This is also an abstract contract
+/// @dev This is also an abstract contract.
+/// SetSpotsOfRoles and InitRoles shall be tracked.
 contract RoleBidderBase is IRoleBidder 
 {
 	IPlayerFactory           _playerFactory;
@@ -129,18 +130,12 @@ contract RoleBidderBase is IRoleBidder
 	mapping(int => string)   _roleIndx2String;
 	mapping(string => uint)  _spotsOfRole;
 
-	// These two state variables only serve for _spotsOfRole as 
-	// mapping in solidity is not iteratable without special manipulation. 
-	// These two variables is set when calling SetSpotsOfRoles.
-	uint                     _spotsOfRole_MaxNum;
-	uint                     _spotsOfRole_Key_Pair_Num;
-
 	/*
 	 * Abstract Contracts
 	 */
 	function InitRoles() public;
-	function SetSpotsOfRoles() public;
-
+	function SetSpotsOfRoles() public; 
+	
 	/*
 	 * Public finctions
 	 */
@@ -167,10 +162,23 @@ contract RoleBidderBase is IRoleBidder
 
 	function FindMaxNumRole() 
 	{
-		return _spotsOfRole_MaxNum;
+		uint tempMax = 0;
+		for (uint i = 0; i < _numRoles; i++) {
+			uint tempRoleNum = _spotsOfRole[_roleIndx2String[i]];
+			if (tempRoleNum > tempMax) {
+				tempMax = tempRoleNum;
+			}
+		}
+		return tempRoleNum;
 	}
 
-	function _load_ExternalMapping
+	function CreateRoles() public returns(IPlayer[])
+	{
+		uint totalRole = 0;
+		for (uint i = 0; i < _numRoles; i++) {
+			totalRole += _spotsOfRole[_roleIndx2String[i]];
+		}
+	}
 
 
 
