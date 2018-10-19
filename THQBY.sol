@@ -1,5 +1,7 @@
 pragma solidity ^0.4.25;
 
+import './IterableMapping.sol';
+
 
 /////////////////////// Main Function To Be ReModeled ////////////////////
 
@@ -110,21 +112,69 @@ contract THQBYRoleBidder is RoleBidderBase
 }
 
 
+/// @dev This is also an abstract contract
 contract RoleBidderBase is IRoleBidder 
 {
-	IPlayerFactory                    _playerFactory;
+	IPlayerFactory           _playerFactory;
 
-	bool                    internal  _isClassActive    = true; //init usable 
-	uint                    internal  _playerCount;
-	uint                    internal  _numRoles;
+	bool                     _isClassActive    = true; //init usable 
+	uint                     _playerCount;
+	uint                     _numRoles;
 
-	int[][]                           _matrix;
-	bool[]                            isVote;
+	int[][]                  _matrix;
+	bool[]                   isVote;
 
-	mapping(uint => string) internal  _roleOfPlayerID;
-	mapping(string => int)  internal  _string2RoleIndx;
-	mapping(int => string)  internal  _roleIndx2String;
-	mapping(string => uint) internal  _spotsOfRole;
+	mapping(uint => string)  _roleOfPlayerID;
+	mapping(string => int)   _string2RoleIndx;
+	mapping(int => string)   _roleIndx2String;
+	mapping(string => uint)  _spotsOfRole;
+
+	// These two state variables only serve for _spotsOfRole as 
+	// mapping in solidity is not iteratable without special manipulation. 
+	// These two variables is set when calling SetSpotsOfRoles.
+	uint                     _spotsOfRole_MaxNum;
+	uint                     _spotsOfRole_Key_Pair_Num;
+
+	/*
+	 * Abstract Contracts
+	 */
+	function InitRoles() public;
+	function SetSpotsOfRoles() public;
+
+	/*
+	 * Public finctions
+	 */
+	constructor (IPlayerFactory playerFactory) public {
+		_roleOfPlayerID = playerFactory;
+	}
+
+	function Initialize(string[] roles) public 
+	{
+		_numRoles = roles.length;
+		for (uint i = 0; i < _numRoles; i++) {
+			string memory role = roles[i];
+			_string2RoleIndx[role] = i;
+			_roleIndx2String[i] = role;
+		}
+	}
+
+	function Bid(uint playerID, string role, uint bidAmount) 
+	{
+		bool _bidCheck = (playerID >= _playerCount || _string2RoleIndx[role] == 0);
+		require(_bidCheck, "Invalid input!");
+		_matrix[playerID][_string2RoleIndx[role]] = bidAmount;
+	}
+
+	function FindMaxNumRole() 
+	{
+		return _spotsOfRole_MaxNum;
+	}
+
+	function _load_ExternalMapping
+
+
+
+
 
 
 }
