@@ -117,16 +117,13 @@ contract THQBYRoleBidder is RoleBidderBase
 contract RoleBidderBase is IRoleBidder 
 {
 	IPlayerFactory           _playerFactory;
-
 	bool                     _isClassActive    = true; //init usable 
 	uint                     _playerCount;
 	uint                     _numRoles;
-
 	int[][]                  _matrix;
 	bool[]                   isVote;
-
 	mapping(uint => string)  _roleOfPlayerID;
-	mapping(string => int)   _string2RoleIndx;
+	mapping(string => int[]) _string2RoleIndx;
 	mapping(int => string)   _roleIndx2String;
 	mapping(string => uint)  _spotsOfRole;
 
@@ -135,7 +132,7 @@ contract RoleBidderBase is IRoleBidder
 	 */
 	function InitRoles() public;
 	function SetSpotsOfRoles() public; 
-	
+
 	/*
 	 * Public finctions
 	 */
@@ -148,16 +145,17 @@ contract RoleBidderBase is IRoleBidder
 		_numRoles = roles.length;
 		for (uint i = 0; i < _numRoles; i++) {
 			string memory role = roles[i];
-			_string2RoleIndx[role] = i;
+			_string2RoleIndx[role][0] = 1;
+			_string2RoleIndx[role][1] = i;
 			_roleIndx2String[i] = role;
 		}
 	}
 
 	function Bid(uint playerID, string role, uint bidAmount) 
 	{
-		bool _bidCheck = (playerID >= _playerCount || _string2RoleIndx[role] == 0);
+		bool _bidCheck = (playerID < _playerCount && _string2RoleIndx[role][0] != 0);
 		require(_bidCheck, "Invalid input!");
-		_matrix[playerID][_string2RoleIndx[role]] = bidAmount;
+		_matrix[playerID][_string2RoleIndx[role][1]] = bidAmount;
 	}
 
 	function FindMaxNumRole() 
@@ -174,10 +172,46 @@ contract RoleBidderBase is IRoleBidder
 
 	function CreateRoles() public returns(IPlayer[])
 	{
-		uint totalRole = 0;
+		uint             totalRole       = 0;
+		uint             maxRoleNum      = FindMaxNumRole();
+		uint             totalIteration  = maxRoleNum * _numRoles;
+		IPlayer[] memory res             = new IPlayer[](_playerCount);
+		bool[]    memory isAssignedRole  = new bool[](_playerCount);
+		uint[]    memory numRoleAssigned = new uint[](_numRoles);
+		uint 		     curRoleIndex 	 = 0;
+        uint 			 matrixColumn	 = 0;
+
 		for (uint i = 0; i < _numRoles; i++) {
 			totalRole += _spotsOfRole[_roleIndx2String[i]];
 		}
+		require(totalRole == _playerCount, "numbers of role != numbers of players");
+
+		for (uint j = 0; j < totalIteration; j++) 
+		{
+			int  tempMax = -1;
+			uint tempPos = 2**256-1;
+			curRoleIndex = j % _numRoles; // //0->police; 1->citi; 2->killer
+			if (numRoleAssigned[curRoleIndex] >= _spotsOfRole[_roleIndx2String[int(curRoleIndex)]])
+			{
+				continue;
+			}
+			for (uint i = 0; i < _playerCount; i++) {
+				if (!isAssignedRole[i] && (_matrix[i][matrixColumn] > tempMax))
+				{
+					tempMax = _matrix[i][matrixColumn];
+					tempPos = i;
+				}
+			}
+			isAssignedRole[tempPos] = true;
+			IPlayer p = IPlayerFactory.Create(_roleIndx2String[int(curRoleIndex)]);
+			p.SetId(tempPos);
+			res[tempPos] = p;
+			numRoleAssigned[curRoleIndex]++;
+			matrixColumn = (matrixColumn + 1) % _numRoles;
+
+		}
+		_isClassActive = false;
+		return res;
 	}
 
 
