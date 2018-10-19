@@ -1,7 +1,5 @@
 pragma solidity ^0.4.25;
 
-import './IterableMapping.sol';
-
 
 /////////////////////// Main Function To Be ReModeled ////////////////////
 
@@ -337,11 +335,9 @@ contract ParticipatableBase is IParticipatable
 
 contract Clock
 {
-	uint _day = 0;
-
+	uint _day               = 0;
 	uint _realTimeInSeconds = 0;
 
-	
 	function  GetNth_day() public returns(uint)
 	{
 		return _day;
@@ -351,15 +347,12 @@ contract Clock
 	{
 		_day++;
 	}
+
 	function  GetRealTimeInSeconds() public returns(uint)
 	{
 		return now;
 	}
-	
-	
-	
 }
-
 
 
 contract IInitializable
@@ -374,41 +367,25 @@ contract ChatMessage
 	int    public  byWho;
 	string public  message;
 
-
-
-	constructor  (uint ts, int bw,  string memory msg ) public
+	constructor (uint ts, int bw,  string memory msg ) public
 	{
-		timestamp=ts;
-		byWho=bw;
-		message=msg;
-	}
-
-	
-
+		timestamp = ts;
+		byWho     = bw;
+		message   = msg;
+	}	
 }
-
-
-
-
-
 
 
 contract TimeLimitable is IClock, ITimeLimitable
 {
-
-
-	IClock _clock;
-
-
+	IClock  _clock;
+	uint    _startingTimeInSeconds;
+	uint    _timeLimitInSeconds;
 
 	constructor(IClock clock) public
 	{
 		_clock = clock;
 	}
-
-	uint _startingTimeInSeconds;
-	uint _timeLimitInSeconds;
-
 
 	function  GetNth_day() public returns(uint)
 	{
@@ -419,20 +396,22 @@ contract TimeLimitable is IClock, ITimeLimitable
 	{
 		_clock.DayPlusPlus();
 	}
+
 	function  GetRealTimeInSeconds() public returns(uint)
 	{
 		return _clock.GetRealTimeInSeconds();
 	}
 
-
 	function  IsOverTime() public returns(bool)
 	{
-		return GetRealTimeInSeconds() >= _startingTimeInSeconds + _timeLimitInSeconds;
+		return GetRealTimeInSeconds() >= (_startingTimeInSeconds + _timeLimitInSeconds);
 	}
+
 	function  SetTimeLimit(uint secondss) public 
 	{
 		_timeLimitInSeconds = secondss;
 	}
+
 	function  IncrementTimeLimit(int secondss) public 
 	{
 		if (secondss < 0)
@@ -444,31 +423,22 @@ contract TimeLimitable is IClock, ITimeLimitable
 				return;
 			}
 		}
-
-
 		_timeLimitInSeconds = uint(int(_timeLimitInSeconds) + secondss);
 	}
+
 	function  SetTimerOn() public 
 	{
 		_startingTimeInSeconds = _clock.GetRealTimeInSeconds();
 	}
-
 }
-
-
-
-
-
 
 
 //this class is unfinished...!!!!!!!!!!
 contract Ballot is IBallot, ParticipatableBase
 {
-	mapping(address=>IPlayer)  _playerVotedwho;
-
-	mapping(address=> uint)	 _votesReceivedByPlayer;
-
-	IPlayerManager _playerManager;
+	mapping(address => IPlayer)  _playerVotedwho;
+	mapping(address => uint)	 _votesReceivedByPlayer;
+	IPlayerManager               _playerManager;
 
 	constructor (IPlayerManager playerManager) public
 	{
@@ -488,8 +458,6 @@ contract Ballot is IBallot, ParticipatableBase
 		}
 	}
 
-
-
 	function DidVote(IPlayer player) public  returns(bool);
 	function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool);
 
@@ -500,18 +468,6 @@ contract Ballot is IBallot, ParticipatableBase
 	function IsEveryVotableOnesVoted() public returns(bool);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 contract ChatLog is ParticipatableBase, IChatLog
@@ -526,10 +482,6 @@ contract ChatLog is ParticipatableBase, IChatLog
 		//_messages = new List<ChatMessage>();
 		_messageCount=0;
 	}
-
-
-
-	
 
 	function  TryChat(IPlayer player, string memory message) public returns(bool)
 	{
@@ -591,7 +543,7 @@ contract ChatLog is ParticipatableBase, IChatLog
 
 
 /*
- * The following bellow should be categorized as 'abstract contract'
+ * The following contracts should be categorized as 'abstract contract'
  * rather than 'interface' since interface cannot inherit any other 
  * contract or interface.
  */
@@ -668,7 +620,6 @@ contract IDependencyInjection
 	function SceneDAY_PKFactory() public returns(SceneDAY_PK);
 	function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE);
 	function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER);
-
 	function Initialize() public;
 	function LateInitiizeAfterRoleBide() public;
 }
@@ -684,17 +635,15 @@ contract IGameController
 
 contract IParticipatable
 {
-	function  GetParticipants() public returns(IPlayer[] memory);
-	function  EnableParticipant(IPlayer player)  public ;
-	function  DisableParticipant(IPlayer player) public ;
-	function  DisableAllParticipants() public ;
-	function  EnableAllParticipants() public ;
-
-	function  IInitializable(IPlayer[] memory players) public ;
-
-	function  IsRegisteredParticipant(IPlayer player) public  returns(bool);
-	function  CanParticipate(IPlayer player) public  returns(bool);
-	function  ParticipatablePlayersCount()  public returns(uint);
+	function GetParticipants() public returns(IPlayer[] memory);
+	function EnableParticipant(IPlayer player)  public ;
+	function DisableParticipant(IPlayer player) public ;
+	function DisableAllParticipants() public ;
+	function EnableAllParticipants() public ;
+	function IInitializable(IPlayer[] memory players) public ;
+	function IsRegisteredParticipant(IPlayer player) public  returns(bool);
+	function CanParticipate(IPlayer player) public  returns(bool);
+	function ParticipatablePlayersCount()  public returns(uint);
 }
 
 
@@ -704,7 +653,6 @@ contract IPlayer is ISpokenEvent
 	function GetVotingWeightAsPercent() public returns(uint);
 	function GetRole() public returns(string memory);
 	function GetId() public returns(uint);
-
 	function SetId(uint id) public ;
 	function GetIsAlive() public returns(bool);
 	function KillMe() public ;
