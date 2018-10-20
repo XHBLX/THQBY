@@ -952,7 +952,6 @@ contract SceneNIGHT_KILLER is THQBY_Scene
 
 // To Do List:
 
-//		SceneNIGHT_POLICE
 //		SceneManagerBase
 //		SequentialChatter
 //		THQBYPlayerInterface
@@ -1008,6 +1007,84 @@ contract SceneNIGHT_POLICE is THQBY_Scene
 
 }
 
+
+// This is an abstract contract
+contract SceneManagerBase is ITimeLimitable, ITimeLimitForwardable, ISceneManager, ISceneManagerFriendToScene
+{
+	IScene _currentScene;
+
+	constructor()
+	{
+
+	}
+
+	event movedForward(string);
+	event sceneUpdated(string);
+
+	function Initialize() public;
+
+	function DayPlusPlus() public
+	{
+		_currentScene.DayPlusPlus();
+	}
+
+	function GetNth_day() public returns(uint)
+	{
+		return _currentScene.GetNth_day();
+	}
+
+	function GetRealTimeInSeconds() public returns(uint)
+	{
+		return _currentScene.GetRealTimeInSeconds();
+	}
+
+	function IsOverTime() public returns (bool)
+	{
+		return _currentScene.IsOverTime();
+	}
+
+	function SetTimeLimit(uint seconds) 
+	{
+		_currentScene.SetTimeLimit(seconds);
+	}
+
+	function SetTimerOn()
+	{
+		_currentScene.SetTimerOn();
+	}
+
+	function TryMoveForward(IPlayer player) public returns (bool)
+	{
+		return _currentScene.TryMoveForward(player);
+	}
+
+	function OnChangeScene() public
+	{
+		//	Dafei confused by the operation below
+		//  doesn't know how delegate in even works
+
+		// movedForward?.Invoke();
+		// sceneUpdated?.Invoke();
+	}
+
+	function GetCurrentScene() public returns (IScene)
+	{
+		return _currentScene;
+	}
+
+	function MoveForwardToNewScene(IScene newScene) 
+	{
+		_currentScene = newScene;
+		_currentScene.Refresh();
+		OnChangeScene();
+	}
+
+	function IncrementTimeLimit(uint seconds)
+	{
+		_currentScene.IncrementTimeLimit(seconds);
+	}
+
+}
 
 
 
