@@ -837,7 +837,47 @@ contract THQBY_Scene is Scene
 
 contract SceneDAY is THQBY_Scene
 {
+	constructor (IBallot ballot
+			   , IChatter chatter
+			   , ITimeLimitable timeLimitable
+			   , ITHQBY_Settings settings) 
+		public
+	{
+		_ballot = ballot;
+		_chatter = chatter;
+		_timeLimitable = timeLimitable;
+		_settings = settings;
+		_sceneName = _settings.DAY();
+	}
 
+	function MoreVotingResultHandler(IPlayer[] result)
+	{
+		_sceneManager.MoveForwardToNewScene(_scenePK);
+		//must do after scene change
+		_scenePK.Chatter().DisableAllParticipants();
+		for (int i = 0; i < result.Length; i++)
+		{
+			IPlayer player = result[i];
+			_scenePK.Chatter().EnableParticipant(player);
+		}
+	}
+
+	function OneVotingResultHandler(IPlayer result)
+	{
+		KillSomebody(result);
+		GotoKillerScene();
+	}
+
+	function GotoKillerScene() private
+	{
+		_sceneManager.MoveForwardToNewScene(_sceneKiller);
+	}
+
+	function ZeroVotingResultHandler() public 
+	{
+		GotoKillerScene();
+	}
+	
 }
 
 
