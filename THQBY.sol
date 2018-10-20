@@ -611,7 +611,6 @@ contract ChatLog is ParticipatableBase, IChatLog
 
 // To Do List:
 
-// 		SceneDAY
 // 		SceneDAY_PK
 //		SceneNIGHT_KILLER
 //		SceneNIGHT_POLICE
@@ -622,7 +621,6 @@ contract ChatLog is ParticipatableBase, IChatLog
 //		THQBY_PLayer
 //		THQBY_PlayerFactory
 //		THQBY_PlayerManager
-//		THQBY_Scene
 // 		THQBY_SceneManager
 //		THQBY_Settings
 	
@@ -835,10 +833,11 @@ contract THQBY_Scene is Scene
 
 }
 
+
 contract SceneDAY is THQBY_Scene
 {
 	constructor (IBallot ballot
-			   , IChatter chatter
+			   , ISequentialChatter chatter
 			   , ITimeLimitable timeLimitable
 			   , ITHQBY_Settings settings) 
 		public
@@ -877,7 +876,46 @@ contract SceneDAY is THQBY_Scene
 	{
 		GotoKillerScene();
 	}
-	
+
+}
+
+
+contract SceneDAY_PK is THQBY_Scene
+{
+	constructor (IBallot ballot
+			   , ISequentialChatter chatter
+			   , ITimeLimitable timeLimitable
+			   , ITHQBY_Settings settings) 
+		public
+	{
+		_ballot = ballot;
+		_chatter = chatter;
+		_timeLimitable = timeLimitable;
+		_settings = settings;
+		_sceneName = _settings.DAY();
+	}
+
+	function MoreVotingResultHandler(IPlayer[] result) public
+	{
+		GotoKillerScene();
+	}
+
+	function OneVotingResultHandler(IPlayer result)
+	{
+		KillSomebody(result);
+		GotoKillerScene();
+	}
+
+	function ZeroVotingResultHandler() public 
+	{
+		GotoKillerScene();
+	}
+
+	function GotoKillerScene() private
+	{
+		_sceneManager.MoveForwardToNewScene(_sceneKiller);
+	}
+
 }
 
 
