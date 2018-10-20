@@ -465,37 +465,89 @@ contract Ballot is IBallot, ParticipatableBase, IParticipatable
 		{
 			return false;
 		}
-		return 
-
+		return IParticipatable.CanParticipate(player);
 	}
 
 	function GetWinners() public returns(IPlayer[]) 
 	{
-
+		IPlayer[] ans;
+		uint      max  = 0;
+		for (uint i = 0; i < _players.length; i++) 
+		{
+			uint maxCandidate = _votesReceivedByPlayer[_pLayers[i]];
+			if (maxCandidate > max)
+			{
+				max = maxCandidate;
+				ans = new IPlayer[];
+				ans.push(_players[i]);
+			} 
+			else if (maxCandidate == max)
+			{
+				ans.push(_pLayers[i]);
+			}
+		}
+		return ans;
 	}
 
 	function IsEveryVotableOnesVoted() public returns(bool)
-	{
-
+	{	
+		return VotedPlayerCount() == ParticipatablePlayersCount();
 	}
 
 	function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool)
-	{
-
+	{	
+		if (DidVote(byWho))
+		{
+			return false;
+		}
+		bool voteSuccess = CanParticipate(byWho);
+		if (voteSuccess) 
+		{
+			_playerVotedwho[byWho]._votedIPlayer = toWho;
+			_votesReceivedByPlayer[toWho] += byWho.GetVotingWeightAsPercent();
+		}
+		return voteSuccess;
 	}
 
 	function VotedPlayerCount() public returns(uint)
 	{
-
+		uint ans = 0;
+		for (uint i = 0; i < _players.length; i++)
+			{
+				IPlayer player = _players[i];
+				if (DidVote(player))
+				{
+					ans++;
+				}
+			}
+			return ans;
 	}
 
-	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
+	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer)
+	{
+		if (_playerVotedwho[player]._voted == true) 
+		{
+			return _playerVotedwho[player]._votedIPlayer;
+		} else {
+			return 0;
+		}
+	}
 
-	function DidVote(IPlayer player) public  returns(bool);
+	function DidVote(IPlayer player) public returns(bool)
+	{
+		return WhoDidThePlayerVote(player) != 0;
+	}
 
-	function IsSoloWinder() public returns(bool);
+	function IsSoloWinder() public returns(bool)
+	{
+		return GetWinners().length == 1;
+	}
 
-	function IsZeroWinders() public returns(bool);	
+	function IsZeroWinders() public returns(bool)
+	{
+		return GetWinners().length == 0;
+	}	
+	
 }
 
 
