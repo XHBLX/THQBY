@@ -430,7 +430,6 @@ contract TimeLimitable is IClock, ITimeLimitable
 }
 
 
-//this class is being updated
 contract Ballot is IBallot, ParticipatableBase, IParticipatable
 {	
 	struct IPlayerVoted {
@@ -596,9 +595,6 @@ contract ChatLog is ParticipatableBase, IChatLog
 	function  PrintSystemMessage(string memory message ) public
 	{
 		ChatMessage chatMessage = new ChatMessage(GetTimeAsSeconds(),-1,message);
-
-		
-
 		PushMessage(chatMessage);
 	}
 
@@ -606,7 +602,6 @@ contract ChatLog is ParticipatableBase, IChatLog
 	function PushMessage(ChatMessage message) private
 	{
 		_messages.push(message);
-
 		_messageCount++;
 	}
 
@@ -615,6 +610,7 @@ contract ChatLog is ParticipatableBase, IChatLog
 // 除了上面的 RoleBidderBase, THQBYRoleBidder 还有没有实现
 
 // To Do List:
+//      Scene
 // 		SceneDAY
 // 		SceneDAY_PK
 //		SceneNIGHT_KILLER
@@ -630,6 +626,163 @@ contract ChatLog is ParticipatableBase, IChatLog
 // 		THQBY_SceneManager
 //		THQBY_Settings
 	
+// This is also an Abstract contract
+contract Scene is ITimeLimitable, IScene, IPrivateScene 
+{
+	uint                       roundTime       = 60 seconds;
+	IBallot                    _ballot;
+	IChatter                   _chatter;
+	ITimeLimitable             _timeLimitable;
+	ISceneManagerFriendToScene _sceneManager;
+	ITHQBY_Settings            _settings;
+	string                     _sceneName;
+
+	// public event Action movedForward;
+	event                      movedForward(string);
+	event                      print(string);
+
+	constructor(IBallot ballot, IChatter chatter, ITimeLimitable timeLimitable, ITHQBY_Settings settings)
+		public
+	{
+		_ballot = ballot;
+		_chatter = chatter;
+		_timeLimitable = timeLimitable;
+		_settings = settings;
+	}
+
+	function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool);
+	function ZeroVotingResultHandler() public;
+	function OneVotingResultHandler(IPlayer result) public;
+	function MoreVotingResultHandler(IPlayer[] result) public;
+
+
+	function Ballot() public returns(IBallot)
+	{
+		return _ballot;
+	}
+
+	function Chatter() public returns(IChatter)
+	{
+		returns _chatter;
+	}
+
+	function DayPlusPlus() public 
+	{
+		_timeLimitable.DayPlusPlus();
+	}
+
+
+	function GetNth_day() public returns(uint)
+	{
+		_timeLimitable.GetNth_day();
+	}
+
+	function GetRealTimeInSeconds() public returns(uint)
+	{
+		return _timeLimitable.GetRealTimeInSeconds();
+	} 
+
+	function GetSceneName() public returns (string)
+	{
+		return _sceneName;
+	}
+
+	function Initialize(ISceneManagerFriendToScene sceneManager, IPlayer[] participants)
+	{
+		_sceneManager = sceneManager;
+		_ballot.Initialize(participants);
+		_chatter.Initialize(participants);
+	}
+
+	function IsOverTime() public returns (bool)
+	{
+		return _timeLimitable.IsOverTime();
+	}
+
+	function SetTimeLimit(uint seconds) public 
+	{
+		_timeLimitable.SetTimeLimit(seconds);
+	}
+
+	function SetTimerOn() public 
+	{
+		_timeLimitable.SetTimerOn();
+	}
+
+	function TryMoveForward(IPlayer player) public returns(bool)
+	{
+		if (IsOverTime())
+		{
+			MoveForward();
+			return true;
+		}
+		else if (DoesPlayerHavePrivilageToMoveForward(player))
+		{
+			MoveForward();
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	function MoveForward() public 
+	{
+		int votingCount = VotingResultCount();
+		if (votingCount == 0)
+		{
+			ZeroVotingResultHandler();
+		}
+		else if (votingCount == 1)
+		{
+			OneVotingResultHandler(VotingResult()[0]);
+		}
+		else 
+		{
+			MoreVotingResultHandler(VotingResult());	
+		}
+	}
+
+	function VotingResult() public returns(IPlayer[])
+	{
+		return Ballot().GetWinners();
+	}
+
+	function VotingResultCount() returns(int)
+	{
+		return VotingResult().length;
+	}
+
+	function KillSomebody(IPlayer somebody) public
+	{
+		somebody.KillMe();
+		PrintMessagePlayerDead(somebody);
+	}
+
+	function PrintMessagePlayerDead(IPlayer somebody) public 
+	{
+		// However, event is actually different to printSystemMessage in C#
+		_chatter.PrintSystemMessage("______________________");
+		_chatter.PrintSystemMessage("Killed Play with ID=");
+		_chatter.PrintSystemMessage(someobdy.GetId().ToString());
+		_chatter.PrintSystemMessage("______________________");
+	}
+
+	function IncrementTimeLimit(int seconds) public
+	{
+		_timeLimitable.IncrementTimeLimit(seconds);
+	}
+
+	function Refresh() public
+	{
+		_chatter.SetTimeLimit(roundTime);
+		_timeLimitable.SetTimeLimit(roundTime * _ballot.ParticipatablePlayersCount() + roundTime);
+		SetTimerOn();
+	}
+
+}
+
 
 
 
