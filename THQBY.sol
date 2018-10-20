@@ -950,22 +950,7 @@ contract SceneNIGHT_KILLER is THQBY_Scene
 
 }
 
-// To Do List:
 
-//      Chatter
-//      DependencyInjection
-//      Player
-//      PlayerFactoryBase
-//      PlayerManager
-//		SequentialChatter
-//      RoleBidder
-//		THQBYPlayerInterface
-//		THQBYRoleBidder4TestingOnly	
-//		THQBY_PLayer
-//		THQBY_PlayerFactory
-//		THQBY_PlayerManager
-// 		THQBY_SceneManager
-//		THQBY_Settings
 
 contract SceneNIGHT_POLICE is THQBY_Scene
 {
@@ -1092,6 +1077,134 @@ contract SceneManagerBase is ITimeLimitable, ITimeLimitForwardable, ISceneManage
 }
 
 
+contract Chatter is ITimeLimitable, IChatable, IChatLog, IChatter
+{
+	ITimeLimitable _timeLimitable;
+	IChatLog       _chatLog;
+
+	constructor (ITimeLimitable timeLimitable , IChatLog chatLog)
+	{
+		_timeLimitable = timeLimitable;
+		_chatLog = chatLog;
+	}
+
+	// public event Action<uint, IPlayer, string> eventSpoken
+	// 	{
+	// 		add
+	// 		{
+	// 			_chatLog.eventSpoken += value;
+	// 		}
+
+	// 		remove
+	// 		{
+	// 			_chatLog.eventSpoken -= value;
+	// 		}
+	// 	}
+
+	function CanParticipate(IPlayer player) public returns(bool)
+	{
+		return _chatLog.CanParticipate(player);
+	}
+
+	function DayPlusPlus() public
+	{
+		_timeLimitable.DayPlusPlus();
+	}
+
+	function DisableAllParticipants() public
+	{
+		_chatLog.DisableAllParticipants();
+	}
+
+	function DisableParticipant(IPlayer player) public 
+	{
+		_chatLog.DisableParticipant(player);
+	}
+
+	function EnableAllParticipants()
+	{
+		_chatLog.EnableAllParticipants();
+	}
+
+	function EnableParticipant(IPlayer player)
+	{
+		_chatLog.EnableParticipant(player);
+	}
+
+	function GetAllMessages() public returns(ChatMessage[])
+	{
+		return _chatLog.GetAllMessages();
+	}
+
+	function GetNewestMessage() public returns(ChatMessage)
+	{
+		return _chatLog.GetNewestMessage();
+	}
+
+	function GetNth_day() public returns(uint)
+	{
+		return _timeLimitable.GetNth_day();
+	}
+
+	function GetParticipants() public returns(IPlayer[])
+	{
+		return _chatLog.GetParticipants();
+	}
+
+	function GetRealTimeInSeconds() public returns(uint)
+	{
+		return _timeLimitable.GetRealTimeInSeconds();
+	}
+
+	function IncrementTimeLimit(int seconds) public
+	{
+		_timeLimitable.IncrementTimeLimit(seconds);
+	}
+
+	function Initialize(IPlayer[] participants)
+	{
+		_chatLog.Initialize(participants);
+	}
+
+	function IsOverTime() public returns(bool)
+	{
+		return _timeLimitable.IsOverTime();
+	}
+
+	function IsRegisteredParticipant(IPlayer player) public returns(bool)
+	{
+		return _chatLog.IsRegisteredParticipant(player);
+	}
+
+	function ParticipatablePlayersCount() public returns(uint)
+	{
+		return _chatLog.ParticipatablePlayersCount();
+	}
+
+	function PrintSystemMessage(string message)
+	{
+		_chatLog.PrintSystemMessage(message);
+	}
+
+	function SetTimeLimit(uint seconds) public 
+	{
+		_timeLimitable.SetTimeLimit(seconds);
+	}
+
+	function SetTimerOn() public 
+	{
+		_timeLimitable.SetTimerOn();
+	}
+
+	function TryChat(IPlayer player, string message) public returns (bool)
+	{
+		return _chatLog.TryChat(player, message);
+	}
+
+}
+
+
+
 contract SequentialChatter is Chatter, ISequentialChatter
 {
 	uint           _onePlayerSpeakingTime = 60 seconds;
@@ -1107,6 +1220,27 @@ contract SequentialChatter is Chatter, ISequentialChatter
 
 	}
 }
+
+
+// To Do List:
+
+//      Chatter
+//      DependencyInjection
+//      Player
+//      PlayerFactoryBase
+//      PlayerManager
+//		SequentialChatter
+//      RoleBidder
+//		THQBYPlayerInterface
+//		THQBYRoleBidder4TestingOnly	
+//		THQBY_PLayer
+//		THQBY_PlayerFactory
+//		THQBY_PlayerManager
+// 		THQBY_SceneManager
+//		THQBY_Settings
+
+
+
 
 
 
