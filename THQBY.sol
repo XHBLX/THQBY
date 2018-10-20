@@ -290,7 +290,7 @@ contract ParticipatableBase is IParticipatable
 		}
 	}
 
-	function  IInitializable(IPlayer[] memory players) public 
+	function Initializable(IPlayer[] memory players) public 
 	{
 		_players = players;
 
@@ -352,12 +352,6 @@ contract Clock
 	{
 		return now;
 	}
-}
-
-
-contract IInitializable
-{
-	function Initialize() public;
 }
 
 
@@ -433,40 +427,75 @@ contract TimeLimitable is IClock, ITimeLimitable
 }
 
 
-//this class is unfinished...!!!!!!!!!!
-contract Ballot is IBallot, ParticipatableBase
-{
-	mapping(address => IPlayer)  _playerVotedwho;
-	mapping(address => uint)	 _votesReceivedByPlayer;
-	IPlayerManager               _playerManager;
+//this class is being updated
+contract Ballot is IBallot, ParticipatableBase, IParticipatable
+{	
+	struct IPlayerVoted {
+		bool     _voted;
+		IPlayer  _votedIPlayer;
+	}
+
+	mapping(IPlayer => IPlayerVoted)  _playerVotedwho;
+	mapping(IPlayer => uint)	      _votesReceivedByPlayer;
+	IPlayerManager                    _playerManager;
 
 	constructor (IPlayerManager playerManager) public
 	{
-		_playerManager=playerManager;
+		_playerManager = playerManager;
 	}
 
-	function Initialize(IPlayer[] participants)
+	// Function overriden
+	function Initializable(IPlayer[] participants)
 	{
-		base.Initialize(participants);
-		_playerVotedwho = new Dictionary<IPlayer, IPlayer>();
-		_votesReceivedByPlayer = new Dictionary<IPlayer, uint>();
-		var allplayers = _playerManager.GetAllPlayers();
-		for (int i = 0; i < allplayers.Length; i++)
+		// Here modifying the fucnction upon logic, while not confirmed yet.
+		ParticipatableBase.Initializable(participants);
+		
+		IPlayer[] allplayers = _playerManager.GetAllPlayers();
+		for (uint i = 0; i < allplayers.length; i++)
 		{
 			_votesReceivedByPlayer[allplayers[i]] = 0;
-			_playerVotedwho[allplayers[i]] = null;
+			_playerVotedwho[allplayers[i]]._voted = false;
 		}
 	}
 
-	function DidVote(IPlayer player) public  returns(bool);
-	function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool);
+	// Function overriden
+	function CanParticipate(IPlayer player) public
+	{
+		if (!player.GetIsAlive())
+		{
+			return false;
+		}
+		return 
 
-	function GetWinners() public returns(IPlayer[] memory);
+	}
+
+	function GetWinners() public returns(IPlayer[]) 
+	{
+
+	}
+
+	function IsEveryVotableOnesVoted() public returns(bool)
+	{
+
+	}
+
+	function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool)
+	{
+
+	}
+
+	function VotedPlayerCount() public returns(uint)
+	{
+
+	}
+
+	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
+
+	function DidVote(IPlayer player) public  returns(bool);
 
 	function IsSoloWinder() public returns(bool);
-	function IsZeroWinders() public returns(bool);
-	function IsEveryVotableOnesVoted() public returns(bool);
 
+	function IsZeroWinders() public returns(bool);	
 }
 
 
@@ -489,19 +518,10 @@ contract ChatLog is ParticipatableBase, IChatLog
 		{
 			return false;
 		}
-
-
 		ChatMessage chatMessage = new ChatMessage(GetTimeAsSeconds(),int(player.GetId()), message);
-
-
 		PushMessage(chatMessage);
-
 		return true;
 	}
-
-
-
-
 
 	function GetTimeAsSeconds() private returns(uint) 
 	{
@@ -582,6 +602,12 @@ contract IChatable
 
 contract IChatter is IChatLog, ITimeLimitable, IInitializableIPlayerArr
 {
+}
+
+
+contract IInitializable
+{
+	function Initialize() public;
 }
 
 
@@ -728,7 +754,7 @@ contract ISceneManagerFriendToScene is ISceneManager
 contract ISpokenEvent
 {
 	/// Occurs when event spoken. arguments are timestamp, player, message.
-	event eventSpoken(uint timestamp, Iplayer player, string message);
+	event eventSpoken(uint timestamp, IPlayer player, string message);
 }
 
 
