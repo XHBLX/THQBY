@@ -952,8 +952,13 @@ contract SceneNIGHT_KILLER is THQBY_Scene
 
 // To Do List:
 
-//		SceneManagerBase
+//      Chatter
+//      DependencyInjection
+//      Player
+//      PlayerFactoryBase
+//      PlayerManager
 //		SequentialChatter
+//      RoleBidder
 //		THQBYPlayerInterface
 //		THQBYRoleBidder4TestingOnly	
 //		THQBY_PLayer
@@ -1084,6 +1089,23 @@ contract SceneManagerBase is ITimeLimitable, ITimeLimitForwardable, ISceneManage
 		_currentScene.IncrementTimeLimit(seconds);
 	}
 
+}
+
+
+contract SequentialChatter is Chatter, ISequentialChatter
+{
+	uint           _onePlayerSpeakingTime = 60 seconds;
+	IPlayerManager _playerManager;
+	IPlayer        _speakingPlayer;
+	int            _spokenPlayersCount    = -1;
+	int            _speakingPlayerIndex   = -1;
+
+	constructor (ITimeLimitable timeLimitable
+		       , IChatLog chatLog
+			   , IPlayerManager playerManage)
+	{
+
+	}
 }
 
 
