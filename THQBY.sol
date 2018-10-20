@@ -1,3 +1,7 @@
+/*
+ * OOP implementation of THQBY in Solidity
+ */
+
 pragma solidity ^0.4.25;
 
 
@@ -246,7 +250,6 @@ contract RoleBidderBase is IRoleBidder
 				_matrix[i][j] = -1;
 			}
 		}
-
 	}
 
 }
@@ -547,7 +550,7 @@ contract Ballot is IBallot, ParticipatableBase, IParticipatable
 	{
 		return GetWinners().length == 0;
 	}	
-	
+
 }
 
 
@@ -609,6 +612,25 @@ contract ChatLog is ParticipatableBase, IChatLog
 
 }
 
+// 除了上面的 RoleBidderBase, THQBYRoleBidder 还有没有实现
+
+// To Do List:
+// 		SceneDAY
+// 		SceneDAY_PK
+//		SceneNIGHT_KILLER
+//		SceneNIGHT_POLICE
+//		SceneManagerBase
+//		SequentialChatter
+//		THQBYPlayerInterface
+//		THQBYRoleBidder4TestingOnly	
+//		THQBY_PLayer
+//		THQBY_PlayerFactory
+//		THQBY_PlayerManager
+//		THQBY_Scene
+// 		THQBY_SceneManager
+//		THQBY_Settings
+	
+
 
 
 
@@ -622,6 +644,29 @@ contract ChatLog is ParticipatableBase, IChatLog
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
 
+pragma solidity ^0.4.25;
+
+
+contract IVoteHistory
+{
+	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
+}
+
+
+contract IParticipatable
+{
+	function GetParticipants() public returns(IPlayer[] memory);
+	function EnableParticipant(IPlayer player)  public ;
+	function DisableParticipant(IPlayer player) public ;
+	function DisableAllParticipants() public ;
+	function EnableAllParticipants() public ;
+	function IInitializable(IPlayer[] memory players) public ;
+	function IsRegisteredParticipant(IPlayer player) public  returns(bool);
+	function CanParticipate(IPlayer player) public  returns(bool);
+	function ParticipatablePlayersCount()  public returns(uint);
+}
+
+
 contract IBallot is IVoteHistory, IParticipatable
 {
 	function DidVote(IPlayer player) public returns(bool);
@@ -633,24 +678,25 @@ contract IBallot is IVoteHistory, IParticipatable
 }
 
 
-contract IVoteHistory
+contract IChatable
 {
-	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
+	function TryChat(IPlayer player, string memory message) public returns(bool);
+}
+
+contract ISpokenEvent
+{
+	/// Occurs when event spoken. arguments are timestamp, player, message.
+	event eventSpoken(uint timestamp, IPlayer player, string message);
 }
 
 
 contract IChatLog is IParticipatable, IChatable, ISpokenEvent
 {
-	function GetAllMessages() public returns(ChatMessage[] memory);
+	function GetAllMessages() public returns(ChatMessage[]);   // havent realized ChatMessage
 	function GetNewestMessage() public returns(ChatMessage );
 	function PrintSystemMessage(string memory message) public ;
 }
 
-
-contract IChatable
-{
-	function TryChat(IPlayer player, string memory message) public returns(bool);
-}
 
 contract IChatter is IChatLog, ITimeLimitable, IInitializableIPlayerArr
 {
@@ -707,21 +753,7 @@ contract IGameController
 {
 	function GetLivingPlayers() public returns(IPlayer[] memory);
 	function GetDeadPlayers() public returns(IPlayer[] memory);
-	function RegisterNewPlayerAndReturnID(object address) public returns(uint);
-}
-
-
-contract IParticipatable
-{
-	function GetParticipants() public returns(IPlayer[] memory);
-	function EnableParticipant(IPlayer player)  public ;
-	function DisableParticipant(IPlayer player) public ;
-	function DisableAllParticipants() public ;
-	function EnableAllParticipants() public ;
-	function IInitializable(IPlayer[] memory players) public ;
-	function IsRegisteredParticipant(IPlayer player) public  returns(bool);
-	function CanParticipate(IPlayer player) public  returns(bool);
-	function ParticipatablePlayersCount()  public returns(uint);
+	function RegisterNewPlayerAndReturnID(address player) public returns(uint); // object address
 }
 
 
@@ -803,11 +835,7 @@ contract ISceneManagerFriendToScene is ISceneManager
 }
 
 
-contract ISpokenEvent
-{
-	/// Occurs when event spoken. arguments are timestamp, player, message.
-	event eventSpoken(uint timestamp, IPlayer player, string message);
-}
+
 
 
 contract ITHQBYPlayerInterface

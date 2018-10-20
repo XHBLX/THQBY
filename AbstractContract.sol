@@ -1,5 +1,26 @@
 pragma solidity ^0.4.25;
 
+
+contract IVoteHistory
+{
+	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
+}
+
+
+contract IParticipatable
+{
+	function GetParticipants() public returns(IPlayer[] memory);
+	function EnableParticipant(IPlayer player)  public ;
+	function DisableParticipant(IPlayer player) public ;
+	function DisableAllParticipants() public ;
+	function EnableAllParticipants() public ;
+	function IInitializable(IPlayer[] memory players) public ;
+	function IsRegisteredParticipant(IPlayer player) public  returns(bool);
+	function CanParticipate(IPlayer player) public  returns(bool);
+	function ParticipatablePlayersCount()  public returns(uint);
+}
+
+
 contract IBallot is IVoteHistory, IParticipatable
 {
 	function DidVote(IPlayer player) public returns(bool);
@@ -11,27 +32,34 @@ contract IBallot is IVoteHistory, IParticipatable
 }
 
 
-contract IVoteHistory
-{
-	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
-}
-
-
-contract IChatLog is IParticipatable, IChatable, ISpokenEvent
-{
-	function GetAllMessages() public returns(ChatMessage[] memory);
-	function GetNewestMessage() public returns(ChatMessage );
-	function PrintSystemMessage(string memory message) public ;
-}
-
-
 contract IChatable
 {
 	function TryChat(IPlayer player, string memory message) public returns(bool);
 }
 
+contract ISpokenEvent
+{
+	/// Occurs when event spoken. arguments are timestamp, player, message.
+	event eventSpoken(uint timestamp, IPlayer player, string message);
+}
+
+
+contract IChatLog is IParticipatable, IChatable, ISpokenEvent
+{
+	function GetAllMessages() public returns(ChatMessage[]);   // havent realized ChatMessage
+	function GetNewestMessage() public returns(ChatMessage );
+	function PrintSystemMessage(string memory message) public ;
+}
+
+
 contract IChatter is IChatLog, ITimeLimitable, IInitializableIPlayerArr
 {
+}
+
+
+contract IInitializable
+{
+	function Initialize() public;
 }
 
 
@@ -42,15 +70,12 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 }
 
 
+// this abstact contract should be added by field to implement 'null' case 
 contract IClock
 {
-	bool status;
-
-	function ToggleStatus() public;
 	function GetNth_day() public returns(uint);
 	function DayPlusPlus() public;
 	function GetRealTimeInSeconds() public returns(uint);
-
 }
 
 
@@ -73,7 +98,6 @@ contract IDependencyInjection
 	function SceneDAY_PKFactory() public returns(SceneDAY_PK);
 	function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE);
 	function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER);
-
 	function Initialize() public;
 	function LateInitiizeAfterRoleBide() public;
 }
@@ -83,24 +107,11 @@ contract IGameController
 {
 	function GetLivingPlayers() public returns(IPlayer[] memory);
 	function GetDeadPlayers() public returns(IPlayer[] memory);
-	function RegisterNewPlayerAndReturnID(object address) public returns(uint);
+	function RegisterNewPlayerAndReturnID(address player) public returns(uint); // object address
 }
 
 
-contract IParticipatable
-{
-	function  GetParticipants() public returns(IPlayer[] memory);
-	function  EnableParticipant(IPlayer player)  public ;
-	function  DisableParticipant(IPlayer player) public ;
-	function  DisableAllParticipants() public ;
-	function  EnableAllParticipants() public ;
 
-	function  IInitializable(IPlayer[] memory players) public ;
-
-	function  IsRegisteredParticipant(IPlayer player) public  returns(bool);
-	function  CanParticipate(IPlayer player) public  returns(bool);
-	function  ParticipatablePlayersCount()  public returns(uint);
-}
 
 
 contract IPlayer is ISpokenEvent
@@ -109,7 +120,6 @@ contract IPlayer is ISpokenEvent
 	function GetVotingWeightAsPercent() public returns(uint);
 	function GetRole() public returns(string memory);
 	function GetId() public returns(uint);
-
 	function SetId(uint id) public ;
 	function GetIsAlive() public returns(bool);
 	function KillMe() public ;
@@ -182,14 +192,6 @@ contract ISceneManagerFriendToScene is ISceneManager
 }
 
 
-contract ISpokenEvent
-{
-	/// Occurs when event spoken. arguments are timestamp, player, message.
-	event eventSpoken(uint timestamp, Iplayer player, string message);
-}
-
-
-
 contract ITHQBYPlayerInterface
 {
 	//starting game
@@ -224,6 +226,7 @@ contract ITHQBY_Settings
 	function  KILLER() public  returns(string memory);
 }
 
+
 contract ITimeLimitable is IClock
 {
 	function  IsOverTime() public returns(bool);
@@ -233,13 +236,8 @@ contract ITimeLimitable is IClock
 }
 
 
-
 contract ITimeLimitForwardable is ITimeLimitable
 {
 	event moveForward(Action); // ??? and I may in the future put all event in a seperate contract
 	function  TryMoveForward(IPlayer player) public returns(bool);
 }
-
-
-
-
