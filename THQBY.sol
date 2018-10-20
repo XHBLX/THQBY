@@ -607,22 +607,8 @@ contract ChatLog is ParticipatableBase, IChatLog
 
 }
 
-// 除了上面的 RoleBidderBase, THQBYRoleBidder 还有没有实现
 
-// To Do List:
 
-// 		SceneDAY_PK
-//		SceneNIGHT_KILLER
-//		SceneNIGHT_POLICE
-//		SceneManagerBase
-//		SequentialChatter
-//		THQBYPlayerInterface
-//		THQBYRoleBidder4TestingOnly	
-//		THQBY_PLayer
-//		THQBY_PlayerFactory
-//		THQBY_PlayerManager
-// 		THQBY_SceneManager
-//		THQBY_Settings
 	
 // This is also an Abstract contract
 contract Scene is ITimeLimitable, IScene, IPrivateScene 
@@ -917,6 +903,114 @@ contract SceneDAY_PK is THQBY_Scene
 	}
 
 }
+
+
+contract SceneNIGHT_KILLER is THQBY_Scene
+{
+	constructor (IBallot ballot
+			   , IChatter chatter
+			   , ITimeLimitable timeLimitable
+			   , ITHQBY_Settings settings) 
+		public
+	{
+		_ballot = ballot;
+		_chatter = chatter;
+		_timeLimitable = timeLimitable;
+		_settings = settings;
+	}
+
+	function MoreVotingResultHandler(IPlayer[] result) public
+	{
+		GotoKillerScene();
+	}
+
+	function OneVotingResultHandler(IPlayer result)
+	{
+		KillSomebody(result);
+		_sceneDay.KillSomebody(result);
+		GotoKillerScene();
+	}
+
+	function ZeroVotingResultHandler() public 
+	{
+		GotoKillerScene();
+	}
+
+	function GotoKillerScene() private
+	{
+		_sceneManager.MoveForwardToNewScene(_sceneKiller);
+	}
+
+	function Refresh() public
+	{
+		_chatter.SetTimeLimit(2 * roundTime);
+		_timeLimitable.SetTimeLimit(2 * roundTime);
+		SetTimerOn();
+	}
+
+}
+
+// To Do List:
+
+//		SceneNIGHT_POLICE
+//		SceneManagerBase
+//		SequentialChatter
+//		THQBYPlayerInterface
+//		THQBYRoleBidder4TestingOnly	
+//		THQBY_PLayer
+//		THQBY_PlayerFactory
+//		THQBY_PlayerManager
+// 		THQBY_SceneManager
+//		THQBY_Settings
+
+contract SceneNIGHT_POLICE is THQBY_Scene
+{
+	constructor (IBallot ballot
+			   , IChatter chatter
+			   , ITimeLimitable timeLimitable
+			   , ITHQBY_Settings settings) 
+		public
+	{
+		_ballot = ballot;
+		_chatter = chatter;
+		_timeLimitable = timeLimitable;
+		_settings = settings;
+	}
+
+	function GotoDayScene()
+	{
+		_sceneManager.MoveForwardToNewScene(_sceneDay);
+		DayPlusPlus();
+	}
+
+	function MoreVotingResultHandler(IPlayer[] result) public
+	{
+		GotoDayScene();
+	}
+
+	function OneVotingResultHandler(IPlayer result)
+	{
+		_chatter.PrintSystemMessage(result.GetRole());
+		GotoDayScene();
+	}
+
+	function ZeroVotingResultHandler() public 
+	{
+		GotoDayScene();
+	}
+
+	function Refresh() public
+	{
+		_chatter.SetTimeLimit(2 * roundTime);
+		_timeLimitable.SetTimeLimit(2 * roundTime);
+		SetTimerOn();
+	}
+
+}
+
+
+
+
 
 
 
