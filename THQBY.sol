@@ -610,7 +610,7 @@ contract ChatLog is ParticipatableBase, IChatLog
 // 除了上面的 RoleBidderBase, THQBYRoleBidder 还有没有实现
 
 // To Do List:
-//      Scene
+
 // 		SceneDAY
 // 		SceneDAY_PK
 //		SceneNIGHT_KILLER
@@ -633,8 +633,8 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 	IBallot                    _ballot;
 	IChatter                   _chatter;
 	ITimeLimitable             _timeLimitable;
-	ISceneManagerFriendToScene _sceneManager;
 	ITHQBY_Settings            _settings;
+	ISceneManagerFriendToScene _sceneManager;
 	string                     _sceneName;
 
 	// public event Action movedForward;
@@ -780,6 +780,63 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 		_timeLimitable.SetTimeLimit(roundTime * _ballot.ParticipatablePlayersCount() + roundTime);
 		SetTimerOn();
 	}
+
+}
+
+contract THQBY_Scene is Scene
+{
+	SceneDAY          _sceneDay;
+	SceneDAY_PK       _scenePK;
+	SceneNIGHT_KILLER _sceneKiller;
+	SceneNIGHT_POLICE _scecenPOLICE;
+
+	constructor (IBallot ballot
+			   , IChatter chatter
+			   , ITimeLimitable timeLimitable
+			   , ITHQBY_Settings settings) 
+		public
+	{
+		_ballot = ballot;
+		_chatter = chatter;
+		_timeLimitable = timeLimitable;
+		_settings = settings;
+	}
+
+	// setter
+	function Set_sceneDay(SceneDAY sceneDay) public
+	{
+		_sceneDay = sceneDay;
+	}
+
+	function Set__scenePK(SceneDAY scenePK) public
+	{
+		_scenePK = scenePK;
+	}
+
+	function Set_sceneKiller(SceneDAY sceneKiller) public
+	{
+		_sceneKiller = sceneKiller;
+	}
+
+	function Set_scecenPOLICE(SceneDAY scecenPOLICE) public
+	{
+		_scecenPOLICE = scecenPOLICE;
+	}
+
+	function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns (bool)
+	{
+		return _ballot.IsEveryVotableOnesVoted();
+	}
+
+	function KillSomebody(IPlayer someobdy) public
+	{
+		super.KillSomebody(someobdy);
+	}
+
+}
+
+contract SceneDAY is THQBY_Scene
+{
 
 }
 
