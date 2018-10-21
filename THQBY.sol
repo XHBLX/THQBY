@@ -1553,7 +1553,7 @@ contract DependencyInjection is IDependencyInjection
     }
 
     /*
-	 *   以下部分有待C#原文档进行修改
+	 *   该部分有待C#原文档进行修改
 	 *
 
 	public void Initialize()
@@ -1592,6 +1592,70 @@ contract DependencyInjection is IDependencyInjection
 	}
 }
 
+contract Player is IPlayer
+{
+	IChatLog          _chatLog;
+	IBallot           _ballot;
+
+	bool     internal _isAlive = true;
+	uint     internal _id;
+	string   internal _role;
+	uint     internal _votingWeight = 100;
+
+	constructor() 
+	{
+
+	}
+
+	/*
+	 *   该部分需参照C#原文档对应合约性质处理
+	 *
+	public event Action<uint, IPlayer, string> eventSpoken;
+
+	 */
+
+	function GetId() public returns(uint)
+	{
+		return _id;
+	}
+
+	function GetIsAlive() public returns(bool)
+	{
+		return _isAlive;
+	}
+
+	function GetRole() public returns(string)
+	{
+		return _role;
+	}
+
+	function GetVotingWeightAsPercent() public returns(uint)
+	{
+		return _votingWeight;
+	}
+
+	function KillMe() public
+	{
+		_isAlive = false;
+	}
+
+	function Speak(string message) public
+	{
+		_chatLog.TryChat(this, message);
+	}
+
+	function TryVote(uint playerID) public returns(bool)
+	{
+		assert("Vote is not implementable");
+		return false;
+	}
+
+	function SetId(uint id) public
+	{
+		_id = id;
+	}
+
+}
 
 
 
@@ -1599,7 +1663,6 @@ contract DependencyInjection is IDependencyInjection
 
 // To Do List:
 
-//      Player
 //      PlayerFactoryBase
 //      PlayerManager
 //      RoleBidder
