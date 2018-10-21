@@ -114,8 +114,7 @@ contract THQBYRoleBidder is RoleBidderBase
 }
 
 
-/// @dev This is also an abstract contract.
-/// SetSpotsOfRoles and InitRoles shall be tracked.
+/// @dev DN: This is an abstract contract.
 contract RoleBidderBase is IRoleBidder 
 {
 	IPlayerFactory               _playerFactory;
@@ -1553,32 +1552,53 @@ contract DependencyInjection is IDependencyInjection
     	return new THQBYPlayerInterface(id);
     }
 
-    function Initialize() public 
-    {
-    	
-    }
+    /*
+	 *   以下部分有待C#原文档进行修改
+	 *
 
+	public void Initialize()
+        {
+            //bid for 5 players (from previous test)
+            List<Tuple<uint, uint, uint>> lst = new List<Tuple<uint, uint, uint>>();
+            lst.Add(new Tuple<uint, uint, uint>(Convert.ToUInt32(10), Convert.ToUInt32(20), Convert.ToUInt32(30)));
+            lst.Add(new Tuple<uint, uint, uint>(Convert.ToUInt32(100), Convert.ToUInt32(20), Convert.ToUInt32(30)));
+            lst.Add(new Tuple<uint, uint, uint>(Convert.ToUInt32(10), Convert.ToUInt32(20), Convert.ToUInt32(33)));
+            lst.Add(new Tuple<uint, uint, uint>(Convert.ToUInt32(1), Convert.ToUInt32(1), Convert.ToUInt32(1)));
+            lst.Add(new Tuple<uint, uint, uint>(Convert.ToUInt32(11), Convert.ToUInt32(20), Convert.ToUInt32(35)));
 
+            //bid process
+            for (int i = 0; i < 5; i++)
+            {
+                THQBYPlayerInterface tHQBYPlayerInterface = tHQBYPlayerInterfaceFactory((uint)i);
+                tHQBYPlayerInterface.Bid(lst[i].Item1, lst[i].Item2, lst[i].Item3);
+                _tHQBYPlayerInterfaces[i] = tHQBYPlayerInterface;
+            }
+        }
 
+	 */
 
+	function LateInitiizeAfterRoleBide() public 
+	{
+		IPlayerFactory factory = PlayerFactoryFactory();
+        _tHQBY_Settings = SettingsFactory();
 
-
-
-
-
-
-
-
-
-
+        //assign roles
+        for (uint i = 0; i < 5; i++)
+        {
+            string thisRole = _tHQBYPlayerInterfaces[i].getRole();
+            _players[i] = factory.Create(thisRole);
+            _players[i].SetId(uint(i);
+        }
+	}
 }
+
+
 
 
 
 
 // To Do List:
 
-//      DependencyInjection
 //      Player
 //      PlayerFactoryBase
 //      PlayerManager
