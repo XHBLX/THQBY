@@ -432,6 +432,7 @@ contract TimeLimitable is IClock, ITimeLimitable
 
 contract Ballot is IBallot, ParticipatableBase, IParticipatable
 {	
+	// 对于部分需判断合约（类）的存在性而创建的structure
 	struct IPlayerVoted {
 		bool     _voted;
 		IPlayer  _votedIPlayer;
@@ -1336,29 +1337,19 @@ contract DependencyInjection is IDependencyInjection
     // For game play
 	IPlayer[]            private   _players;
 
-	// Instance
-	// 静态的instance我没有见过
-	// 但是在solidity里目前并没有静态static修饰词
-	// 文档里提到static已作为保留关键字，在未来会加入
-	// 而目前合适的做法应该是利用modifier，即只有指定地址可以对静态做生成和修改
-	// 
-	DependencyInjection  private   instance;
+	constructor() private
+	{
+
+	}
 
 	function Players public returns(IPlayer[])
 	{
 		return _players;
 	}
 
-	constructor() private
-	{
-
-	}
-
 	/*
 	 *   这部分有待C#原文档进行修改
-	 */
-
-    /*
+	 *
 
 	public static DependencyInjection Instance
         {
@@ -1380,7 +1371,7 @@ contract DependencyInjection is IDependencyInjection
 	// 
 	DependencyInjection  private   instance;
 
-	*/
+	 */
 
 	// AsTransient 
 	function BallotFactory() public returns(IBallot)
@@ -1390,7 +1381,189 @@ contract DependencyInjection is IDependencyInjection
     }
 
     // AsTransient
-    
+    function ChatLogFactory() public returns(IChatLog)
+    {
+    	IClock clock = ClockFactory();
+        return new ChatLog(clock);
+    }
+
+    //AsTransient
+    function ChatterFactory() public returns(IChatter)
+    {
+    	ITimeLimitable TimeLimitableFact = TimeLimitableFactory();
+        IChatLog chatLog = ChatLogFactory();
+        return new Chatter(TimeLimitableFact, chatLog);
+    }
+
+    //AsTransient
+    function SequentialChatterFactory() punlic returns(ISequentialChatter)
+    {
+    	ITimeLimitable TimeLimitableFact = TimeLimitableFactory();
+        IChatLog chatLog = ChatLogFactory();
+        IPlayerManager playerManager = PlayerManager();
+        return new SequentialChatter(TimeLimitableFact, chatLog, playerManager);
+    }
+
+    //AsSingle
+    function ClockFactory() public returns(IClock)
+    {
+    	// 一个可能可以处理null的方法是直接判断该合约地址是否为0x0
+    	// 所以其实下面if判定部分可以省略，
+        if (_clock == 0x0)
+	    {
+            _clock = new Clock();
+        }
+        return _clock;
+    }
+
+    //AsSingle
+    function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER)
+    {
+    	if (_sceneNIGHT_KILLER == 0x0)
+        {
+            IBallot ballot = BallotFactory();
+            IChatter chatter = ChatterFactory();
+            ITimeLimitable timeLimitable = TimeLimitableFactory();
+            ITHQBY_Settings settings = SettingsFactory();
+            _sceneNIGHT_KILLER = new SceneNIGHT_KILLER(ballot, chatter, timeLimitable, settings);
+        }
+        return _sceneNIGHT_KILLER;
+    }
+
+    //AsSingle
+    function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE)
+    {
+    	if (_nIGHT_POLICE == 0x0)
+        {
+            IBallot ballot = BallotFactory();
+            IChatter chatter = ChatterFactory();
+            ITimeLimitable timeLimitable = TimeLimitableFactory();
+            ITHQBY_Settings settings = SettingsFactory();
+
+            _nIGHT_POLICE = new SceneNIGHT_POLICE(ballot, chatter, timeLimitable, settings);
+            }
+            return _nIGHT_POLICE;
+    }
+
+    //AsTransient
+    function ParticipatableFactory() public returns(IParticipatable)
+    {
+    	return new ParticipatableBase();
+    }
+
+    //AsTransient
+	function PlayerFactoryFactory() public returns(IPlayerFactory)
+	{
+    	if (_playerfact == 0x0)
+        {
+            ITHQBY_Settings settings = SettingsFactory();
+            _playerfact = new THQBY_PlayerFactory(settings);
+        }
+        return _playerfact;
+    }
+
+    //AsTransient
+    function PlayerManager() public returns(ITHQBY_PlayerManager)
+    {
+    	if (_playerManager == 0x0)
+        {
+            ITHQBY_Settings settings = SettingsFactory();
+            _playerManager = new THQBY_PlayerManager(settings);
+        }
+        return _playerManager;
+    }
+
+    //AsTransient
+    function RoleBidderFactory() public returns(IRoleBidder)
+    {
+    	if (_roleBidder == 0x0)
+		{
+	        IPlayerFactory playerFactory = PlayerFactoryFactory();
+	            ITHQBY_Settings settings = SettingsFactory();
+                _roleBidder = new THQBYRoleBidder(settings, playerFactory);
+        }
+        return _roleBidder;
+    }
+
+    //AsTransient
+    function SceneDAYFactory() public returns(SceneDAY)
+    {
+    	if (_sceneDAY == 0x0)
+        {
+	        IBallot ballot = BallotFactory();
+            ISequentialChatter chatter = SequentialChatterFactory();
+            ITimeLimitable timeLimitable = TimeLimitableFactory();
+            ITHQBY_Settings settings = SettingsFactory();
+            _sceneDAY = new SceneDAY(ballot, chatter, timeLimitable, settings);
+		}
+	    return _sceneDAY;
+    }
+
+    //AsSingle
+    function SceneDAY_PKFactory() public returns(SceneDAY_PK)
+    {
+    	if (_sceneDAY_PK == 0x0)
+		{
+	        IBallot ballot = BallotFactory();
+            ISequentialChatter chatter = SequentialChatterFactory();
+            ITimeLimitable timeLimitable = TimeLimitableFactory();
+            ITHQBY_Settings settings = SettingsFactory();
+            _sceneDAY_PK = new SceneDAY_PK(ballot, chatter, timeLimitable, settings);
+		}
+	    return _sceneDAY_PK;	
+    }
+
+    //AsSingle
+    function SceneManagerFactory() public returns(ISceneManager)
+    {
+    	if (_sceneManager == 0x0)
+		{
+			SceneDAY sceneDay = SceneDAYFactory();
+		    SceneDAY_PK scenePK = SceneDAY_PKFactory();
+	        SceneNIGHT_KILLER sceneNIGHT_KILLER = NIGHT_KILLER_Factory();
+            SceneNIGHT_POLICE sceneNIGHT_POLICE = NIGHT_POLICE_Factory();
+            ITHQBY_PlayerManager playerManager = PlayerManager();
+            _sceneManager = new THQBY_SceneManager(sceneDay, scenePK, sceneNIGHT_KILLER, sceneNIGHT_POLICE, playerManager);
+		}
+	    return _sceneManager;
+    }
+
+    //AsSingle
+    function SettingsFactory() public returns(ITHQBY_Settings)
+    {
+    	if (_tHQBY_Settings == 0x0)
+        {
+            _tHQBY_Settings = new THQBY_Settings();
+        }
+        return _tHQBY_Settings;
+    }
+
+    //AsTransient
+    function TimeLimitableFactory() public returns(ITimeLimitable)
+    {
+    	IClock clock = ClockFactory();
+        return new TimeLimitable(clock);
+    }
+
+
+
+    //AsTransient
+    function tHQBYPlayerInterfaceFactory(uint id) public returns(THQBYPlayerInterface)
+    {
+    	return new THQBYPlayerInterface(id);
+    }
+
+    function Initialize() public 
+    {
+    	
+    }
+
+
+
+
+
+
+
 
 
 
@@ -1434,6 +1607,7 @@ contract DependencyInjection is IDependencyInjection
  * The following contracts should be categorized as 'abstract contract'
  * rather than 'interface' since interface cannot inherit any other 
  * contract or interface.
+ */
  
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
