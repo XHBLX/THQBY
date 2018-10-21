@@ -1319,6 +1319,89 @@ contract SequentialChatter is Chatter, ISequentialChatter
 
 
 
+contract DependencyInjection is IDependencyInjection
+{
+	ITHQBY_PlayerManager           _playerManager;
+    IClock  					   _clock;
+    SceneNIGHT_KILLER              _sceneNIGHT_KILLER;
+    SceneNIGHT_POLICE              _nIGHT_POLICE;
+    IPlayerFactory                 _playerfact;
+    IRoleBidder                    _roleBidder;
+    SceneDAY            		   _sceneDAY;
+    SceneDAY_PK                    _sceneDAY_PK;
+    ISceneManager                  _sceneManager;
+    ITHQBY_Settings                _tHQBY_Settings;
+    THQBYPlayerInterface[]         _tHQBYPlayerInterfaces;
+
+    // For game play
+	IPlayer[]            private   _players;
+
+	// Instance
+	// 静态的instance我没有见过
+	// 但是在solidity里目前并没有静态static修饰词
+	// 文档里提到static已作为保留关键字，在未来会加入
+	// 而目前合适的做法应该是利用modifier，即只有指定地址可以对静态做生成和修改
+	// 
+	DependencyInjection  private   instance;
+
+	function Players public returns(IPlayer[])
+	{
+		return _players;
+	}
+
+	constructor() private
+	{
+
+	}
+
+	/*
+	 *   这部分有待C#原文档进行修改
+	 */
+
+    /*
+
+	public static DependencyInjection Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new DependencyInjection();
+                }
+                return instance;
+            }
+        }
+
+    // Instance
+	// 静态的instance我没有见过
+	// 但是在solidity里目前并没有静态static修饰词
+	// 文档里提到static已作为保留关键字，在未来会加入
+	// 而目前合适的做法应该是利用modifier，即只有指定地址可以对静态做生成和修改
+	// 
+	DependencyInjection  private   instance;
+
+	*/
+
+	// AsTransient 
+	function BallotFactory() public returns(IBallot)
+    {
+        IPlayerManager playerManager = PlayerManager();
+        return new Ballot(playerManager);
+    }
+
+    // AsTransient
+    
+
+
+
+
+
+
+
+}
+
+
+
 
 // To Do List:
 
@@ -1326,7 +1409,6 @@ contract SequentialChatter is Chatter, ISequentialChatter
 //      Player
 //      PlayerFactoryBase
 //      PlayerManager
-//		SequentialChatter
 //      RoleBidder
 //		THQBYPlayerInterface
 //		THQBYRoleBidder4TestingOnly	
@@ -1352,7 +1434,7 @@ contract SequentialChatter is Chatter, ISequentialChatter
  * The following contracts should be categorized as 'abstract contract'
  * rather than 'interface' since interface cannot inherit any other 
  * contract or interface.
- */
+ 
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
 
