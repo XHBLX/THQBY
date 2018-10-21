@@ -1204,7 +1204,6 @@ contract Chatter is ITimeLimitable, IChatable, IChatLog, IChatter
 }
 
 
-
 contract SequentialChatter is Chatter, ISequentialChatter
 {
 	uint           _onePlayerSpeakingTime = 60 seconds;
@@ -1215,16 +1214,114 @@ contract SequentialChatter is Chatter, ISequentialChatter
 
 	constructor (ITimeLimitable timeLimitable
 		       , IChatLog chatLog
-			   , IPlayerManager playerManage)
+			   , IPlayerManager playerManager)
 	{
+		_playerManager = playerManager;
+		_timeLimitable.SetTimeLimit(30);
+		_timeLimitable = timeLimitable;
+		_chatLog = chatLog;
+	}
+
+	event moveForward(string);
+
+	function OnNextPlayer() internal 
+	{
+		//movedForward?.Invoke();
+	}
+
+	function GetSpeakingPlayer() public returns(IPlayer)
+	{
+		return _speakingPlayer;
+	}
+
+	function HaveEveryoneSpoke() public returns (bool)
+	{
+		bool ans1 = _chatLog.ParticipatablePlayersCount() == 0;
+		bool ans2 = _chatLog.GetParticipants().Length == _spokenPlayersCount;
+		return ans1 && ans2;
+	}
+
+	function Initialize(IPlayer[] participants) public 
+	{
+		Chatter.Initialize(participants);
+		_spokenPlayersCount = -1;
+		_speakingPlayerIndex = -1;
+		MoveForwardActionCore();
+	}
+
+	function ParticipatingPlayers() public returns(IPlayer[])
+	{
+		return _chatLog.GetParticipants();
+	}
+
+	function TryMoveForward(IPlayer player) public returns(bool)
+	{
+		if (IsOverTime())
+		{
+			MoveForward();
+			return true;
+		}
+		else if (DoesPlayerHavePrivilageToMoveForward(player))
+		{
+			MoveForward();
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 
 	}
+
+	function MoveForwardActionCore() internal
+	{
+		_spokenPlayersCount++;
+		_speakingPlayerIndex++;
+		if (_speakingPlayerIndex < _chatLog.GetParticipants().Length)
+		{
+			_speakingPlayer = ParticipatingPlayers()[_speakingPlayerIndex];
+		}
+		else
+		{
+			_speakingPlayer = null;
+		}
+		_chatLog.DisableAllParticipants();
+		if (_speakingPlayer != null)
+		{
+			_chatLog.EnableParticipant(_speakingPlayer);
+		}
+	}
+
+	function MoveForward() private 
+	{
+		MoveForwardActionCore();
+		OnNextPlayer();
+	}
+
+	function DoesPlayerHavePrivilageToMoveForward(IPlayer player)
+	{
+		return player == _speakingPlayer;
+	}
+
+	function EnableParticipant(IPlayer player) public
+	{
+		Chatter.EnableParticipant(player);
+		_timeLimitable.IncrementTimeLimit(int(_onePlayerSpeakingTime));
+	}
+
+	function DisableParticipant(IPlayer player) public
+	{
+		Chatter.DisableParticipant(player);
+		_timeLimitable.IncrementTimeLimit(int(-_onePlayerSpeakingTime));
+	}
+	 
 }
+
+
 
 
 // To Do List:
 
-//      Chatter
 //      DependencyInjection
 //      Player
 //      PlayerFactoryBase
