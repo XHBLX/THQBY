@@ -5,102 +5,6 @@
 pragma solidity ^0.4.25;
 
 
-/////////////////////// Main Function To Be ReModeled ////////////////////
-
-/*
-contract Main is ITHQBYPlayerInterface, IDependencyInjection {
-	//fields from DependencyInjection
-	ITHQBY_PlayerManager  _playerManager;
-	IClock                _clock;
-	SceneNIGHT_KILLER     _sceneNIGHT_KILLER;
-	SceneNIGHT_POLICE     _nIGHT_POLICE;
-	IPlayerFactory        _playerfact;
-	IRoleBidder           _roleBidder;
-	SceneDAY              _sceneDAY;
-	SceneDAY_PK           _sceneDAY_PK;
-	ISceneManager         _sceneManager;
-	ITHQBY_Settings       _tHQBY_Settings;
-
-
-	//fields from THQBYPlayerInterface
-	THQBY_PLayer          _PLayer;
-	uint                  _id;
-	ITHQBY_Settings       _settings;
-	ChatLog               _log;
-	IBallot               _ballot;
-	THQBYRoleBidder       _roleBider;
-
-	//For game play
-	IPlayer[] private _players;
-
-	//Feasible structure
-
-
-    // contract constructor
-	constructor () public {
-		//bid for 5 players (from previous test)
-
-		//bid process
-
-		//assign role
-		_players = _roleBider.CreateRoles();
-		IPlayerFactory factory = PlayerFactoryFactory();
-		_tHQBY_Settings = SettingsFactory();
-
-		//assign id
-		for (uint i = 0; i < 5; i++) {
-			_players[i].SetId(i);
-		}
-	}
-
-	function Players() public returns(IPlayer[]) {
-		return this._PLayers;
-	}
-
-	//AsTransient
-	function BallotFactory() public returns(IBallot) {
-		
-
-	}
-
-	function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount)
-	{
-		_roleBidder = RoleBidderFactory();
-		_roleBidder = Initialize();
-		_roleBidder = InitRoles();
-
-		_roleBidder.Bid(_id, _settings.POLICE(), policeAmount);
-		_roleBidder.Bid(_id, _settings.KILLER(), KillerAmount);
-		_roleBidder.Bid(_id, _settings.CITIZEN(), citizenAmount);
-	}
-
-	//AsTransient
-	function ChatLogFactory() public returns(IChatLog) 
-	{
-		IClock clock = ClockFactory();
-		return new ChatLog(clock);
-	}
-
-	//AsTransient
-	function ChatterFactory() public returns(IChatter)
-	{
-		ITimeLimitable TimeLimitableFact = TimeLimitableFactory();
-		IChatLog chatLog = ChatLogFactory();
-		return new Chatter(TimeLimitableFact, chatLog);
-	}
-
-	//AsSingle
-	function ClockFactory() public returns(IClock)
-	{
-
-	}
-}
-
-*/
-
-          
-//////////////////////////////////////////////////////////////////////////
-
 
 
 
@@ -397,10 +301,10 @@ contract ISceneManagerFriendToScene is ISceneManager
 contract ITHQBYPlayerInterface
 {
 	//starting game
-	function Bid(string memory role, uint bidAmount) public ;
+		function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public;
 	//accessing 
 	function getID(uint id) public returns(uint);
-	function getRole(string memory role) public returns(string memory);
+	function getRole() public returns(string memory);
 	function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog);
 	//communicating
 	function TryChat(string memory message) public returns(bool);
@@ -1856,16 +1760,16 @@ contract DependencyInjection is IDependencyInjection
 
 	function LateInitiizeAfterRoleBide() public 
 	{
-		IPlayerFactory factory = PlayerFactoryFactory();
-        _tHQBY_Settings = SettingsFactory();
+// 		IPlayerFactory factory = PlayerFactoryFactory();
+//         _tHQBY_Settings = SettingsFactory();
 
-        //assign roles
-        for (uint i = 0; i < 5; i++)
-        {
-            string thisRole = _tHQBYPlayerInterfaces[i].getRole();
-            _players[i] = factory.Create(thisRole);
-            _players[i].SetId(uint(i));
-        }
+//         //assign roles
+//         for (uint i = 0; i < 5; i++)
+//         {
+//             string memory thisRole = _tHQBYPlayerInterfaces[i].getRole();
+//             _players[i] = factory.Create(thisRole);
+//             _players[i].SetId(uint(i));
+//         }
 	}
 }
 
@@ -1936,6 +1840,92 @@ contract Player is IPlayer
 	}
 
 }
+
+
+
+
+
+/////////////////////// Main Function To Be ReModeled ////////////////////
+
+
+contract Main is ITHQBYPlayerInterface {
+    
+    IDependencyInjection _inject;
+    
+    
+    
+    IRoleBidder           _roleBidder;
+    ISceneManager         _sceneManager;
+    
+    constructor() public
+    {
+        _inject=new DependencyInjection();
+        
+        _roleBidder=_inject.RoleBidderFactory();
+        _sceneManager=_inject.SceneManagerFactory();
+    }
+	
+	//starting game
+	function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public
+	{
+		_roleBidder = RoleBidderFactory();
+		_roleBidder = Initialize();
+		_roleBidder = InitRoles();
+
+		_roleBidder.Bid(_id, _settings.POLICE(), policeAmount);
+		_roleBidder.Bid(_id, _settings.KILLER(), KillerAmount);
+		_roleBidder.Bid(_id, _settings.CITIZEN(), citizenAmount);
+	}
+	
+
+	
+	//accessing 
+	function getAddress() private returns(address)
+	{
+	    return msg.sender;
+	}
+	
+	function getID(uint id) public returns(uint);
+	function getRole() public returns(string memory);
+	
+	function getPlayer() public returns(string memory);
+	
+	
+	function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
+	{
+	    return _sceneManager.GetCurrentScene().Chatter();
+	}
+	//communicating
+	function TryChat(string memory message) public returns(bool)
+	{
+	    return _sceneManager.GetCurrentScene().Chatter().TryChat(getPlayer(), message);
+	}
+	//action method
+	function TryVote(uint playerID) public returns(bool)
+	{
+	    return _sceneManager.GetCurrentScene().Ballot().TryVote(getPlayer(),ID2Player(playerID));
+	}
+	
+	
+	function ID2Player(uint id) private returns(IPlayer)
+	{
+	    //todo
+	}
+
+
+}
+
+
+
+          
+//////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
 
 
 
