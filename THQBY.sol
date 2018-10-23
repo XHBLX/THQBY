@@ -1377,6 +1377,11 @@ contract Chatter is  IChatter
 		return _chatLog.TryChat(player, message);
 	}
 
+	function TryMoveForward(IPlayer player) public returns (bool) 
+	{
+		return false;
+	}
+
 }
 
 
