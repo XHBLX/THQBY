@@ -5,14 +5,6 @@
 pragma solidity ^0.4.25;
 
 
-
-
-
-
-
-
-
-
 contract Clock
 {
 	uint _day               = 0;
@@ -53,12 +45,6 @@ contract ChatMessage
 
 
 
-
-
-
-
-
-
 // To Do List:
 
 //      PlayerFactoryBase
@@ -93,7 +79,6 @@ contract ChatMessage
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
 
-pragma solidity ^0.4.25;
 // this abstact contract should be added by field to implement 'null' case 
 contract IClock
 {
@@ -154,6 +139,7 @@ contract IChatable
 	function TryChat(IPlayer player, string memory message) public returns(bool);
 }
 
+
 contract ISpokenEvent
 {
 	/// Occurs when event spoken. arguments are timestamp, player, message.
@@ -169,18 +155,10 @@ contract IChatLog is IParticipatable, IChatable, ISpokenEvent
 }
 
 
-
-
-
 contract IInitializable
 {
 	function Initialize() public;
 }
-
-
-
-
-
 
 
 contract IDependencyInjection
@@ -249,7 +227,6 @@ contract IPlayerManager is IInitializableIPlayerArr
 }
 
 
-
 contract IChatter is IChatLog, ITimeLimitable, IInitializableIPlayerArr
 {
 }
@@ -295,9 +272,6 @@ contract ISceneManagerFriendToScene is ISceneManager
 }
 
 
-
-
-
 contract ITHQBYPlayerInterface
 {
 	//starting game
@@ -338,6 +312,7 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 	function GetSpeakingPlayer() public returns(IPlayer);
 	function HaveEveryoneSpoke() public returns(bool);
 }
+
 
 
 /// @dev DN: This is an abstract contract.
@@ -631,7 +606,6 @@ contract TimeLimitable is IClock, ITimeLimitable
 }
 
 
-
 contract Ballot is  ParticipatableBase, IBallot
 {	
 	// 对于部分需判断合约（类）的存在性而创建的structure
@@ -811,7 +785,6 @@ contract ChatLog is ParticipatableBase, IChatLog
 }
 
 
-
 // This is also an Abstract contract
 contract Scene is ITimeLimitable, IScene, IPrivateScene 
 {
@@ -968,7 +941,6 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 	}
 
 }
-
 
 
 contract THQBY_Scene is Scene
@@ -1155,7 +1127,6 @@ contract SceneNIGHT_KILLER is THQBY_Scene
 }
 
 
-
 contract SceneNIGHT_POLICE is THQBY_Scene
 {
 	constructor (IBallot ballot
@@ -1200,8 +1171,6 @@ contract SceneNIGHT_POLICE is THQBY_Scene
 	}
 
 }
-
-
 
 
 
@@ -1753,11 +1722,6 @@ contract DependencyInjection is IDependencyInjection
     }
 
 
-
-  
-
-   
-
 	function LateInitiizeAfterRoleBide() public 
 	{
 // 		IPlayerFactory factory = PlayerFactoryFactory();
@@ -1772,8 +1736,6 @@ contract DependencyInjection is IDependencyInjection
 //         }
 	}
 }
-
-
 
 
 contract Player is IPlayer
@@ -1915,18 +1877,6 @@ contract Main is ITHQBYPlayerInterface {
 
 }
 
-
-
           
 //////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-//
