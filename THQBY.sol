@@ -2,9 +2,6 @@
  * OOP implementation of THQBY in Solidity
  */
 
-
-
-
 pragma solidity ^0.4.25;
 
 
@@ -68,13 +65,14 @@ contract PlayerFactoryBase is IRoleBidder
     /*
 	 * Abstract Contracts
 	 */
-	function InitRoles(); // internal in C# so modifier to be added
-	function SetSpotsOfRoles() // internal in C# so modifier to be added
+	function InitRoles() internal; // internal in C# so modifier to be added
+	function SetSpotsOfRoles() internal; // internal in C# so modifier to be added
 
-	function Initialize() public; // why there is another ab contract called Initialize??
+	//function Initialize() public; // why there is another ab contract called Initialize??
 
 
-    constructor(IPlayerFactory playerFactory) {
+    constructor(IPlayerFactory playerFactory) public
+    {
     	_playerFactory = playerFactory;
     }
 
@@ -193,12 +191,12 @@ contract PlayerFactoryBase is IRoleBidder
 
 contract RoleBidder is IRoleBidder
 {
-	constructor() 
+	constructor() public 
 	{
 
 	}
 
-	function Bid (uint playerID, string memory role, uint bidAmount) 
+	function Bid (uint playerID, string memory role, uint bidAmount)  public 
 	{
 		uint roleId = RoleToNum(role);
 	}
@@ -250,7 +248,8 @@ contract PlayerManager is IPlayerManager
 	IPlayer[] _players;
 	IPlayer[] _tempPlayersList;
 
-	constructor() {
+	constructor()  public 
+	{
 
 	}
 
@@ -297,7 +296,7 @@ contract PlayerManager is IPlayerManager
 		_players = players;
 	}
 
-	function FindByRole(string memory desiredRoleName, bool mustBeAlive)
+	function FindByRole(string memory desiredRoleName, bool mustBeAlive)  private
 	{
 		IPlayer[] players = new IPlayer[];
 		IPlayer[] all     = GetAllPlayers();
@@ -2129,8 +2128,24 @@ contract Main is ITHQBYPlayerInterface {
     
     
     
-    IRoleBidder           _roleBidder;
-    ISceneManager         _sceneManager;
+    THQBYRoleBidder           _roleBidder;
+    THQBY_SceneManager         _sceneManager;
+    
+    
+    THQBY_PLayer[] _tHQBY_PLayers;
+        ITHQBY_Settings _settings;
+        
+       
+        PlayerManager _PlayerManager;
+        uint _curMaxId;
+        mapping(address=>uint) _AddrToId;
+        
+        mapping(uint=>THQBY_PLayer) _IdToPlayer;
+        mapping(uint=> address) _IdToAddr;
+        mapping(uint=>bool) _isBid;      //map<id, bidOrNot>
+        address[] _AddressSet;
+    
+    
     
     constructor() public
     {
@@ -2138,6 +2153,9 @@ contract Main is ITHQBYPlayerInterface {
         
         _roleBidder=_inject.RoleBidderFactory();
         _sceneManager=_inject.SceneManagerFactory();
+        _settings=_inject.SettingsFactory();
+        //_PlayerManager=????
+        
     }
 	
 	//starting game
@@ -2189,7 +2207,3 @@ contract Main is ITHQBYPlayerInterface {
 
 
 }
-
-          
-//////////////////////////////////////////////////////////////////////////
-
