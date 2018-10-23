@@ -1804,9 +1804,6 @@ contract Player is IPlayer
 }
 
 
-
-
-
 /////////////////////// Main Function To Be ReModeled ////////////////////
 
 
