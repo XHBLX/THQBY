@@ -50,7 +50,6 @@ contract ChatMessage
 
 // To Do List:
 
-//      PlayerFactoryBase
 //      PlayerManager
 //      RoleBidder
 //		THQBYPlayerInterface
@@ -199,6 +198,60 @@ contract PlayerFactoryBase is IRoleBidder
                 _matrix[i][j] = -1;
             }
         }
+    }
+
+}
+
+contract RoleBidder is IRoleBidder
+{
+	constructor() 
+	{
+
+	}
+
+	function Bid (uint playerID, string memory role, uint bidAmount) 
+	{
+		uint roleId = RoleToNum(role);
+	}
+
+	function CreateRoles() public returns(IPlayer[] memory)
+	{
+		// throw new NotImplementedException();
+	}
+
+	function GetIsActive() public returns(bool)
+    {
+        // throw new NotImplementedException();
+    }
+
+    function HasEveryoneBid() public returns(bool)
+    {
+    	// throw new NotImplementedException();
+    }
+
+    function SetPlayersCount(uint playersCount) public
+    {
+        
+    }
+
+    function RoleToNum(string memory role) private returns(uint)
+    {
+    	if (role == "POLICE")
+		{ //DRY
+			return 0;
+		}
+		else if (role == "CITIZEN")
+		{
+			return 1;
+		}
+		else if (role == "KIILER")
+		{
+			return 2;
+		}
+		else
+		{
+			revert("Parameter cannot be null");
+		}
     }
 
 }
