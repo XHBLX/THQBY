@@ -322,9 +322,31 @@ contract PlayerManager is IPlayerManager
 		}
 		return players;
 	}
-
-
 	
+}
+
+
+
+
+contract THQBYPlayerInterface is ITHQBYPlayerInterface
+{
+	THQBY_PLayer[]    				 _tHQBY_PLayers;
+    ITHQBY_Settings  			     _settings;
+    ChatLog 						 _log;
+    IBallot 						 _ballot;
+    THQBYRoleBidder 				 _roleBider;
+    THQBY_SceneManager 				 _SceneManager;
+    PlayerManager 					 _PlayerManager;
+    uint                             _curMaxId;
+    mapping(Address => uint)         _AddrToId;
+    mapping(Address => THQBY_PLayer) _AddrToPlayer;
+    mapping(uint => THQBY_PLayer)    _IdToPlayer;
+    mapping(uint => Address)         _IdToAddr;
+    mapping(uint => bool)            _isBid;      //map<id, bidOrNot>
+    mapping(Address => uint)         _AddressSet;
+
+
+
 }
 
 
@@ -332,9 +354,9 @@ contract PlayerManager is IPlayerManager
 
 
 
-// To Do List:
 
-//      PlayerManager
+// To Do List:
+//      PlayerFactoryBase
 //		THQBYPlayerInterface
 //		THQBYRoleBidder4TestingOnly	
 //		THQBY_PLayer
@@ -359,6 +381,7 @@ contract PlayerManager is IPlayerManager
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
  
+
 // this abstact contract should be added by field to implement 'null' case 
 contract IClock
 {
@@ -555,7 +578,7 @@ contract ISceneManagerFriendToScene is ISceneManager
 contract ITHQBYPlayerInterface
 {
 	//starting game
-		function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public;
+	function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public;
 	//accessing 
 	function getID(uint id) public returns(uint);
 	function getRole() public returns(string memory);
