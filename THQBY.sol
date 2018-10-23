@@ -48,17 +48,6 @@ contract ChatMessage
 
 
 
-// To Do List:
-
-//      PlayerManager
-//      RoleBidder
-//		THQBYPlayerInterface
-//		THQBYRoleBidder4TestingOnly	
-//		THQBY_PLayer
-//		THQBY_PlayerFactory
-//		THQBY_PlayerManager
-// 		THQBY_SceneManager
-//		THQBY_Settings
 
 
 /// @dev DN: This is an abstract contract.
@@ -256,8 +245,103 @@ contract RoleBidder is IRoleBidder
 
 }
 
+contract PlayerManager is IPlayerManager
+{
+	IPlayer[] _players;
+	IPlayer[] _tempPlayersList;
+
+	constructor() {
+
+	}
+
+	function GetAllLivingPlayers() public returns(IPlayer[] memory)
+	{
+		_tempPlayersList = new IPlayer[];
+		for (uint i = 0; i < _players.length; i++)
+		{
+			IPlayer player = _players[i];
+			if (player.GetIsAlive())
+			{
+				_tempPlayersList.push(player);
+			}
+		}
+		return _tempPlayersList;
+	}
+
+	function GetAllPlayers() public returns(IPlayer[])
+	{
+		return _players;
+	}
+
+	function GetDeadPlayers() public returns(IPlayer[])
+	{
+		_tempPlayersList = new IPlayer[];
+		for (uint i = 0; i < _players.length; i++)
+		{
+			IPlayer player = _players[i];
+			if (!player.GetIsAlive())
+			{
+				_tempPlayersList.push(player);
+			}
+		}
+		return _tempPlayersList;
+	}
+
+	function GetPlayer(uint id) public returns (IPlayer memory)
+	{
+		return _players[id];
+	}
+
+	function Initialize(IPlayer[] players) public 
+	{
+		_players = players;
+	}
+
+	function FindByRole(string memory desiredRoleName, bool mustBeAlive)
+	{
+		IPlayer[] players = new IPlayer[];
+		IPlayer[] all     = GetAllPlayers();
+		mustBeAlive       = true; // Initialized as that in original file
+		for (uint i = 0; i < all.length; i++)
+		{
+			IPlayer x = all[i];
+			if (x.GetRole() == desiredRoleName) // however there is no GetRole() implemented 
+			{
+				if (mustBeAlive)
+				{
+					if (x.GetIsAlive())
+					{
+						players.push(x);
+					}
+				}
+				else
+				{
+					players.push(x);
+				}
+			}
+		}
+		return players;
+	}
 
 
+	
+}
+
+
+
+
+
+
+// To Do List:
+
+//      PlayerManager
+//		THQBYPlayerInterface
+//		THQBYRoleBidder4TestingOnly	
+//		THQBY_PLayer
+//		THQBY_PlayerFactory
+//		THQBY_PlayerManager
+// 		THQBY_SceneManager
+//		THQBY_Settings
 
 
 
