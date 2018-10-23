@@ -2,6 +2,9 @@
  * OOP implementation of THQBY in Solidity
  */
 
+
+
+
 pragma solidity ^0.4.25;
 
 
@@ -59,6 +62,146 @@ contract ChatMessage
 //		THQBY_Settings
 
 
+/// @dev DN: This is an abstract contract.
+contract PlayerFactoryBase is IRoleBidder
+{
+	IPlayerFactory 			  _playerFactory;
+	bool           			  _isClassActive     = true; //init usable
+    uint           			  _playerCount;
+    uint           			  _numRoles;
+    int[][]        			  _matrix;
+    bool[]                    isVote;
+
+    mapping(uint => string)   _roleOfPlayerID;
+    mapping(string => int[])  _string2RoleIndx;
+    mapping(int => string)    _roleIndx2String;
+    mapping(string => uint)   _spotsOfRole;
+
+    /*
+	 * Abstract Contracts
+	 */
+	function InitRoles(); // internal in C# so modifier to be added
+	function SetSpotsOfRoles() // internal in C# so modifier to be added
+
+	function Initialize() public; // why there is another ab contract called Initialize??
+
+
+    constructor(IPlayerFactory playerFactory) {
+    	_playerFactory = playerFactory;
+    }
+
+    function Initialize(string[] memory roles) public
+    {
+    	_numRoles = uint(roles.Length);
+        for (uint i = 0; i < _numRoles; i++)
+        {
+		    string memory role = roles[i];
+            _string2RoleIndx[role][0] = 1;
+            _string2RoleIndx[role][1] = i;
+            _roleIndx2String[i] = role;
+        }
+    }
+
+    function Bid(uint playerID, string memory role, uint bidAmount) public
+    {
+        bool _bidCheck = (playerID < _playerCount && _string2RoleIndx[role][0] != 0);
+        require(_bidCheck, "Invalid input!");
+        _matrix[playerID][_string2RoleIndx[role][1]] = bidAmount;
+    }
+
+    function FindMaxNumRole()  public returns(uint)
+    {
+    	uint tempRoleNum;
+        uint tempMax = 0;
+        for (uint i = 0; i < _numRoles; i++) {
+            tempRoleNum = _spotsOfRole[_roleIndx2String[i]];
+            if (tempRoleNum > tempMax) {
+                tempMax = tempRoleNum;
+            }
+        }
+        return tempMax;  	
+    }
+
+    function CreateRoles() public returns(IPlayer[] memory)
+    {
+        uint             totalRole       = 0;
+        uint             maxRoleNum      = FindMaxNumRole();
+        uint             totalIteration  = maxRoleNum * _numRoles;
+        IPlayer[] memory res             = new IPlayer[](_playerCount);
+        bool[]    memory isAssignedRole  = new bool[](_playerCount);
+        uint[]    memory numRoleAssigned = new uint[](_numRoles);
+        uint             curRoleIndex    = 0;
+        uint             matrixColumn    = 0;
+
+        for (uint i = 0; i < _numRoles; i++) {
+            totalRole += _spotsOfRole[_roleIndx2String[i]];
+        }
+        require(totalRole == _playerCount, "numbers of role != numbers of players");
+
+        for (uint j = 0; j < totalIteration; j++) 
+        {
+            int  tempMax = -1;
+            uint tempPos = 2**256-1;
+            curRoleIndex = j % _numRoles; // //0->police; 1->citi; 2->killer
+            if (numRoleAssigned[curRoleIndex] >= _spotsOfRole[_roleIndx2String[int(curRoleIndex)]])
+            {
+                continue;
+            }
+            for (uint k = 0; k < _playerCount; k++) {
+                if (!isAssignedRole[k] && (_matrix[k][matrixColumn] > tempMax))
+                {
+                    tempMax = _matrix[k][matrixColumn];
+                    tempPos = k;
+                }
+            }
+            isAssignedRole[tempPos] = true;
+            IPlayer p = IPlayerFactory.Create(_roleIndx2String[int(curRoleIndex)]);
+            p.SetId(tempPos);
+            res[tempPos] = p;
+            numRoleAssigned[curRoleIndex]++;
+            matrixColumn = (matrixColumn + 1) % _numRoles;
+
+        }
+        _isClassActive = false;
+        return res;
+    }
+
+    function GetIsActive() public returns(bool)
+    {
+        return _isClassActive;
+    }
+
+    function HasEveryoneBid() public returns(bool) 
+    {
+        for (uint i = 0; i < _matrix.length; i++) 
+        {
+            for (uint j = 0; j < _matrix[0].length; j++)
+            {
+                if (_matrix[i][j] < 0)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function SetPlayersCount(uint playersCount) public
+    {
+        _playerCount = playersCount;
+        isVote = new bool[](playersCount);
+        _matrix = new int[][](playersCount);
+        for (uint i = 0; i < playersCount; i++) 
+        {
+            _matrix[i] = new int[](_numRoles);
+            for (uint j = 0; j < _numRoles; j++) 
+            {
+                _matrix[i][j] = -1;
+            }
+        }
+    }
+
+}
 
 
 
@@ -78,7 +221,7 @@ contract ChatMessage
  
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
-
+ 
 // this abstact contract should be added by field to implement 'null' case 
 contract IClock
 {
@@ -325,7 +468,7 @@ contract RoleBidderBase is IRoleBidder
 	int[][]                      _matrix;
 	bool[]                       isVote;
 	mapping(uint => string)      _roleOfPlayerID;
-	mapping(string => uint) _string2RoleIndx;
+	mapping(string => uint[])    _string2RoleIndx;
 	mapping(int => string)       _roleIndx2String;
 	mapping(string => uint)      _spotsOfRole;
 
@@ -361,7 +504,7 @@ contract RoleBidderBase is IRoleBidder
 		_matrix[playerID][_string2RoleIndx[role][1]] = bidAmount;
 	}
 
-	function FindMaxNumRole()  public
+	function FindMaxNumRole() public returns(uint)
 	{
 	    uint tempRoleNum;
 		uint tempMax = 0;
@@ -371,7 +514,7 @@ contract RoleBidderBase is IRoleBidder
 				tempMax = tempRoleNum;
 			}
 		}
-		return tempRoleNum;
+		return tempMax;
 	}
 
 	function CreateRoles() public returns(IPlayer[] memory)
@@ -1725,6 +1868,14 @@ contract DependencyInjection is IDependencyInjection
     	IClock clock = ClockFactory();
         return new TimeLimitable(clock);
     }
+
+    /*
+    //AsTransient
+    function tHQBYPlayerInterfaceFactory(uint id) returns (THQBYPlayerInterface)
+    {
+
+    }
+    */
 
 
 	function LateInitiizeAfterRoleBide() public 
