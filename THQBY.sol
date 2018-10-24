@@ -406,8 +406,6 @@ contract PlayerManager is IPlayerManager
 
 // To Do List:
 
-//		THQBYPlayerInterface
-//		THQBYRoleBidder4TestingOnly	
 //		THQBY_PLayer
 //		THQBY_PlayerFactory
 //		THQBY_PlayerManager
@@ -416,10 +414,39 @@ contract PlayerManager is IPlayerManager
 
 
 
+contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
+{
+	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
+	{
+		_playerFactory = PlayerFactory;
+		_settings = settings;
+	}
+
+	function InitRoles() public 
+	{
+		string[] stra = new string[]{_settings.POLICE(), _settings.CITIZEN(), _settings.KILLER()};
+		Initialize(stra);
+		SetPlayersCount(5);
+	}
+
+	function SetSpotsOfRoles() public
+	{
+		_spotsOfRole.push(_settings.POLICE(), 2);
+        _spotsOfRole.push(_settings.CITIZEN(), 1);
+        _spotsOfRole.push(_settings.KILLER(), 2);
+	}
+}
 
 
+contract THQBY_PLayer is Player
+{
+	constructor(ITHQBY_Settings settings)
+	{
 
+	}
 
+	
+}
 
 
 
@@ -570,7 +597,7 @@ contract THQBYRoleBidder is RoleBidderBase
 
 	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
 	{
-		RoleBidderBase._playerFactory = PlayerFactory;
+		_playerFactory = PlayerFactory;
 		_settings = settings;
 	}
 }
