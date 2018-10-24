@@ -263,191 +263,6 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 }
 
 
-
-contract Clock
-{
-	uint _day               = 0;
-	uint _realTimeInSeconds = 0;
-
-	function  GetNth_day() public returns(uint)
-	{
-		return _day;
-	}
-
-	function  DayPlusPlus() public 
-	{
-		_day++;
-	}
-
-	function  GetRealTimeInSeconds() public returns(uint)
-	{
-		return now;
-	}
-}
-
-
-contract ChatMessage
-{
-	uint   public  timestamp;
-	int    public  byWho;
-	string public  message;
-
-	constructor (uint ts, int bw,  string memory msg ) public
-	{
-		timestamp = ts;
-		byWho     = bw;
-		message   = msg;
-	}	
-}
-
-
-contract PlayerManager is IPlayerManager
-{
-	IPlayer[] _players;
-	IPlayer[] _tempPlayersList;
-
-	constructor()  public 
-	{
-
-	}
-
-	function GetAllLivingPlayers() public returns(IPlayer[] memory)
-	{
-		//_tempPlayersList
-		for (uint i = 0; i < _players.length; i++)
-		{
-			IPlayer player = _players[i];
-			if (player.GetIsAlive())
-			{
-				_tempPlayersList.push(player);
-			}
-		}
-		return _tempPlayersList;
-	}
-
-	function GetAllPlayers() public returns(IPlayer[] memory)
-	{
-		return _players;
-	}
-
-	function GetDeadPlayers() public returns(IPlayer[] memory)
-	{
-		//_tempPlayersList = new IPlayer[];
-		for (uint i = 0; i < _players.length; i++)
-		{
-			IPlayer player = _players[i];
-			if (!player.GetIsAlive())
-			{
-				_tempPlayersList.push(player);
-			}
-		}
-		return _tempPlayersList;
-	}
-
-	function GetPlayer(uint id) public returns (IPlayer )
-	{
-		return _players[id];
-	}
-
-	function Initialize(IPlayer[] memory players) public 
-	{
-		_players = players;
-	}
-
-	function FindByRole(string memory desiredRoleName, bool mustBeAlive) private
-	{
-		IPlayer[] memory players;// = new IPlayer[];
-		IPlayer[] memory all     = GetAllPlayers();
-		mustBeAlive       = true; // Initialized as that in original file
-		for (uint i = 0; i < all.length; i++)
-		{
-			IPlayer x = all[i];
-			if (x.GetRole() == desiredRoleName) 
-			{
-				if (mustBeAlive) 
-				{
-					if (x.GetIsAlive()) 
-					{
-						players.push(x);
-					}
-				} 
-				else 
-				{
-					players.push(x);
-				}
-			}
-		}
-		return players;
-	}
-}
-
-
-
-contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
-{
-	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
-	{
-		_playerFactory = PlayerFactory;
-		_settings = settings;
-	}
-
-	function InitRoles() public 
-	{
-		string[] stra;
-		stra.push(_settings.POLICE()).push(_settings.CITIZEN()).push(_settings.KILLER());
-		Initialize(stra);
-		SetPlayersCount(5);
-	}
-
-	function SetSpotsOfRoles() public
-	{
-		_spotsOfRole.push(_settings.POLICE(), 2);
-		_spotsOfRole.push(_settings.CITIZEN(), 1);
-		_spotsOfRole.push(_settings.KILLER(), 2);
-	}
-}
-
-
-contract THQBY_PLayer is Player
-{
-	constructor(ITHQBY_Settings settings)
-	{
-	}
-}
-
-
-contract Police is THQBY_PLayer
-{
-	constructor(ITHQBY_Settings settings)
-	{
-		// base(settings) from THQBY_PLayer
-		_role = settings.POLICE();
-	}
-}
-
-
-contract Killer is THQBY_PLayer
-{
-	constructor(ITHQBY_Settings settings)
-	{
-		// base(settings) from THQBY_PLayer
-		_role = settings.KILLER();
-	}
-}
-
-
-contract Citizen is THQBY_PLayer
-{
-	constructor(ITHQBY_Settings settings)
-	{
-		// base(settings) from THQBY_PLayer
-		_role = settings.CITIZEN();
-	}
-}
-
-
-
-
 /// @dev DN: This is an abstract contract.
 contract RoleBidderBase is IRoleBidder 
 {
@@ -582,19 +397,263 @@ contract RoleBidderBase is IRoleBidder
 			}
 		}
 	}
+}
+
+
+contract Player is IPlayer
+{
+    	IChatLog          _chatLog;
+    	IBallot           _ballot;
+
+    	bool     internal _isAlive = true;
+    	uint     internal _id;
+    	string   internal _role;
+    	uint     internal _votingWeight = 100;
+
+    	constructor()  public
+    	{
+
+    	}
+
+	/*
+	 *   该部分需参照C#原文档对应合约性质处理
+	 *
+	public event Action<uint, IPlayer, string> eventSpoken;
+
+	*/
+
+	function GetId() public returns(uint)
+	{
+		return _id;
+	}
+
+	function GetIsAlive() public returns(bool)
+	{
+		return _isAlive;
+	}
+
+	function GetRole() public returns(string memory)
+	{
+		return _role;
+	}
+
+	function GetVotingWeightAsPercent() public returns(uint)
+	{
+		return _votingWeight;
+	}
+
+	function KillMe() public
+	{
+		_isAlive = false;
+	}
+
+
+	function SetId(uint id) public
+	{
+		_id = id;
+	}
 
 }
 
+
+contract Clock
+{
+	uint _day               = 0;
+	uint _realTimeInSeconds = 0;
+
+	function  GetNth_day() public returns(uint)
+	{
+		return _day;
+	}
+
+	function  DayPlusPlus() public 
+	{
+		_day++;
+	}
+
+	function  GetRealTimeInSeconds() public returns(uint)
+	{
+		return now;
+	}
+}
+
+
+contract ChatMessage
+{
+	uint   public  timestamp;
+	int    public  byWho;
+	string public  message;
+
+	constructor (uint ts, int bw,  string memory msg ) public
+	{
+		timestamp = ts;
+		byWho     = bw;
+		message   = msg;
+	}	
+}
+
+
+contract PlayerManager is IPlayerManager
+{
+	IPlayer[] _players;
+	IPlayer[] _tempPlayersList;
+
+	constructor()  public 
+	{
+
+	}
+
+	function GetAllLivingPlayers() public returns(IPlayer[] memory)
+	{
+		//_tempPlayersList
+		for (uint i = 0; i < _players.length; i++)
+		{
+			IPlayer player = _players[i];
+			if (player.GetIsAlive())
+			{
+				_tempPlayersList.push(player);
+			}
+		}
+		return _tempPlayersList;
+	}
+
+	function GetAllPlayers() public returns(IPlayer[] memory)
+	{
+		return _players;
+	}
+
+	function GetDeadPlayers() public returns(IPlayer[] memory)
+	{
+		//_tempPlayersList = new IPlayer[];
+		for (uint i = 0; i < _players.length; i++)
+		{
+			IPlayer player = _players[i];
+			if (!player.GetIsAlive())
+			{
+				_tempPlayersList.push(player);
+			}
+		}
+		return _tempPlayersList;
+	}
+
+	function GetPlayer(uint id) public returns (IPlayer )
+	{
+		return _players[id];
+	}
+
+	function Initialize(IPlayer[] memory players) public 
+	{
+		_players = players;
+	}
+
+	function FindByRole(string memory desiredRoleName) private
+	{
+		IPlayer[] memory players;// = new IPlayer[];
+		IPlayer[] memory all     = GetAllPlayers();
+		bool mustBeAlive       = true; // Initialized as that in original file
+		for (uint i = 0; i < all.length; i++)
+		{
+			IPlayer x = all[i];
+			if (x.GetRole() == desiredRoleName) 
+			{
+				if (mustBeAlive) 
+				{
+					if (x.GetIsAlive()) 
+					{
+						players.push(x);
+					}
+				} 
+				else 
+				{
+					players.push(x);
+				}
+			}
+		}
+		return players;
+	}
+}
+
+
 contract THQBYRoleBidder is RoleBidderBase
 {
-	ITHQBY_Settings _settings;
+    ITHQBY_Settings _settings;
 
-	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
+    constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
+    {
+        _playerFactory = PlayerFactory;
+        _settings = settings;
+    }
+}
+
+
+contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
+{
+	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
 	{
 		_playerFactory = PlayerFactory;
 		_settings = settings;
 	}
+
+	function InitRoles() public 
+	{
+		string[] stra;
+		stra.push(_settings.POLICE()).push(_settings.CITIZEN()).push(_settings.KILLER());
+		Initialize(stra);
+		SetPlayersCount(5);
+	}
+
+	function SetSpotsOfRoles() public
+	{
+		_spotsOfRole.push(_settings.POLICE(), 2);
+		_spotsOfRole.push(_settings.CITIZEN(), 1);
+		_spotsOfRole.push(_settings.KILLER(), 2);
+	}
 }
+
+
+contract THQBY_PLayer is Player
+{
+	constructor(ITHQBY_Settings settings)
+	{
+	}
+}
+
+
+contract Police is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.POLICE();
+	}
+}
+
+
+contract Killer is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.KILLER();
+	}
+}
+
+
+contract Citizen is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.CITIZEN();
+	}
+}
+
+
+
+
+
+
+
 
 
 
@@ -1849,74 +1908,12 @@ contract DependencyInjection is IDependencyInjection
 
     function LateInitiizeAfterRoleBide() public 
     {
-    	// 		IPlayerFactory factory = PlayerFactoryFactory();
-    	//         _tHQBY_Settings = SettingsFactory();
-
-    	//         //assign roles
-    	//         for (uint i = 0; i < 5; i++)
-    	//         {
-    		//             string memory thisRole = _tHQBYPlayerInterfaces[i].getRole();
-    		//             _players[i] = factory.Create(thisRole);
-    		//             _players[i].SetId(uint(i));
-    		//         }
-    	}
+    	
     }
-
-
-    contract Player is IPlayer
-    {
-    	IChatLog          _chatLog;
-    	IBallot           _ballot;
-
-    	bool     internal _isAlive = true;
-    	uint     internal _id;
-    	string   internal _role;
-    	uint     internal _votingWeight = 100;
-
-    	constructor()  public
-    	{
-
-    	}
-
-	/*
-	 *   该部分需参照C#原文档对应合约性质处理
-	 *
-	public event Action<uint, IPlayer, string> eventSpoken;
-
-	*/
-
-	function GetId() public returns(uint)
-	{
-		return _id;
-	}
-
-	function GetIsAlive() public returns(bool)
-	{
-		return _isAlive;
-	}
-
-	function GetRole() public returns(string memory)
-	{
-		return _role;
-	}
-
-	function GetVotingWeightAsPercent() public returns(uint)
-	{
-		return _votingWeight;
-	}
-
-	function KillMe() public
-	{
-		_isAlive = false;
-	}
-
-
-	function SetId(uint id) public
-	{
-		_id = id;
-	}
-
 }
+
+
+    
 
 
 
