@@ -5,244 +5,6 @@
 pragma solidity ^0.4.25;
 
 
-contract Clock
-{
-	uint _day               = 0;
-	uint _realTimeInSeconds = 0;
-
-	function  GetNth_day() public returns(uint)
-	{
-		return _day;
-	}
-
-	function  DayPlusPlus() public 
-	{
-		_day++;
-	}
-
-	function  GetRealTimeInSeconds() public returns(uint)
-	{
-		return now;
-	}
-}
-
-
-contract ChatMessage
-{
-	uint   public  timestamp;
-	int    public  byWho;
-	string public  message;
-
-	constructor (uint ts, int bw,  string memory msg ) public
-	{
-		timestamp = ts;
-		byWho     = bw;
-		message   = msg;
-	}	
-}
-
-
-
-
-
-
-
-/// @dev DN: This is an abstract contract.
-contract PlayerFactoryBase is IRoleBidder
-{
-	uint        _idCounter = 0;
-	DiContainer _container;
-
-	function Create(string memory role) public returns(IPlayer);
-
-	constructor () {
-
-	}
-
-}
-
-contract RoleBidder is IRoleBidder
-{
-	constructor() public 
-	{
-
-	}
-
-	function Bid (uint playerID, string memory role, uint bidAmount)  public 
-	{
-		uint roleId = RoleToNum(role);
-	}
-
-	function CreateRoles() public returns(IPlayer[] memory)
-	{
-		// throw new NotImplementedException();
-	}
-
-	function GetIsActive() public returns(bool)
-    {
-        // throw new NotImplementedException();
-    }
-
-    function HasEveryoneBid() public returns(bool)
-    {
-    	// throw new NotImplementedException();
-    }
-
-    function SetPlayersCount(uint playersCount) public
-    {
-        
-    }
-
-    function RoleToNum(string memory role) private returns(uint)
-    {
-    	if (role == "POLICE")
-		{ //DRY
-			return 0;
-		}
-		else if (role == "CITIZEN")
-		{
-			return 1;
-		}
-		else if (role == "KIILER")
-		{
-			return 2;
-		}
-		else
-		{
-			revert("Parameter cannot be null");
-		}
-    }
-
-}
-
-contract PlayerManager is IPlayerManager
-{
-	IPlayer[] _players;
-	IPlayer[] _tempPlayersList;
-
-	constructor()  public 
-	{
-
-	}
-
-	function GetAllLivingPlayers() public returns(IPlayer[] memory)
-	{
-		_tempPlayersList = new IPlayer[];
-		for (uint i = 0; i < _players.length; i++)
-		{
-			IPlayer player = _players[i];
-			if (player.GetIsAlive())
-			{
-				_tempPlayersList.push(player);
-			}
-		}
-		return _tempPlayersList;
-	}
-
-	function GetAllPlayers() public returns(IPlayer[])
-	{
-		return _players;
-	}
-
-	function GetDeadPlayers() public returns(IPlayer[])
-	{
-		_tempPlayersList = new IPlayer[];
-		for (uint i = 0; i < _players.length; i++)
-		{
-			IPlayer player = _players[i];
-			if (!player.GetIsAlive())
-			{
-				_tempPlayersList.push(player);
-			}
-		}
-		return _tempPlayersList;
-	}
-
-	function GetPlayer(uint id) public returns (IPlayer memory)
-	{
-		return _players[id];
-	}
-
-	function Initialize(IPlayer[] players) public 
-	{
-		_players = players;
-	}
-
-	function FindByRole(string memory desiredRoleName, bool mustBeAlive)  private
-	{
-		IPlayer[] players = new IPlayer[];
-		IPlayer[] all     = GetAllPlayers();
-		mustBeAlive       = true; // Initialized as that in original file
-		for (uint i = 0; i < all.length; i++)
-		{
-			IPlayer x = all[i];
-			if (x.GetRole() == desiredRoleName) // however there is no GetRole() implemented 
-			{
-				if (mustBeAlive)
-				{
-					if (x.GetIsAlive())
-					{
-						players.push(x);
-					}
-				}
-				else
-				{
-					players.push(x);
-				}
-			}
-		}
-		return players;
-	}
-	
-}
-
-
-
-
-contract THQBYPlayerInterface is ITHQBYPlayerInterface
-{
-	THQBY_PLayer[]    				 _tHQBY_PLayers;
-    ITHQBY_Settings  			     _settings;
-    ChatLog 						 _log;
-    IBallot 						 _ballot;
-    THQBYRoleBidder 				 _roleBider;
-    THQBY_SceneManager 				 _SceneManager;
-    PlayerManager 					 _PlayerManager;
-    uint                             _curMaxId;
-    mapping(Address => uint)         _AddrToId;
-    mapping(Address => THQBY_PLayer) _AddrToPlayer;
-    mapping(uint => THQBY_PLayer)    _IdToPlayer;
-    mapping(uint => Address)         _IdToAddr;
-    mapping(uint => bool)            _isBid;      //map<id, bidOrNot>
-    mapping(Address => uint)         _AddressSet;
-
-
-
-}
-
-
-
-
-
-
-
-// To Do List:
-
-//		THQBYPlayerInterface
-//		THQBYRoleBidder4TestingOnly	
-//		THQBY_PLayer
-//		THQBY_PlayerFactory
-//		THQBY_PlayerManager
-// 		THQBY_SceneManager
-//		THQBY_Settings
-
-
-
-
-
-
-
-
 /*
  * The following contracts should be categorized as 'abstract contract'
  * rather than 'interface' since interface cannot inherit any other 
@@ -369,7 +131,7 @@ contract IGameController
 
 contract IPlayer is ISpokenEvent
 {
-	function SenderAddress() public returns(address);
+	function Senderaddress() public returns(address);
 	function GetVotingWeightAsPercent() public returns(uint);
 	function GetRole() public returns(string memory);
 	function GetId() public returns(uint);
@@ -386,6 +148,21 @@ contract IPlayer is ISpokenEvent
 contract IPlayerFactory 
 {
 	function Create(string memory str) public returns(IPlayer);
+}
+
+/// @dev DN: This is an abstract contract.
+contract PlayerFactoryBase is IPlayerFactory
+{
+	uint        _idCounter = 0;
+	
+
+	function Create(string memory role) public returns(IPlayer);
+
+	constructor () public
+	{
+
+	}
+
 }
 
 contract IInitializableIPlayerArr
@@ -486,6 +263,164 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
 	function GetSpeakingPlayer() public returns(IPlayer);
 	function HaveEveryoneSpoke() public returns(bool);
 }
+
+
+
+contract Clock
+{
+	uint _day               = 0;
+	uint _realTimeInSeconds = 0;
+
+	function  GetNth_day() public returns(uint)
+	{
+		return _day;
+	}
+
+	function  DayPlusPlus() public 
+	{
+		_day++;
+	}
+
+	function  GetRealTimeInSeconds() public returns(uint)
+	{
+		return now;
+	}
+}
+
+
+contract ChatMessage
+{
+	uint   public  timestamp;
+	int    public  byWho;
+	string public  message;
+
+	constructor (uint ts, int bw,  string memory msg ) public
+	{
+		timestamp = ts;
+		byWho     = bw;
+		message   = msg;
+	}	
+}
+
+
+
+
+
+
+
+
+
+
+
+contract PlayerManager is IPlayerManager
+{
+	IPlayer[] _players;
+	IPlayer[] _tempPlayersList;
+
+	constructor()  public 
+	{
+
+	}
+
+	function GetAllLivingPlayers() public returns(IPlayer[] memory)
+	{
+		_tempPlayersList = new IPlayer[];
+		for (uint i = 0; i < _players.length; i++)
+		{
+			IPlayer player = _players[i];
+			if (player.GetIsAlive())
+			{
+				_tempPlayersList.push(player);
+			}
+		}
+		return _tempPlayersList;
+	}
+
+	function GetAllPlayers() public returns(IPlayer[] memory)
+	{
+		return _players;
+	}
+
+	function GetDeadPlayers() public returns(IPlayer[] memory)
+	{
+		_tempPlayersList = new IPlayer[];
+		for (uint i = 0; i < _players.length; i++)
+		{
+			IPlayer player = _players[i];
+			if (!player.GetIsAlive())
+			{
+				_tempPlayersList.push(player);
+			}
+		}
+		return _tempPlayersList;
+	}
+
+	function GetPlayer(uint id) public returns (IPlayer )
+	{
+		return _players[id];
+	}
+
+	function Initialize(IPlayer[] memory players) public 
+	{
+		_players = players;
+	}
+
+	function FindByRole(string memory desiredRoleName, bool mustBeAlive)  private
+	{
+		IPlayer[] memory players = new IPlayer[];
+		IPlayer[] memory all     = GetAllPlayers();
+		mustBeAlive       = true; // Initialized as that in original file
+		for (uint i = 0; i < all.length; i++)
+		{
+			IPlayer x = all[i];
+			if (x.GetRole() == desiredRoleName) // however there is no GetRole() implemented 
+			{
+				if (mustBeAlive)
+				{
+					if (x.GetIsAlive())
+					{
+						players.push(x);
+					}
+				}
+				else
+				{
+					players.push(x);
+				}
+			}
+		}
+		return players;
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// To Do List:
+
+//		THQBYPlayerInterface
+//		THQBYRoleBidder4TestingOnly	
+//		THQBY_PLayer
+//		THQBY_PlayerFactory
+//		THQBY_PlayerManager
+// 		THQBY_SceneManager
+//		THQBY_Settings
+
+
+
+
+
+
+
+
 
 
 
@@ -654,12 +589,12 @@ contract ParticipatableBase is IParticipatable
 
 	function  EnableParticipant(IPlayer player)  public 
 	{
-		_canParticipate[player.SenderAddress()] = true;
+		_canParticipate[player.Senderaddress()] = true;
 	}
 
 	function  DisableParticipant(IPlayer player) public 
 	{
-		_canParticipate[player.SenderAddress()] = false;
+		_canParticipate[player.Senderaddress()] = false;
 	}
 
 	function  DisableAllParticipants() public 
@@ -676,7 +611,7 @@ contract ParticipatableBase is IParticipatable
 	{
 		for (uint i = 0; i < _players.length; i++)
 		{
-			_canParticipate[_players[i].SenderAddress()] = canParticipate;
+			_canParticipate[_players[i].Senderaddress()] = canParticipate;
 		}
 	}
 
@@ -704,7 +639,7 @@ contract ParticipatableBase is IParticipatable
 		{
 			return false;
 		}
-		return _canParticipate[player.SenderAddress()];
+		return _canParticipate[player.Senderaddress()];
 	}
 
 	function  ParticipatablePlayersCount()  public returns(uint)
@@ -806,8 +741,8 @@ contract Ballot is  ParticipatableBase, IBallot
 		IPlayer[] memory allplayers = _playerManager.GetAllPlayers();
 		for (uint i = 0; i < allplayers.length; i++)
 		{
-			_votesReceivedByPlayer[allplayers[i].SenderAddress()] = 0;
-			_playerVotedwho[allplayers[i].SenderAddress()]._voted = false;
+			_votesReceivedByPlayer[allplayers[i].Senderaddress()] = 0;
+			_playerVotedwho[allplayers[i].Senderaddress()]._voted = false;
 		}
 	}
 
@@ -827,7 +762,7 @@ contract Ballot is  ParticipatableBase, IBallot
 		uint      max  = 0;
 		for (uint i = 0; i < _players.length; i++) 
 		{
-			uint maxCandidate = _votesReceivedByPlayer[_players[i].SenderAddress()];
+			uint maxCandidate = _votesReceivedByPlayer[_players[i].Senderaddress()];
 			if (maxCandidate > max)
 			{
 				max = maxCandidate;
@@ -856,8 +791,8 @@ contract Ballot is  ParticipatableBase, IBallot
 		bool voteSuccess = CanParticipate(byWho);
 		if (voteSuccess) 
 		{
-			_playerVotedwho[byWho.SenderAddress()]._votedIPlayer = toWho;
-			_votesReceivedByPlayer[toWho.SenderAddress()] += byWho.GetVotingWeightAsPercent();
+			_playerVotedwho[byWho.Senderaddress()]._votedIPlayer = toWho;
+			_votesReceivedByPlayer[toWho.Senderaddress()] += byWho.GetVotingWeightAsPercent();
 		}
 		return voteSuccess;
 	}
@@ -878,9 +813,9 @@ contract Ballot is  ParticipatableBase, IBallot
 
 	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer)
 	{
-		if (_playerVotedwho[player.SenderAddress()]._voted == true) 
+		if (_playerVotedwho[player.Senderaddress()]._voted == true) 
 		{
-			return _playerVotedwho[player.SenderAddress()]._votedIPlayer;
+			return _playerVotedwho[player.Senderaddress()]._votedIPlayer;
 		} else {
 			return 0;
 		}
@@ -1991,7 +1926,69 @@ contract Player is IPlayer
 }
 
 
+
+
+contract RoleBidder is IRoleBidder
+{
+	constructor() public 
+	{
+
+	}
+
+	function Bid (uint playerID, string memory role, uint bidAmount)  public 
+	{
+		uint roleId = RoleToNum(role);
+	}
+
+	function CreateRoles() public returns(IPlayer[] memory)
+	{
+		// throw new NotImplementedException();
+	}
+
+	function GetIsActive() public returns(bool)
+    {
+        // throw new NotImplementedException();
+    }
+
+    function HasEveryoneBid() public returns(bool)
+    {
+    	// throw new NotImplementedException();
+    }
+
+    function SetPlayersCount(uint playersCount) public
+    {
+        
+    }
+
+    function RoleToNum(string memory role) private returns(uint)
+    {
+    	if (role == "POLICE")
+		{ //DRY
+			return 0;
+		}
+		else if (role == "CITIZEN")
+		{
+			return 1;
+		}
+		else if (role == "KIILER")
+		{
+			return 2;
+		}
+		else
+		{
+			revert("Parameter cannot be null");
+		}
+    }
+
+}
+
+
+
+
+
+
 /////////////////////// Main Function To Be ReModeled ////////////////////
+
 
 
 contract Main is ITHQBYPlayerInterface {
@@ -2015,7 +2012,7 @@ contract Main is ITHQBYPlayerInterface {
         mapping(uint=>THQBY_PLayer) _IdToPlayer;
         mapping(uint=> address) _IdToAddr;
         mapping(uint=>bool) _isBid;      //map<id, bidOrNot>
-        address[] _AddressSet;
+        address[] _addressSet;
     
     
     
@@ -2045,7 +2042,7 @@ contract Main is ITHQBYPlayerInterface {
 
 	
 	//accessing 
-	function getAddress() private returns(address)
+	function getaddress() private returns(address)
 	{
 	    return msg.sender;
 	}
