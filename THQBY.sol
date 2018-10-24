@@ -324,7 +324,7 @@ contract PlayerManager is IPlayerManager
 
 	function GetAllLivingPlayers() public returns(IPlayer[] memory)
 	{
-		_tempPlayersList = new IPlayer[];
+		//_tempPlayersList
 		for (uint i = 0; i < _players.length; i++)
 		{
 			IPlayer player = _players[i];
@@ -343,7 +343,7 @@ contract PlayerManager is IPlayerManager
 
 	function GetDeadPlayers() public returns(IPlayer[] memory)
 	{
-		_tempPlayersList = new IPlayer[];
+		//_tempPlayersList = new IPlayer[];
 		for (uint i = 0; i < _players.length; i++)
 		{
 			IPlayer player = _players[i];
@@ -367,13 +367,13 @@ contract PlayerManager is IPlayerManager
 
 	function FindByRole(string memory desiredRoleName, bool mustBeAlive)  private
 	{
-		IPlayer[] memory players = new IPlayer[];
+		IPlayer[] memory players;// = new IPlayer[];
 		IPlayer[] memory all     = GetAllPlayers();
 		mustBeAlive       = true; // Initialized as that in original file
 		for (uint i = 0; i < all.length; i++)
 		{
 			IPlayer x = all[i];
-			if (x.GetRole() == desiredRoleName) // however there is no GetRole() implemented 
+			if (x.GetRole() == desiredRoleName)
 			{
 				if (mustBeAlive)
 				{
@@ -1892,7 +1892,7 @@ contract Player is IPlayer
 		return _isAlive;
 	}
 
-	function GetRole() public returns(string)
+	function GetRole() public returns(string memory)
 	{
 		return _role;
 	}
@@ -1983,6 +1983,59 @@ contract RoleBidder is IRoleBidder
 }
 
 
+//////////////// THQBY specific code //////////////
+
+
+contract THQBY_PlayerFactory
+{
+    constructor(THQBY_Settings settings) public
+	{
+	}
+
+
+}
+
+
+
+contract THQBY_PlayerManager
+{
+    constructor(THQBY_Settings settings) public
+	{
+	}
+
+
+}
+
+
+
+contract THQBY_SceneManager
+{
+    constructor(THQBY_Settings settings) public
+	{
+	}
+
+
+}
+
+
+contract THQBY_Settings
+{
+    constructor() public
+	{
+	}
+
+
+}
+
+
+contract THQBY_PLayer
+{
+    
+}
+
+
+
+
 
 
 
@@ -2005,7 +2058,7 @@ contract Main is ITHQBYPlayerInterface {
         ITHQBY_Settings _settings;
         
        
-        PlayerManager _PlayerManager;
+        IPlayerManager _PlayerManager;
         uint _curMaxId;
         mapping(address=>uint) _AddrToId;
         
@@ -2018,61 +2071,195 @@ contract Main is ITHQBYPlayerInterface {
     
     constructor() public
     {
-        _inject=new DependencyInjection();
+        var _inject=new DependencyInjection();
+        			_settings = _inject.SettingsFactory();
+			_sceneManager = THQBY_SceneManager(_inject.SceneManagerFactory());
+
         
-        _roleBidder=_inject.RoleBidderFactory();
-        _sceneManager=_inject.SceneManagerFactory();
-        _settings=_inject.SettingsFactory();
-        //_PlayerManager=????
-        
+        _roleBidder=THQBYRoleBidder(_inject.RoleBidderFactory());
+        _PlayerManager=_inject.PlayerManager();
+
+		
+		
+
+
+			_roleBidder.Initialize();
+			_roleBidder.InitRoles();
     }
 	
 	//starting game
-	function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public
+	function Bid(uint policeAmount, uint killerAmount, uint citizenAmount) public
 	{
-		_roleBidder = RoleBidderFactory();
-		_roleBidder = Initialize();
-		_roleBidder = InitRoles();
+uint id = getMyID();
 
-		_roleBidder.Bid(_id, _settings.POLICE(), policeAmount);
-		_roleBidder.Bid(_id, _settings.KILLER(), KillerAmount);
-		_roleBidder.Bid(_id, _settings.CITIZEN(), citizenAmount);
+			_roleBidder.Bid(id, _settings.POLICE(), policeAmount);
+			_roleBidder.Bid(id, _settings.KILLER(), killerAmount);
+			_roleBidder.Bid(id, _settings.CITIZEN(), citizenAmount);
+
+			//update structure
+			_isBid[id] = true;
 	}
 	
+function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
+	{
+	    checkIsBid();
+			return _sceneManager.GetCurrentScene().Chatter();
+	    
+	}
+	
+	
+	
+	
+	function  getMyID() private returns (uint)
+		{
+			address addresss = GetMyAddress();
+			uint id = Address2ID(addresss);
+			return id;
+		}
+		
+		
+		
+		
+		
+			function GetMyPlayer() public returns(string memory){
+			    checkIsBid();
+
+			return Id2Player(getMyID());
+			}
+			
+			
+			
+			
+			
 
 	
 	//accessing 
-	function getaddress() private returns(address)
+	function GetMyAddress() private returns(address)
 	{
 	    return msg.sender;
 	}
 	
+	
+	
+	
 	function getID(uint id) public returns(uint);
-	function getRole() public returns(string memory);
-	
-	function getPlayer() public returns(string memory);
-	
-	
-	function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
+	function getRole() public returns(string memory)
 	{
-	    return _sceneManager.GetCurrentScene().Chatter();
+	    
+	   // public string getRole()
+		{
+			checkIsBid();
+
+			THQBY_PLayer Player = GetMyPlayer();
+			return Player.GetRole();
+		}
 	}
+	
+	
+
+	
 	//communicating
 	function TryChat(string memory message) public returns(bool)
 	{
-	    return _sceneManager.GetCurrentScene().Chatter().TryChat(getPlayer(), message);
+	    checkIsBid();
+
+			THQBY_PLayer _Player = GetMyPlayer();
+			return _sceneManager.GetCurrentScene().Chatter().TryChat(_Player, message);
+
 	}
+	
+	
+	
+	function TryEndBid() public returns(bool)
+	{
+	    if (!_roleBidder.HasEveryoneBid())
+			{
+				return false; // someone not voted yet
+			}
+
+			//update players[] 
+			_tHQBY_PLayers = _roleBidder.CreateRoles();
+
+			_sceneManager.Initialize();
+			_PlayerManager.Initialize(_tHQBY_PLayers);
+			return true;
+	}
+	
 	//action method
 	function TryVote(uint playerID) public returns(bool)
 	{
-	    return _sceneManager.GetCurrentScene().Ballot().TryVote(getPlayer(),ID2Player(playerID));
+	   checkIsBid();
+			IPlayer toWhoPlayer = Id2Player(playerID);
+			THQBY_PLayer Player = GetMyPlayer();
+			return _sceneManager.GetCurrentScene().Ballot().TryVote(Player, toWhoPlayer);
 	}
 	
 	
-	function ID2Player(uint id) private returns(IPlayer)
+	function WhoDidThisPlayerVote(uint playerID) public returns(uint)
+		{
+			checkIsBid();
+
+			IPlayer p = _sceneManager.GetCurrentScene().Ballot().WhoDidThePlayerVote(Id2Player(playerID));
+			return p.GetId();
+
+		}
+	
+
+	function Id2Player(uint id) private returns(IPlayer)
 	{
-	    //todo
+	    checkIsBid();
+			if (!_IdToPlayer.ContainsKey(id))
+			{
+				_IdToPlayer[id] = _tHQBY_PLayers[id];
+			}
+			return _IdToPlayer[id];
 	}
+	
+	function Address2ID(address addresss) private returns(uint)
+		{
+		    bool addressNotContain=false;
+		    
+		    for (int i=0; i< _addressSet.length; i++)
+		    {
+		        if(_addressSet[i]==addresss)
+		        {
+		            addressNotContain=true;
+		            break;
+		        }
+		    }
+		    
+		    
+		    
+			//如果input是新address，就给他asign个 id
+			if (addressNotContain)
+			{
+				_AddrToId[addresss] = _curMaxId;
+				_curMaxId++;
+				return _AddrToId[addresss];
+			}
+			//如果是旧的address直接调用历史记录。（do nothing）
+			return _AddrToId[address];
+		}
+
+		function  Address2Player(address addresss) private returns (IPlayer)
+		{
+			checkIsBid();
+
+			uint id = Address2ID(addresss);
+
+			return Id2Player(id);
+		}
+
+		
+
+		function checkIsBid() private
+		{
+			uint id = getMyID();
+			if (!_isBid[id])
+			{
+				revert();
+			}
+		}
 
 
 }
