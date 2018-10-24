@@ -406,7 +406,6 @@ contract PlayerManager is IPlayerManager
 
 // To Do List:
 
-//		THQBY_PlayerFactory
 //		THQBY_PlayerManager
 // 		THQBY_SceneManager
 //		THQBY_Settings
@@ -2079,12 +2078,29 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
 
 
 
-contract THQBY_PlayerManager
+contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 {
+	ITHQBY_Settings _names;
+
     constructor(THQBY_Settings settings) public
 	{
+		_names = settings;
 	}
 
+	function GetLivingCitizenPlayers() public returns (IPlayer[])
+	{
+		return FindByRole(_names.CITIZEN());
+	}
+
+	function GetLivingKillerPlayers() public returns (IPlayer[])
+	{
+		return FindByRole(_names.KILLER());
+	}
+
+	function GetLivingPolicePlayers() public returns (IPlayer[])
+	{
+		return FindByRole(_names.POLICE());
+	}
 
 }
 
