@@ -441,8 +441,8 @@ contract RoleBidderBase is IRoleBidder
 	/*
 	 * Abstract Contracts
 	 */
-	function InitRoles() public;
-	function SetSpotsOfRoles() public; 
+	function InitRoles() private;
+	function SetSpotsOfRoles() private; 
 	function Initialize() public;
 
 	/*
@@ -2084,7 +2084,6 @@ contract Main is ITHQBYPlayerInterface {
 
 
 			_roleBidder.Initialize();
-			_roleBidder.InitRoles();
     }
 	
 	//starting game
