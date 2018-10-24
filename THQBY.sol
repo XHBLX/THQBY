@@ -406,7 +406,6 @@ contract PlayerManager is IPlayerManager
 
 // To Do List:
 
-//		THQBY_PLayer
 //		THQBY_PlayerFactory
 //		THQBY_PlayerManager
 // 		THQBY_SceneManager
@@ -2041,10 +2040,38 @@ contract RoleBidder is IRoleBidder
 //////////////// THQBY specific code //////////////
 
 
-contract THQBY_PlayerFactory
+contract THQBY_PlayerFactory is PlayerFactoryBase
 {
+	ITHQBY_Settings _settings;
+
+	//mannually DI
     constructor(THQBY_Settings settings) public
 	{
+		_settings = settings;
+	}
+
+	function Create(string memory role) public returns(IPlayer)
+	{
+		IPlayer ans;
+		if (role == _settings.CITIZEN())
+		{
+			ans = new Citizen(_settings)
+		}
+		else if (role == _settings.KILLER())
+		{
+			ans = new Killer(_settings)
+		}
+		else if (role == _settings.POLICE())
+		{
+			ans = new Police(_settings)
+		}
+		else {
+			revert("no such role");
+		}
+
+		ans.SetId(_idCounter);
+		_idCounter++;
+		return ans;
 	}
 
 
