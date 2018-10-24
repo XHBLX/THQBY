@@ -406,20 +406,73 @@ contract PlayerManager is IPlayerManager
 
 // To Do List:
 
-//		THQBYPlayerInterface
-//		THQBYRoleBidder4TestingOnly	
-//		THQBY_PLayer
-//		THQBY_PlayerFactory
 //		THQBY_PlayerManager
 // 		THQBY_SceneManager
 //		THQBY_Settings
 
 
 
+contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
+{
+	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
+	{
+		_playerFactory = PlayerFactory;
+		_settings = settings;
+	}
+
+	function InitRoles() public 
+	{
+		string[] stra = new string[]{_settings.POLICE(), _settings.CITIZEN(), _settings.KILLER()};
+		Initialize(stra);
+		SetPlayersCount(5);
+	}
+
+	function SetSpotsOfRoles() public
+	{
+		_spotsOfRole.push(_settings.POLICE(), 2);
+        _spotsOfRole.push(_settings.CITIZEN(), 1);
+        _spotsOfRole.push(_settings.KILLER(), 2);
+	}
+}
 
 
+contract THQBY_PLayer is Player
+{
+	constructor(ITHQBY_Settings settings)
+	{
+
+	}
+}
 
 
+contract Police is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.POLICE();
+	}
+}
+
+
+contract Killer is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.KILLER();
+	}
+}
+
+
+contract Citizen is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.CITIZEN();
+	}
+}
 
 
 
@@ -570,7 +623,7 @@ contract THQBYRoleBidder is RoleBidderBase
 
 	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
 	{
-		RoleBidderBase._playerFactory = PlayerFactory;
+		_playerFactory = PlayerFactory;
 		_settings = settings;
 	}
 }
@@ -1986,10 +2039,38 @@ contract RoleBidder is IRoleBidder
 //////////////// THQBY specific code //////////////
 
 
-contract THQBY_PlayerFactory
+contract THQBY_PlayerFactory is PlayerFactoryBase
 {
+	ITHQBY_Settings _settings;
+
+	//mannually DI
     constructor(THQBY_Settings settings) public
 	{
+		_settings = settings;
+	}
+
+	function Create(string memory role) public returns(IPlayer)
+	{
+		IPlayer ans;
+		if (role == _settings.CITIZEN())
+		{
+			ans = new Citizen(_settings)
+		}
+		else if (role == _settings.KILLER())
+		{
+			ans = new Killer(_settings)
+		}
+		else if (role == _settings.POLICE())
+		{
+			ans = new Police(_settings)
+		}
+		else {
+			revert("no such role");
+		}
+
+		ans.SetId(_idCounter);
+		_idCounter++;
+		return ans;
 	}
 
 
@@ -1997,12 +2078,29 @@ contract THQBY_PlayerFactory
 
 
 
-contract THQBY_PlayerManager
+contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 {
+	ITHQBY_Settings _names;
+
     constructor(THQBY_Settings settings) public
 	{
+		_names = settings;
 	}
 
+	function GetLivingCitizenPlayers() public returns (IPlayer[])
+	{
+		return FindByRole(_names.CITIZEN());
+	}
+
+	function GetLivingKillerPlayers() public returns (IPlayer[])
+	{
+		return FindByRole(_names.KILLER());
+	}
+
+	function GetLivingPolicePlayers() public returns (IPlayer[])
+	{
+		return FindByRole(_names.POLICE());
+	}
 
 }
 
