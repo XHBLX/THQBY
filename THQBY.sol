@@ -546,7 +546,7 @@ contract PlayerManager is IPlayerManager
 		_players = players;
 	}
 
-	function FindByRole(string memory desiredRoleName) private returns(IPlayer[])
+	function FindByRole(string memory desiredRoleName) internal returns(IPlayer[])
 	{
 		IPlayer[] memory players;// = new IPlayer[];
 		IPlayer[] memory all     = GetAllPlayers();
