@@ -404,11 +404,7 @@ contract PlayerManager is IPlayerManager
 
 
 
-// To Do List:
 
-//		THQBY_PlayerManager
-// 		THQBY_SceneManager
-//		THQBY_Settings
 
 
 
@@ -2111,12 +2107,28 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 
 
 
-contract THQBY_SceneManager
+contract THQBY_SceneManager is SceneManagerBase
 {
-    constructor(THQBY_Settings settings) public
+	SceneDAY _sceneDay;
+
+    constructor(SceneDAY sceneDay
+    	      , SceneDAY_PK scenePK
+    	      , SceneNIGHT_KILLER sceneNIGHT_KILLER
+    	      , SceneNIGHT_POLICE sceneNIGHT_POLICE
+    	      , ITHQBY_PlayerManager playerManager) 
+    	public
 	{
+		_sceneDay = sceneDay;
+		sceneDay.Initialize(this, playerManager.GetAllPlayers());
+		scenePK.Initialize(this, playerManager.GetAllPlayers());
+		sceneNIGHT_KILLER.Initialize(this, playerManager.GetLivingKillerPlayers());
+		sceneNIGHT_POLICE.Initialize(this, playerManager.GetLivingPolicePlayers());
 	}
 
+	function Initialize() public 
+	{
+		MoveForwardToNewScene(_sceneDay);
+	}
 
 }
 
@@ -2131,12 +2143,13 @@ contract THQBY_Settings
 }
 
 
-contract THQBY_PLayer
-{
-    
-}
 
 
+
+// To Do List:
+//      THQBY_PLayer
+// 		THQBY_SceneManager
+//		THQBY_Settings
 
 
 
