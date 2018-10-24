@@ -444,8 +444,36 @@ contract THQBY_PLayer is Player
 	{
 
 	}
+}
 
-	
+
+contract Police is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.POLICE();
+	}
+}
+
+
+contract Killer is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.KILLER();
+	}
+}
+
+
+contract Citizen is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.CITIZEN();
+	}
 }
 
 
