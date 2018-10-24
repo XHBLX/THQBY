@@ -494,8 +494,8 @@ contract RoleBidderBase is IRoleBidder
 	/*
 	 * Abstract Contracts
 	 */
-	function InitRoles() public;
-	function SetSpotsOfRoles() public; 
+	function InitRoles() private;
+	function SetSpotsOfRoles() private; 
 	function Initialize() public;
 
 	/*
@@ -2187,7 +2187,6 @@ contract Main is ITHQBYPlayerInterface {
 
 
 			_roleBidder.Initialize();
-			_roleBidder.InitRoles();
     }
 	
 	//starting game
@@ -2245,7 +2244,7 @@ function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
 	
 	
 	
-	function getID(uint id) public returns(uint);
+
 	function getRole() public returns(string memory)
 	{
 	    
@@ -2288,7 +2287,35 @@ function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
 			return true;
 	}
 	
+	
+	
+	
+	
+	
 	//action method
+	
+	public bool TryEndChat()
+		{
+			checkIsBid();
+
+			THQBY_PLayer Player = GetMyPlayer();
+			IScene scene = _sceneManager.GetCurrentScene();
+			IChatter Chatter = scene.Chatter();
+
+			return Chatter.TryMoveForward(Player);
+		}
+		
+	public void TryForwardScene()
+		{
+			checkIsBid();
+
+			THQBY_PLayer Player = GetMyPlayer();
+			_sceneManager.TryMoveForward(Player);
+		}
+	
+	
+	
+	
 	function TryVote(uint playerID) public returns(bool)
 	{
 	   checkIsBid();
@@ -2308,15 +2335,7 @@ function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
 		}
 	
 
-	function Id2Player(uint id) private returns(IPlayer)
-	{
-	    checkIsBid();
-			if (!_IdToPlayer.ContainsKey(id))
-			{
-				_IdToPlayer[id] = _tHQBY_PLayers[id];
-			}
-			return _IdToPlayer[id];
-	}
+
 	
 	function Address2ID(address addresss) private returns(uint)
 		{
@@ -2341,7 +2360,7 @@ function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
 				return _AddrToId[addresss];
 			}
 			//如果是旧的address直接调用历史记录。（do nothing）
-			return _AddrToId[address];
+			return _AddrToId[addresss];
 		}
 
 		function  Address2Player(address addresss) private returns (IPlayer)
@@ -2353,7 +2372,15 @@ function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog)
 			return Id2Player(id);
 		}
 
-		
+			function Id2Player(uint id) private returns(IPlayer)
+	{
+	    checkIsBid();
+			if (!_IdToPlayer.ContainsKey(id))
+			{
+				_IdToPlayer[id] = _tHQBY_PLayers[id];
+			}
+			return _IdToPlayer[id];
+	}
 
 		function checkIsBid() private
 		{
