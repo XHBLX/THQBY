@@ -301,15 +301,6 @@ contract ChatMessage
 }
 
 
-
-
-
-
-
-
-
-
-
 contract PlayerManager is IPlayerManager
 {
 	IPlayer[] _players;
@@ -392,83 +383,84 @@ contract PlayerManager is IPlayerManager
 
 
 
-	contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
+contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
+{
+	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
 	{
-		constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
-		{
-			_playerFactory = PlayerFactory;
-			_settings = settings;
-		}
-
-		function InitRoles() public 
-		{
-			string[] stra = new string[]{_settings.POLICE(), _settings.CITIZEN(), _settings.KILLER()};
-			Initialize(stra);
-			SetPlayersCount(5);
-		}
-
-		function SetSpotsOfRoles() public
-		{
-			_spotsOfRole.push(_settings.POLICE(), 2);
-			_spotsOfRole.push(_settings.CITIZEN(), 1);
-			_spotsOfRole.push(_settings.KILLER(), 2);
-		}
+		_playerFactory = PlayerFactory;
+		_settings = settings;
 	}
 
-
-	contract THQBY_PLayer is Player
+	function InitRoles() public 
 	{
-		constructor(ITHQBY_Settings settings)
-		{
-		}
+		string[] stra;
+		stra.push(_settings.POLICE()).push(_settings.CITIZEN()).push(_settings.KILLER());
+		Initialize(stra);
+		SetPlayersCount(5);
 	}
 
-
-	contract Police is THQBY_PLayer
+	function SetSpotsOfRoles() public
 	{
-		constructor(ITHQBY_Settings settings)
-		{
-			// base(settings) from THQBY_PLayer
-			_role = settings.POLICE();
-		}
+		_spotsOfRole.push(_settings.POLICE(), 2);
+		_spotsOfRole.push(_settings.CITIZEN(), 1);
+		_spotsOfRole.push(_settings.KILLER(), 2);
 	}
+}
 
 
-	contract Killer is THQBY_PLayer
+contract THQBY_PLayer is Player
+{
+	constructor(ITHQBY_Settings settings)
 	{
-		constructor(ITHQBY_Settings settings)
-		{
-			// base(settings) from THQBY_PLayer
-			_role = settings.KILLER();
-		}
 	}
+}
 
 
-	contract Citizen is THQBY_PLayer
+contract Police is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
 	{
-		constructor(ITHQBY_Settings settings)
-		{
-			// base(settings) from THQBY_PLayer
-			_role = settings.CITIZEN();
-		}
+		// base(settings) from THQBY_PLayer
+		_role = settings.POLICE();
 	}
+}
 
 
-
-
-	/// @dev DN: This is an abstract contract.
-	contract RoleBidderBase is IRoleBidder 
+contract Killer is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
 	{
-		IPlayerFactory               _playerFactory;
-		bool                         _isClassActive    = true; //init usable 
-		uint                         _playerCount;
-		uint                         _numRoles;
-		int[][]                      _matrix;
-		bool[]                       isVote;
-		mapping(uint => string)      _roleOfPlayerID;
-		mapping(string => uint[])    _string2RoleIndx;
-		mapping(int => string)       _roleIndx2String;
-		mapping(string => uint)      _spotsOfRole;
+		// base(settings) from THQBY_PLayer
+		_role = settings.KILLER();
+	}
+}
+
+
+contract Citizen is THQBY_PLayer
+{
+	constructor(ITHQBY_Settings settings)
+	{
+		// base(settings) from THQBY_PLayer
+		_role = settings.CITIZEN();
+	}
+}
+
+
+
+
+/// @dev DN: This is an abstract contract.
+contract RoleBidderBase is IRoleBidder 
+{
+	IPlayerFactory               _playerFactory;
+	bool                         _isClassActive    = true; //init usable 
+	uint                         _playerCount;
+	uint                         _numRoles;
+	int[][]                      _matrix;
+	bool[]                       isVote;
+	mapping(uint => string)      _roleOfPlayerID;
+	mapping(string => uint[])    _string2RoleIndx;
+	mapping(int => string)       _roleIndx2String;
+	mapping(string => uint)      _spotsOfRole;
 
 	/*
 	* Abstract Contracts
@@ -792,127 +784,131 @@ contract Ballot is  ParticipatableBase, IBallot
 				max = maxCandidate;
 				ans = new IPlayer[];
 				ans.push(_players[i]);
-				} else if (maxCandidate == max) {
-					ans.push(_players[i]);
-				}
-			}
-			return ans;
-		}
-
-		function IsEveryVotableOnesVoted() public returns(bool)
-		{	
-			return VotedPlayerCount() == ParticipatablePlayersCount();
-		}
-
-		function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool)
-		{	
-			if (DidVote(byWho))
+			} 
+			else if (maxCandidate == max) 
 			{
-				return false;
+				ans.push(_players[i]);
 			}
-			bool voteSuccess = CanParticipate(byWho);
-			if (voteSuccess) 
-			{
-				_playerVotedwho[byWho.Senderaddress()]._votedIPlayer = toWho;
-				_votesReceivedByPlayer[toWho.Senderaddress()] += byWho.GetVotingWeightAsPercent();
-			}
-			return voteSuccess;
 		}
+		return ans;
+	}
 
-		function VotedPlayerCount() public returns(uint)
+	function IsEveryVotableOnesVoted() public returns(bool)
+	{	
+		return VotedPlayerCount() == ParticipatablePlayersCount();
+	}
+
+	function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool)
+	{	
+		if (DidVote(byWho))
 		{
-			uint ans = 0;
-			for (uint i = 0; i < _players.length; i++)
-			{
-				IPlayer player = _players[i];
-				if (DidVote(player))
-				{
-					ans++;
-				}
-			}
-			return ans;
+			return false;
 		}
-
-		function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer)
+		bool voteSuccess = CanParticipate(byWho);
+		if (voteSuccess) 
 		{
-			if (_playerVotedwho[player.Senderaddress()]._voted == true) {
-				return _playerVotedwho[player.Senderaddress()]._votedIPlayer;
-				} else {
-					return 0;
-				}
-			}
-
-			function DidVote(IPlayer player) public returns(bool)
-			{
-				return WhoDidThePlayerVote(player) != 0;
-			}
-
-			function IsSoloWinder() public returns(bool)
-			{
-				return GetWinners().length == 1;
-			}
-
-			function IsZeroWinders() public returns(bool)
-			{
-				return GetWinners().length == 0;
-			}	
-
+			_playerVotedwho[byWho.Senderaddress()]._votedIPlayer = toWho;
+			_votesReceivedByPlayer[toWho.Senderaddress()] += byWho.GetVotingWeightAsPercent();
 		}
+		return voteSuccess;
+	}
 
-
-		contract ChatLog is ParticipatableBase, IChatLog
+	function VotedPlayerCount() public returns(uint)
+	{
+		uint ans = 0;
+		for (uint i = 0; i < _players.length; i++)
 		{
-			ChatMessage[] _messages;
-			uint _messageCount = 0;
-
-			IClock _clock;
-			constructor(IClock clock) public
+			IPlayer player = _players[i];
+			if (DidVote(player))
 			{
-				_clock = clock;
-				//_messages = new List<ChatMessage>();
-				_messageCount=0;
+				ans++;
 			}
-
-			function  TryChat(IPlayer player, string memory message) public returns(bool)
-			{
-				if (!CanParticipate(player))
-				{
-					return false;
-				}
-				ChatMessage chatMessage = new ChatMessage(GetTimeAsSeconds(),int(player.GetId()), message);
-				PushMessage(chatMessage);
-				return true;
-			}
-
-			function GetTimeAsSeconds() private returns(uint) 
-			{
-				return _clock.GetRealTimeInSeconds();
-			}
-
-			function GetAllMessages() public returns(ChatMessage[] memory)
-			{
-				return _messages;
-			}
-
-			function  GetNewestMessage() public returns(ChatMessage )
-			{
-				return _messages[uint(_messageCount - 1)];
-			}
-
-			function  PrintSystemMessage(string memory message ) public
-			{
-				ChatMessage chatMessage = new ChatMessage(GetTimeAsSeconds(),-1,message);
-				PushMessage(chatMessage);
-			}
-
-
-			function PushMessage(ChatMessage message) private
-			{
-				_messages.push(message);
-				_messageCount++;
-			}
-
 		}
+		return ans;
+	}
+
+	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer)
+	{
+		if (_playerVotedwho[player.Senderaddress()]._voted == true) {
+			return _playerVotedwho[player.Senderaddress()]._votedIPlayer;
+		} 
+		else 
+		{
+			return 0;
+		}
+	}
+
+	function DidVote(IPlayer player) public returns(bool)
+	{
+		return WhoDidThePlayerVote(player) != 0;
+	}
+
+	function IsSoloWinder() public returns(bool)
+	{
+		return GetWinners().length == 1;
+	}
+
+	function IsZeroWinders() public returns(bool)
+	{
+		return GetWinners().length == 0;
+	}	
+
+}
+
+
+contract ChatLog is ParticipatableBase, IChatLog
+{
+	ChatMessage[] _messages;
+	uint _messageCount = 0;
+
+	IClock _clock;
+	constructor(IClock clock) public
+	{
+		_clock = clock;
+		//_messages = new List<ChatMessage>();
+		_messageCount=0;
+	}
+
+	function  TryChat(IPlayer player, string memory message) public returns(bool)
+	{
+		if (!CanParticipate(player))
+		{
+			return false;
+		}
+		ChatMessage chatMessage = new ChatMessage(GetTimeAsSeconds(),int(player.GetId()), message);
+		PushMessage(chatMessage);
+		return true;
+	}
+
+	function GetTimeAsSeconds() private returns(uint) 
+	{
+		return _clock.GetRealTimeInSeconds();
+	}
+
+	function GetAllMessages() public returns(ChatMessage[] memory)
+	{
+		return _messages;
+	}
+
+	function  GetNewestMessage() public returns(ChatMessage )
+	{
+		return _messages[uint(_messageCount - 1)];
+	}
+
+	function  PrintSystemMessage(string memory message ) public
+	{
+		ChatMessage chatMessage = new ChatMessage(GetTimeAsSeconds(),-1,message);
+		PushMessage(chatMessage);
+	}
+
+
+	function PushMessage(ChatMessage message) private
+	{
+		_messages.push(message);
+		_messageCount++;
+	}
+
+}
 
 
 /*
@@ -946,7 +942,6 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 	function ZeroVotingResultHandler() public;
 	function OneVotingResultHandler(IPlayer result) public;
 	function MoreVotingResultHandler(IPlayer[] memory result) public;
-
 
 	function Ballot() public returns(IBallot)
 	{
@@ -1999,20 +1994,19 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
 		IPlayer ans;
 		if (role == _settings.CITIZEN())
 		{
-			ans = new Citizen(_settings)
+			ans = new Citizen(_settings);
 		}
 		else if (role == _settings.KILLER())
 		{
-			ans = new Killer(_settings)
+			ans = new Killer(_settings);
 		}
 		else if (role == _settings.POLICE())
 		{
-			ans = new Police(_settings)
+			ans = new Police(_settings);
 		}
 		else {
 			revert("no such role");
 		}
-
 		ans.SetId(_idCounter);
 		_idCounter++;
 		return ans;
@@ -2173,7 +2167,6 @@ contract Main is ITHQBYPlayerInterface
 	{
 		checkIsBid();
 		return _sceneManager.GetCurrentScene().Chatter();
-
 	}
 
 	function getMyID() private returns(uint)
@@ -2185,7 +2178,6 @@ contract Main is ITHQBYPlayerInterface
 
 	function GetMyPlayer() public returns(string memory){
 		checkIsBid();
-
 		return Id2Player(getMyID());
 	}	
 
@@ -2255,6 +2247,11 @@ contract Main is ITHQBYPlayerInterface
 		return p.GetId();
 	}
 
+
+	/*
+	* helper functions
+	*/
+
 	function Address2ID(address playerAddress) private returns(uint)
 	{
 		bool addressNotContain=false;
@@ -2277,7 +2274,7 @@ contract Main is ITHQBYPlayerInterface
 		return _AddrToId[playerAddress];
 	}
 
-	function  Address2Player(address playerAddress) private returns (IPlayer)
+	function Address2Player(address playerAddress) private returns (IPlayer)
 	{
 		checkIsBid();
 		uint id = Address2ID(playerAddress);
