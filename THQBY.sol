@@ -2,7 +2,8 @@
 * OOP implementation of THQBY in Solidity
 */
 
-pragma solidity ^0.4.25;
+// pragma solidity ^0.4.25;
+pragma experimental ABIEncoderV2;
 
 
 /*
@@ -288,7 +289,7 @@ contract RoleBidderBase is IRoleBidder
 	* Public finctions
 	*/
 	constructor (IPlayerFactory playerFactory) public {
-		_roleOfPlayerID = playerFactory;
+		_playerFactory = playerFactory;
 	}
 
 	function Initialize(string[] memory roles) public 
@@ -298,7 +299,7 @@ contract RoleBidderBase is IRoleBidder
 			string memory role = roles[i];
 			_string2RoleIndx[role][0] = 1;
 			_string2RoleIndx[role][1] = i;
-			_roleIndx2String[i] = role;
+			_roleIndx2String[int(i)] = role;
 		}
 	}
 
@@ -306,7 +307,7 @@ contract RoleBidderBase is IRoleBidder
 	{
 		bool _bidCheck = (playerID < _playerCount && _string2RoleIndx[role][0] != 0);
 		require(_bidCheck, "Invalid input!");
-		_matrix[playerID][_string2RoleIndx[role][1]] = bidAmount;
+		_matrix[playerID][_string2RoleIndx[role][1]] = int(bidAmount);
 	}
 
 	function FindMaxNumRole() public returns(uint)
@@ -314,7 +315,7 @@ contract RoleBidderBase is IRoleBidder
 		uint tempRoleNum;
 		uint tempMax = 0;
 		for (uint i = 0; i < _numRoles; i++) {
-			tempRoleNum = _spotsOfRole[_roleIndx2String[i]];
+			tempRoleNum = _spotsOfRole[_roleIndx2String[int(i)]];
 			if (tempRoleNum > tempMax) {
 				tempMax = tempRoleNum;
 			}
@@ -334,7 +335,7 @@ contract RoleBidderBase is IRoleBidder
 		uint 			 matrixColumn	 = 0;
 
 		for (uint i = 0; i < _numRoles; i++) {
-			totalRole += _spotsOfRole[_roleIndx2String[i]];
+			totalRole += _spotsOfRole[_roleIndx2String[int(i)]];
 		}
 		require(totalRole == _playerCount, "numbers of role != numbers of players");
 		for (uint j = 0; j < totalIteration; j++) {
@@ -352,7 +353,7 @@ contract RoleBidderBase is IRoleBidder
 				}
 			}
 			isAssignedRole[tempPos] = true;
-			IPlayer p = IPlayerFactory.Create(_roleIndx2String[int(curRoleIndex)]);
+			IPlayer p = _playerFactory.Create(_roleIndx2String[int(curRoleIndex)]);
 			p.SetId(tempPos);
 			res[tempPos] = p;
 			numRoleAssigned[curRoleIndex]++;
@@ -545,16 +546,20 @@ contract PlayerManager is IPlayerManager
 	{
 		_players = players;
 	}
-
-	function FindByRole(string memory desiredRoleName) internal returns(IPlayer[])
+IPlayer[]  players;// = new IPlayer[];
+string a;
+string b;
+	function FindByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
 	{
-		IPlayer[] memory players;// = new IPlayer[];
+		players=new Player[];
 		IPlayer[] memory all     = GetAllPlayers();
 		bool mustBeAlive       = true; // Initialized as that in original file
 		for (uint i = 0; i < all.length; i++)
 		{
 			IPlayer x = all[i];
-			if (x.GetRole() == desiredRoleName) 
+			 a = x.GetRole();
+			b = desiredRoleName;
+			if (a==b) 
 			{
 				if (mustBeAlive) 
 				{
@@ -588,32 +593,36 @@ contract THQBYRoleBidder is RoleBidderBase
 
 contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
 {
-	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)
+	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
 	{
 		_playerFactory = PlayerFactory;
 		_settings = settings;
 	}
 
-	function InitRoles() public 
+
+
+string[]  stra;
+	function InitRoles() private 
 	{
-		string[] stra;
-		stra.push(_settings.POLICE()).push(_settings.CITIZEN()).push(_settings.KILLER());
+		stra.push(_settings.POLICE());
+		stra.push(_settings.CITIZEN());
+		stra.push(_settings.KILLER());
 		Initialize(stra);
-		SetPlayersCount(5);
+		SetPlayersCount(12);
 	}
 
-	function SetSpotsOfRoles() public
+	function SetSpotsOfRoles() private
 	{
-		_spotsOfRole.push(_settings.POLICE(), 2);
-		_spotsOfRole.push(_settings.CITIZEN(), 1);
-		_spotsOfRole.push(_settings.KILLER(), 2);
+		_spotsOfRole.push(_settings.POLICE(), 4);
+		_spotsOfRole.push(_settings.CITIZEN(), 4);
+		_spotsOfRole.push(_settings.KILLER(), 4);
 	}
 }
 
 
 contract THQBY_PLayer is Player
 {
-	constructor(ITHQBY_Settings settings)
+	constructor(ITHQBY_Settings settings) public
 	{
 	}
 }
@@ -621,7 +630,7 @@ contract THQBY_PLayer is Player
 
 contract Police is THQBY_PLayer
 {
-	constructor(ITHQBY_Settings settings)
+	constructor(ITHQBY_Settings settings) public
 	{
 		// base(settings) from THQBY_PLayer
 		_role = settings.POLICE();
@@ -631,7 +640,7 @@ contract Police is THQBY_PLayer
 
 contract Killer is THQBY_PLayer
 {
-	constructor(ITHQBY_Settings settings)
+	constructor(ITHQBY_Settings settings) public
 	{
 		// base(settings) from THQBY_PLayer
 		_role = settings.KILLER();
@@ -641,7 +650,7 @@ contract Killer is THQBY_PLayer
 
 contract Citizen is THQBY_PLayer
 {
-	constructor(ITHQBY_Settings settings)
+	constructor(ITHQBY_Settings settings) public
 	{
 		// base(settings) from THQBY_PLayer
 		_role = settings.CITIZEN();
@@ -2023,17 +2032,17 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 		_names = settings;
 	}
 
-	function GetLivingCitizenPlayers() public returns (IPlayer[])
+	function GetLivingCitizenPlayers() public returns (IPlayer[] memory )
 	{
 		return FindByRole(_names.CITIZEN());
 	}
 
-	function GetLivingKillerPlayers() public returns (IPlayer[])
+	function GetLivingKillerPlayers() public returns (IPlayer[] memory )
 	{
 		return FindByRole(_names.KILLER());
 	}
 
-	function GetLivingPolicePlayers() public returns (IPlayer[])
+	function GetLivingPolicePlayers() public returns (IPlayer[] memory )
 	{
 		return FindByRole(_names.POLICE());
 	}	
@@ -2074,37 +2083,37 @@ contract THQBY_Settings is ITHQBY_Settings
 	{
 	}
 
-	function CITIZEN() public returns(string)
+	function CITIZEN() public returns(string memory )
 	{
 		return "CITIZEN";
 	}
 
-	function DAY() public returns(string)
+	function DAY() public returns(string memory )
 	{
 		return "DAY";
 	}
 
-	function DAY_PK() public returns(string)
+	function DAY_PK() public returns(string memory )
 	{
 		return "DAY_PK";
 	}
 
-	function KILLER() public returns(string)
+	function KILLER() public returns(string memory )
 	{
 		return "KILLER";
 	}
 
-	function NIGHT_KILLER() public returns(string)
+	function NIGHT_KILLER() public returns(string memory )
 	{
 		return "NIGHT_KILLER";
 	}
 
-	function NIGHT_POLICE() public returns(string)
+	function NIGHT_POLICE() public returns(string memory )
 	{
 		return "NIGHT_POLICE";
 	}
 
-	function POLICE() public returns(string)
+	function POLICE() public returns(string memory )
 	{
 		return "POLICE";
 	}
