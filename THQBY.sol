@@ -2096,12 +2096,7 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 	function GetLivingPolicePlayers() public returns (IPlayer[])
 	{
 		return FindByRole(_names.POLICE());
-	}
-
-
-
-
-	
+	}	
 
 }
 
@@ -2133,10 +2128,45 @@ contract THQBY_SceneManager is SceneManagerBase
 }
 
 
-contract THQBY_Settings
+contract THQBY_Settings is ITHQBY_Settings
 {
     constructor() public
 	{
+	}
+
+	function CITIZEN() public returns(string)
+	{
+		return "CITIZEN";
+	}
+
+	function DAY() public returns(string)
+	{
+		return "DAY";
+	}
+
+	function DAY_PK() public returns(string)
+	{
+		return "DAY_PK";
+	}
+
+	function KILLER() public returns(string)
+	{
+		return "KILLER";
+	}
+
+	function NIGHT_KILLER() public returns(string)
+	{
+		return "NIGHT_KILLER";
+	}
+
+	function NIGHT_POLICE() public returns(string)
+	{
+		return "NIGHT_POLICE";
+	}
+
+	function POLICE() public returns(string)
+	{
+		return "POLICE";
 	}
 
 
@@ -2148,7 +2178,6 @@ contract THQBY_Settings
 
 // To Do List:
 //      THQBY_PLayer
-// 		THQBY_SceneManager
 //		THQBY_Settings
 
 
