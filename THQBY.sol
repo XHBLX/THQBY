@@ -1611,7 +1611,7 @@ contract SequentialChatter is Chatter, ISequentialChatter
 	function HaveEveryoneSpoke() public returns (bool)
 	{
 		bool ans1 = _chatLog.ParticipatablePlayersCount() == 0;
-		bool ans2 = _chatLog.GetParticipants().Length == _spokenPlayersCount;
+		bool ans2 = _chatLog.GetParticipants().length == uint(_spokenPlayersCount);
 		return ans1 && ans2;
 	}
 
