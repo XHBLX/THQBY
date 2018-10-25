@@ -34,7 +34,6 @@ contract ITimeLimitable is IClock
 
 contract ITimeLimitForwardable is ITimeLimitable
 {
-	//	event moveForward(Action); // ??? and I may in the future put all event in a seperate contract
 	function  TryMoveForward(IPlayer player) public returns(bool);
 }
 
@@ -43,15 +42,19 @@ contract IVoteHistory
 	function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
 }
 
+contract IInitializable
+{
+	function Initialize(IPlayer[] memory participants) public;
+}
 
-contract IParticipatable
+
+contract IParticipatable is IInitializable
 {
 	function GetParticipants() public returns(IPlayer[] memory);
 	function EnableParticipant(IPlayer player)  public ;
 	function DisableParticipant(IPlayer player) public ;
 	function DisableAllParticipants() public ;
 	function EnableAllParticipants() public ;
-	function IInitializable(IPlayer[] memory players) public ;
 	function IsRegisteredParticipant(IPlayer player) public  returns(bool);
 	function CanParticipate(IPlayer player) public  returns(bool);
 	function ParticipatablePlayersCount()  public returns(uint);
@@ -90,10 +93,7 @@ contract IChatLog is IParticipatable, IChatable, ISpokenEvent
 }
 
 
-contract IInitializable
-{
-	function Initialize() public;
-}
+
 
 
 contract IDependencyInjection
@@ -1038,7 +1038,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 	function Initialize(ISceneManagerFriendToScene sceneManager, IPlayer[] memory participants) public
 	{
 		_sceneManager = sceneManager;
-		_ballot.Initialize(participants);
+		_ballot.Initialize(participants); // 
 		_chatter.Initialize(participants);
 	}
 
@@ -1077,7 +1077,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 
 	function MoveForward() public 
 	{
-		int votingCount = VotingResultCount();
+		uint votingCount = VotingResultCount();
 		if (votingCount == 0)
 		{
 			ZeroVotingResultHandler();
@@ -1097,7 +1097,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 		return Ballot().GetWinners();
 	}
 
-	function VotingResultCount() public returns(int)
+	function VotingResultCount() public returns(uint)
 	{
 		return VotingResult().length;
 	}
@@ -1108,14 +1108,34 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 		PrintMessagePlayerDead(somebody);
 	}
 
+
+	// 不得不实现显示转换 uint -> string
+	function uint2str(uint i) private returns (string){
+		if (i == 0) return "0";
+		uint j = i;
+		uint length;
+		while (j != 0){
+			length++;
+			j /= 10;
+		}
+		bytes memory bstr = new bytes(length);
+		uint k = length - 1;
+		while (i != 0){
+			bstr[k--] = byte(48 + i % 10);
+			i /= 10;
+		}
+		return string(bstr);
+	}
+
 	function PrintMessagePlayerDead(IPlayer somebody) public 
 	{
-		// However, event is actually different to printSystemMessage in C#
 		_chatter.PrintSystemMessage("______________________");
 		_chatter.PrintSystemMessage("Killed Play with ID=");
-		_chatter.PrintSystemMessage(somebody.GetId().ToString());
+		_chatter.PrintSystemMessage(uint2str(somebody.GetId()));
 		_chatter.PrintSystemMessage("______________________");
 	}
+
+
 
 	function IncrementTimeLimit(int secondss) public
 	{
