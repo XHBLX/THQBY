@@ -4,7 +4,6 @@
 pragma solidity ^0.4.25;
 pragma experimental ABIEncoderV2;
 
-
 /*
 * The following contracts should be categorized as 'abstract contract'
 * rather than 'interface' since interface cannot inherit any other 
@@ -546,11 +545,11 @@ contract PlayerManager is IPlayerManager
 	{
 		_players = players;
 	}
-	IPlayer[]  players;// = new IPlayer[];
+	
 
 	function FindByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
 	{
-		players= new Player[];
+		IPlayer[] players;
 		IPlayer[] memory all     = GetAllPlayers();
 		bool mustBeAlive       = true; // Initialized as that in original file
 		for (uint i = 0; i < all.length; i++)
@@ -607,8 +606,6 @@ contract THQBYRoleBidder is RoleBidderBase
 		_spotsOfRole[_settings.KILLER()] =4;
 	}
 }
-
-
 
 
 contract THQBY_PLayer is Player
