@@ -1,6 +1,8 @@
 # THQBY
 天黑请闭眼
 
+To play the game, launch the Main Contract // don't worry about other auxiliary contracts 
+
 
 The unique improvement of this blockchain game is that at first all players must bid token for the roles they want to play, then the game will assign roles to each player according to the amount they bid.
 
