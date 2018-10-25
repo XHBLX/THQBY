@@ -590,7 +590,7 @@ contract THQBYRoleBidder is RoleBidderBase
 		_settings = settings;
 	}
 
-	function InitRoles() public 
+	function InitRoles() internal 
 	{
 		stra.push(_settings.POLICE());
 		stra.push(_settings.CITIZEN());
@@ -599,7 +599,7 @@ contract THQBYRoleBidder is RoleBidderBase
 		SetPlayersCount(12);
 	}
 
-	function SetSpotsOfRoles() public
+	function SetSpotsOfRoles() internal
 	{	
 		_spotsOfRole[_settings.POLICE()]= 4;
 		_spotsOfRole[_settings.CITIZEN()] =4;
@@ -803,6 +803,7 @@ contract Ballot is  ParticipatableBase, IBallot
 	mapping(address => IPlayerVoted)  _playerVotedwho;
 	mapping(address => uint)	      _votesReceivedByPlayer;
 	IPlayerManager                    _playerManager;
+	IPlayer[]                         _winniers;
 
 	constructor (IPlayerManager playerManager) public
 	{
@@ -831,7 +832,6 @@ contract Ballot is  ParticipatableBase, IBallot
 
 	function GetWinners() public returns(IPlayer[] memory) 
 	{
-		IPlayer[] memory ans;
 		uint             max  =  0;
 		for (uint i = 0; i < _players.length; i++) 
 		{
@@ -839,19 +839,17 @@ contract Ballot is  ParticipatableBase, IBallot
 			if (maxCandidate > max)
 			{
 				max = maxCandidate;
-				ans=new IPlayer[];
-				ans.push(_players[i]);
+				IPlayer[] memory tempIPlayer;
+				_winniers = tempIPlayer;
+				_winniers.push(_players[i]);
 			}
 			else if (maxCandidate == max)
 			{
-				ans.push(_players[i]);
+				_winniers.push(_players[i]);
 
 			}
 		}
-		return ans;
-
-
-
+		return _winniers;
 	}
 
 	function IsEveryVotableOnesVoted() public returns(bool)
@@ -895,13 +893,15 @@ contract Ballot is  ParticipatableBase, IBallot
 		} 
 		else 
 		{
-			return 0;
+			//return 0;
+			// 这里逻辑上好像应该报错，最经济的做法是revert
+			revert("There is no vote to this player.");
 		}
 	}
 
 	function DidVote(IPlayer player) public returns(bool)
 	{
-		return WhoDidThePlayerVote(player) != 0;
+		return _playerVotedwho[player.Senderaddress()]._voted == true;
 	}
 
 	function IsSoloWinder() public returns(bool)
