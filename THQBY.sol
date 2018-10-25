@@ -34,7 +34,7 @@ contract ITimeLimitable is IClock
 
 contract ITimeLimitForwardable is ITimeLimitable
 {
-	function  TryMoveForward(IPlayer player) public returns(bool);
+	function TryToMoveForward(IPlayer player) public returns(bool);
 }
 
 contract IVoteHistory
@@ -1177,17 +1177,17 @@ contract THQBY_Scene is Scene
 		_sceneDay = sceneDay;
 	}
 
-	function Set__scenePK(SceneDAY scenePK) public
+	function Set__scenePK(SceneDAY_PK scenePK) public
 	{
 		_scenePK = scenePK;
 	}
 
-	function Set_sceneKiller(SceneDAY sceneKiller) public
+	function Set_sceneKiller(SceneNIGHT_KILLER sceneKiller) public
 	{
 		_sceneKiller = sceneKiller;
 	}
 
-	function Set_scecenPOLICE(SceneDAY scecenPOLICE) public
+	function Set_scecenPOLICE(SceneNIGHT_POLICE scecenPOLICE) public
 	{
 		_scecenPOLICE = scecenPOLICE;
 	}
@@ -1225,7 +1225,7 @@ contract SceneDAY is THQBY_Scene
 		_sceneManager.MoveForwardToNewScene(_scenePK);
 		//must do after scene change
 		_scenePK.Chatter().DisableAllParticipants();
-		for (int i = 0; i < result.Length; i++)
+		for (uint i = 0; i < result.length; i++)
 		{
 			IPlayer player = result[i];
 			_scenePK.Chatter().EnableParticipant(player);
@@ -1430,14 +1430,11 @@ contract SceneManagerBase is ITimeLimitable, ITimeLimitForwardable, ISceneManage
 
 	function TryMoveForward(IPlayer player) public returns (bool)
 	{
-		return _currentScene.TryMoveForward(player);
+		return _currentScene.TryToMoveForward(player);
 	}
 
 	function OnChangeScene() public
 	{
-		//	Dafei confused by the operation below
-		//  doesn't know how delegate in even works
-
 		// movedForward?.Invoke();
 		// sceneUpdated?.Invoke();
 	}
@@ -1454,7 +1451,7 @@ contract SceneManagerBase is ITimeLimitable, ITimeLimitForwardable, ISceneManage
 		OnChangeScene();
 	}
 
-	function IncrementTimeLimit(uint secondss) public
+	function IncrementTimeLimit(int secondss) public
 	{
 		_currentScene.IncrementTimeLimit(secondss);
 	}
