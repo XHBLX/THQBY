@@ -547,8 +547,7 @@ contract PlayerManager is IPlayerManager
 		_players = players;
 	}
 IPlayer[]  players;// = new IPlayer[];
-string a;
-string b;
+
 	function FindByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
 	{
 		players=new Player[];
@@ -557,9 +556,11 @@ string b;
 		for (uint i = 0; i < all.length; i++)
 		{
 			IPlayer x = all[i];
+			string memory a;
+string memory b;
 			 a = x.GetRole();
 			b = desiredRoleName;
-			if (a==b) 
+			if (keccak256(a)==keccak256(b)) 
 			{
 				if (mustBeAlive) 
 				{
@@ -588,20 +589,8 @@ contract THQBYRoleBidder is RoleBidderBase
         _playerFactory = PlayerFactory;
         _settings = settings;
     }
-}
-
-
-contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
-{
-	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
-	{
-		_playerFactory = PlayerFactory;
-		_settings = settings;
-	}
-
-
-
-string[]  stra;
+    
+    string[]  stra;
 	function InitRoles() private 
 	{
 		stra.push(_settings.POLICE());
@@ -613,11 +602,30 @@ string[]  stra;
 
 	function SetSpotsOfRoles() private
 	{
-		_spotsOfRole.push(_settings.POLICE(), 4);
-		_spotsOfRole.push(_settings.CITIZEN(), 4);
-		_spotsOfRole.push(_settings.KILLER(), 4);
+// 		_spotsOfRole.push(_settings.POLICE(), 4);
+// 		_spotsOfRole.push(_settings.CITIZEN(), 4);
+// 		_spotsOfRole.push(_settings.KILLER(), 4);
+		
+				_spotsOfRole[_settings.POLICE()]= 4;
+		_spotsOfRole[_settings.CITIZEN()] =4;
+		_spotsOfRole[_settings.KILLER()] =4;
+		
 	}
 }
+
+
+// contract THQBYRoleBidder4TestingOnly is THQBYRoleBidder
+// {
+// 	constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
+// 	{
+// 		_playerFactory = PlayerFactory;
+// 		_settings = settings;
+// 	}
+
+
+
+
+// }
 
 
 contract THQBY_PLayer is Player
@@ -833,7 +841,7 @@ contract Ballot is  ParticipatableBase, IBallot
 		}
 	}
 
-	function CanParticipate(IPlayer player) public
+	function CanParticipate(IPlayer player) public returns (bool)
 	{
 		if (!player.GetIsAlive()) {
 			return false;
@@ -848,17 +856,22 @@ contract Ballot is  ParticipatableBase, IBallot
 		for (uint i = 0; i < _players.length; i++) 
 		{
 			uint maxCandidate = _votesReceivedByPlayer[_players[i].Senderaddress()];
-			if (maxCandidate > max) {
-				max = maxCandidate;
-				ans = new IPlayer[];
-				ans.push(_players[i]);
-			} 
-			else if (maxCandidate == max) 
-			{
-				ans.push(_players[i]);
-			}
+                if (maxCandidate > max)
+				{
+					max = maxCandidate;
+					ans=new IPlayer[];
+					ans.push(_players[i]);
+				}
+				else if (maxCandidate == max)
+				{
+					ans.push(_players[i]);
+
+				}
 		}
 		return ans;
+
+
+		
 	}
 
 	function IsEveryVotableOnesVoted() public returns(bool)
