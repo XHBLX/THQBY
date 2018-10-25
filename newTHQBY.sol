@@ -6,9 +6,9 @@ pragma experimental ABIEncoderV2;
 
 
 /*
-* The following contracts should be categorized as 'abstract contract'
-* rather than 'interface' since interface cannot inherit any other 
-* contract or interface.
+* This file contains all implementations from the original file
+* while some implementations have been changed.
+* For example, the outputs as string are changed to uint to make file compilable.
 */
 
 /////////////////////////////////////////////////////////////////////////
