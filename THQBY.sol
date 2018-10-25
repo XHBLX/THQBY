@@ -279,8 +279,8 @@ contract RoleBidderBase is IRoleBidder
 	/*
 	* Abstract Contracts
 	*/
-	function InitRoles() private;
-	function SetSpotsOfRoles() private; 
+	function InitRoles() internal;
+	function SetSpotsOfRoles() internal; 
 	function Initialize() public;
 
 	/*
