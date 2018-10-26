@@ -1651,9 +1651,9 @@ contract SequentialChatter is Chatter, ISequentialChatter
 	{
 		_spokenPlayersCount++;
 		_speakingPlayerIndex++;
-		if (_speakingPlayerIndex < _chatLog.GetParticipants().Length)
+		if (_speakingPlayerIndex < int(_chatLog.GetParticipants().length))
 		{
-			_speakingPlayer = ParticipatingPlayers()[_speakingPlayerIndex];
+			_speakingPlayer = ParticipatingPlayers()[uint(_speakingPlayerIndex)];
 		}
 
 		_chatLog.DisableAllParticipants();
@@ -1669,7 +1669,7 @@ contract SequentialChatter is Chatter, ISequentialChatter
 		OnNextPlayer();
 	}
 
-	function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public
+	function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool)
 	{
 		return player == _speakingPlayer;
 	}
@@ -1708,7 +1708,7 @@ contract DependencyInjection is IDependencyInjection
 	// For game play
 	IPlayer[]            private   _players;
 
-	constructor() private
+	constructor() internal
 	{
 
 	}
