@@ -456,7 +456,7 @@ contract Player is IPlayer
 }
 
 
-contract Clock
+contract Clock is IClock
 {
 	uint _day               = 0;
 	uint _realTimeInSeconds = 0;
@@ -692,7 +692,7 @@ contract ParticipatableBase is IParticipatable
 		}
 	}
 
-	function Initializable(IPlayer[] memory players) public 
+	function Initialize(IPlayer[] memory players) public 
 	{
 		_players = players;
 
@@ -811,10 +811,10 @@ contract Ballot is  ParticipatableBase, IBallot
 	}
 
 	// Function overriden
-	function Initializable(IPlayer[] memory participants) public
+	function Initialize(IPlayer[] memory participants) public
 	{
 		// Here modifying the fucnction upon logic, while not confirmed yet.
-		ParticipatableBase.Initializable(participants);
+		ParticipatableBase.Initialize(participants);
 		IPlayer[] memory allplayers = _playerManager.GetAllPlayers();
 		for (uint i = 0; i < allplayers.length; i++) {
 			_votesReceivedByPlayer[allplayers[i].Senderaddress()] = 0;
