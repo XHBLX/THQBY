@@ -1718,31 +1718,6 @@ contract DependencyInjection is IDependencyInjection
 		return _players;
 	}
 
-	/*
-	 *   这部分有待C#原文档进行修改
-	 *
-
-	public static DependencyInjection Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new DependencyInjection();
-                }
-                return instance;
-            }
-        }
-
-    // Instance
-	// 静态的instance我没有见过
-	// 但是在solidity里目前并没有静态static修饰词
-	// 文档里提到static已作为保留关键字，在未来会加入
-	// 而目前合适的做法应该是利用modifier，即只有指定地址可以对静态做生成和修改
-	// 
-	DependencyInjection  private   instance;
-
-	*/
 
 	// AsTransient 
 	function BallotFactory() public returns(IBallot)
@@ -1780,7 +1755,7 @@ contract DependencyInjection is IDependencyInjection
 	{
 		// 一个可能可以处理null的方法是直接判断该合约地址是否为0x0
 		// 所以其实下面if判定部分可以省略，
-		if (_clock == 0x0)
+		if (_clock == 0x0000000000000000000000000000000000000000)
 		{
 			_clock = new Clock();
 		}
