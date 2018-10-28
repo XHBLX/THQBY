@@ -2,7 +2,7 @@
 * OOP implementation of THQBY in Solidity
 */
 pragma solidity ^0.4.25;
-pragma experimental ABIEncoderV2;
+//pragma experimental ABIEncoderV2;
 
 /*
 * The following contracts should be categorized as 'abstract contract'
@@ -330,7 +330,31 @@ contract IDependencyInjection
 
 /////////// implement
 
-
+contract StrArr
+{
+    
+    string[]  _strArr;
+    
+    constructor() public
+    {
+        
+    }
+    
+    function GetStrI(uint i) returns(string)
+    {
+        return _strArr[i];
+    }
+    
+    function GetLength() returns (uint)
+    {
+        return _strArr.length;
+    }
+    
+    function PushStr(string str) public
+    {
+        _strArr.push(str);
+    }
+}
 
 /// @dev DN: This is an abstract contract.
 contract RoleBidderBase is IRoleBidder 
@@ -367,11 +391,11 @@ contract RoleBidderBase is IRoleBidder
     }
 
     // attempt to change signiture to be uint[] 
-    function Initialize(string[] roles) public 
+    function Initialize(StrArr roles) public 
     {
-        _numRoles = roles.length;
+        _numRoles = roles.GetLength();
         for (uint i = 0; i < _numRoles; i++) {
-            string memory role = roles[i];
+            string memory role = roles.GetStrI(i);
             _string2RoleIndx[role][0] = 1;
             _string2RoleIndx[role][1] = i;
             _roleIndx2String[int(i)] = role;
@@ -617,10 +641,10 @@ contract PlayerManager is IPlayerManager
         _players = players;
     }
     
-
+IPlayer[] players;
     function FindByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
     {
-        IPlayer[] players;
+        
         IPlayer[] memory all     = GetAllPlayers();
         bool mustBeAlive       = true; // Initialized as that in original file
         for (uint i = 0; i < all.length; i++)
@@ -653,19 +677,21 @@ contract PlayerManager is IPlayerManager
 contract THQBYRoleBidder is RoleBidderBase
 {
     ITHQBY_Settings _settings;
-    string[]        stra;
+    StrArr       stra;
 
     constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)  RoleBidderBase(PlayerFactory)   public
     {
 //      _playerFactory = PlayerFactory;
         _settings = settings;
+        stra=new StrArr();
     }
 
     function InitRoles() internal 
     {
-        stra.push(_settings.POLICE());
-        stra.push(_settings.CITIZEN());
-        stra.push(_settings.KILLER());
+        stra.PushStr(_settings.POLICE());
+        stra.PushStr(_settings.CITIZEN());
+        stra.PushStr(_settings.KILLER());
+    
         Initialize(stra);
         SetPlayersCount(12);
     }
@@ -1189,7 +1215,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 
 
     // 不得不实现显示转换 uint -> string
-    function uint2str(uint i) private returns (string){
+    function uint2str(uint i) private returns (string memory){
         if (i == 0) return "0";
         uint j = i;
         uint length;
@@ -1838,7 +1864,7 @@ contract DependencyInjection is IDependencyInjection
     {
         // 一个可能可以处理null的方法是直接判断该合约地址是否为0x0
         // 所以其实下面if判定部分可以省略，
-        if (_clock == 0x0000000000000000000000000000000000000000)
+        if ( address(_clock) == address(0x0))
         {
             _clock = new Clock();
         }
@@ -1848,7 +1874,8 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER)
     {
-        if ( address(  _sceneNIGHT_KILLER) == 0x0)
+        bool xx=address(_sceneNIGHT_KILLER)==address(0x0);
+        if (  xx )
         {
             IBallot ballot = BallotFactory();
             IChatter chatter = ChatterFactory();
@@ -1862,7 +1889,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE)
     {
-        if (address(_nIGHT_POLICE) == 0x0)
+        if (address(_nIGHT_POLICE) == address(0x0))
         {
             IBallot ballot = BallotFactory();
             IChatter chatter = ChatterFactory();
@@ -1883,7 +1910,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function PlayerFactoryFactory() public returns(IPlayerFactory)
     {
-        if (address(_playerfact) == 0x0)
+        if (address(_playerfact) == address(0x0))
         {
             ITHQBY_Settings settings = SettingsFactory();
             _playerfact = new THQBY_PlayerFactory(settings);
@@ -1894,7 +1921,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function PlayerManager() public returns(ITHQBY_PlayerManager)
     {
-        if (address(_playerManager) == 0x0)
+        if (address(_playerManager) == address(0x0))
         {
             ITHQBY_Settings settings = SettingsFactory();
             _playerManager = new THQBY_PlayerManager(settings);
@@ -1905,7 +1932,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function RoleBidderFactory() public returns(IRoleBidder)
     {
-        if (address(_roleBidder) == 0x0)
+        if (address(_roleBidder) == address(0x0))
         {
             IPlayerFactory playerFactory = PlayerFactoryFactory();
             ITHQBY_Settings settings = SettingsFactory();
@@ -1917,7 +1944,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function SceneDAYFactory() public returns(SceneDAY)
     {
-        if (address(_sceneDAY) == 0x0)
+        if (address(_sceneDAY) == address(0x0))
         {
             IBallot ballot = BallotFactory();
             ISequentialChatter chatter = SequentialChatterFactory();
@@ -1931,7 +1958,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function SceneDAY_PKFactory() public returns(SceneDAY_PK)
     {
-        if (   address(_sceneDAY_PK) == 0x0)
+        if (   address(_sceneDAY_PK) == address(0x0))
         {
             IBallot ballot = BallotFactory();
             ISequentialChatter chatter = SequentialChatterFactory();
@@ -1945,7 +1972,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function SceneManagerFactory() public returns(ISceneManager)
     {
-        if (address(_sceneManager) == 0x0)
+        if (address(_sceneManager) == address(0x0))
         {
             SceneDAY sceneDay = SceneDAYFactory();
             SceneDAY_PK scenePK = SceneDAY_PKFactory();
@@ -1960,7 +1987,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function SettingsFactory() public returns(ITHQBY_Settings)
     {
-        if (address(_tHQBY_Settings) == 0x0)
+        if (address(_tHQBY_Settings) ==address(0x0))
         {
             _tHQBY_Settings = new THQBY_Settings();
         }
