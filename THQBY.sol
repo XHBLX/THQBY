@@ -2056,15 +2056,15 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
     function Create(string memory role) public returns(IPlayer)
     {
         IPlayer ans;
-        if (role == _settings.CITIZEN())
+        if ( keccak256(role) ==  keccak256(_settings.CITIZEN()))
         {
             ans = new Citizen(_settings);
         }
-        else if (role == _settings.KILLER())
+        else if ( keccak256(role) ==  keccak256(_settings.KILLER()))
         {
             ans = new Killer(_settings);
         }
-        else if (role == _settings.POLICE())
+        else if ( keccak256(role) ==  keccak256(_settings.POLICE()))
         {
             ans = new Police(_settings);
         }
