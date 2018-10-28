@@ -169,6 +169,7 @@ contract IRoleBidder is IInitializable
     function SetPlayersCount(uint playersCount) public ;
     function CreateRoles() public returns(IPlayer[] memory);
     function GetIsActive() public returns(bool);
+    function SetID2Address(uint id, address adrs) public;
 }
 
 
@@ -344,7 +345,13 @@ contract RoleBidderBase is IRoleBidder
     mapping(string => uint[])    _string2RoleIndx;
     mapping(int => string)       _roleIndx2String;
     mapping(string => uint)      _spotsOfRole;
-
+    mapping(uint=> address)      _id2address;
+    
+    function SetID2Address(uint id, address adrs) public
+    {
+        _id2address[id]=adrs;
+    }
+    
     /*
     * Abstract Contracts
     */
@@ -408,7 +415,7 @@ contract RoleBidderBase is IRoleBidder
         require(totalRole == _playerCount, "numbers of role != numbers of players");
         for (uint j = 0; j < totalIteration; j++) {
             int  tempMax = -1;
-            uint tempPos = 2**256-1;
+            uint tempID = 2**256-1;
             curRoleIndex = j % _numRoles; // //0->police; 1->citi; 2->killer
             if (numRoleAssigned[curRoleIndex] >= _spotsOfRole[_roleIndx2String[int(curRoleIndex)]]) {
                 continue;
@@ -417,13 +424,13 @@ contract RoleBidderBase is IRoleBidder
                 if (!isAssignedRole[k] && (_matrix[k][matrixColumn] > tempMax))
                 {
                     tempMax = _matrix[k][matrixColumn];
-                    tempPos = k;
+                    tempID = k;
                 }
             }
-            isAssignedRole[tempPos] = true;
-            IPlayer p = _playerFactory.Create(_roleIndx2String[int(curRoleIndex)]);
-            p.SetId(tempPos);
-            res[tempPos] = p;
+            isAssignedRole[tempID] = true;
+            IPlayer p = _playerFactory.Create(_roleIndx2String[int(curRoleIndex)], _id2address[tempID]);
+            p.SetId(tempID);
+            res[tempID] = p;
             numRoleAssigned[curRoleIndex]++;
             matrixColumn = (matrixColumn + 1) % _numRoles;
 
@@ -2282,6 +2289,12 @@ contract Main is ITHQBYPlayerInterface
             return false; // someone not voted yet
         }
         //update players[] 
+        
+        for (uint id=0; id< _PlayerManager.GetAllPlayers().length;id++)
+        {
+            _roleBidder.SetID2Address(id,_IdToAddr[id]);
+        }
+        
         _tHQBY_PLayers = _roleBidder.CreateRoles();
         _sceneManager.Initialize();
         _PlayerManager.Initialize(_tHQBY_PLayers);
