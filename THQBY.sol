@@ -143,21 +143,10 @@ contract IPlayer //is ISpokenEvent
 
 contract IPlayerFactory 
 {
-    function Create(string memory str) public returns(IPlayer);
+    function Create(string memory str, address addrs) public returns(IPlayer);
 }
 
-/// @dev DN: This is an abstract contract.
-contract PlayerFactoryBase is IPlayerFactory
-{
-    uint        _idCounter = 0;
 
-    function Create(string memory role) public returns(IPlayer);
-
-    constructor () public
-    {
-
-    }
-}
 
 
 contract IPlayerManager is IInitializableIPlayerArr
@@ -301,7 +290,18 @@ contract ISequentialChatter is IChatter//, ITimeLimitForwardable
 
 
 
+/// @dev DN: This is an abstract contract.
+contract PlayerFactoryBase is IPlayerFactory
+{
+    uint        _idCounter = 0;
 
+    function Create(string memory role, address addrs) public returns(IPlayer);
+
+    constructor () public
+    {
+
+    }
+}
 
 
 contract IDependencyInjection
@@ -478,10 +478,11 @@ contract Player is IPlayer
     uint     internal _id;
     string   internal _role;
     uint     internal _votingWeight = 100;
+    address internal _address;
 
-    constructor()  public
+    constructor(address addresss)  public
     {
-
+        _address=addresss;
     }
 
     /*
@@ -490,6 +491,11 @@ contract Player is IPlayer
     public event Action<uint, IPlayer, string> eventSpoken;
 
     */
+    
+    function Senderaddress() public returns(address)
+    {
+        return _address;
+    }
 
     function GetId() public returns(uint)
     {
@@ -521,7 +527,8 @@ contract Player is IPlayer
     {
         _id = id;
     }
-
+    
+    
 }
 
 
@@ -673,15 +680,17 @@ contract THQBYRoleBidder is RoleBidderBase
 
 contract THQBY_PLayer is Player
 {
-    constructor(ITHQBY_Settings settings) public
+    constructor(ITHQBY_Settings settings, address addresss) Player(addresss) public
     {
     }
+    
+   
 }
 
 
 contract Police is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings) public
+    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.POLICE();
@@ -691,7 +700,7 @@ contract Police is THQBY_PLayer
 
 contract Killer is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings) public
+    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.KILLER();
@@ -701,7 +710,7 @@ contract Killer is THQBY_PLayer
 
 contract Citizen is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings) public
+    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.CITIZEN();
@@ -2053,20 +2062,20 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
         _settings = settings;
     }
 
-    function Create(string memory role) public returns(IPlayer)
+    function Create(string memory role, address addrs) public returns(IPlayer)
     {
         IPlayer ans;
         if ( keccak256(role) ==  keccak256(_settings.CITIZEN()))
         {
-            ans = new Citizen(_settings);
+            ans = new Citizen(_settings,addrs);
         }
         else if ( keccak256(role) ==  keccak256(_settings.KILLER()))
         {
-            ans = new Killer(_settings);
+            ans = new Killer(_settings,addrs);
         }
         else if ( keccak256(role) ==  keccak256(_settings.POLICE()))
         {
-            ans = new Police(_settings);
+            ans = new Police(_settings,addrs);
         }
         else {
             revert("no such role");
