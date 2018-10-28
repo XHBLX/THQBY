@@ -13,7 +13,19 @@ pragma experimental ABIEncoderV2;
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
 
+contract ChatMessage
+{
+    uint   public  timestamp;
+    int    public  byWho;
+    string public  message;
 
+    constructor (uint ts, int bw,  string memory msg ) public
+    {
+        timestamp = ts;
+        byWho     = bw;
+        message   = msg;
+    }   
+}
 // this abstact contract should be added by field to implement 'null' case 
 contract IClock
 {
@@ -44,11 +56,17 @@ contract IVoteHistory
 
 contract IInitializable
 {
+    function Initialize() public;
+}
+contract IInitializableIPlayerArr
+{
     function Initialize(IPlayer[] memory participants) public;
 }
 
 
-contract IParticipatable is IInitializable
+
+
+contract IParticipatable is IInitializableIPlayerArr
 {
     function GetParticipants() public returns(IPlayer[] memory);
     function EnableParticipant(IPlayer player)  public ;
@@ -78,16 +96,16 @@ contract IChatable
 }
 
 
-contract ISpokenEvent
-{
-    /// Occurs when event spoken. arguments are timestamp, player, message.
-    event eventSpoken(uint timestamp, IPlayer player, string message);
-}
+// contract ISpokenEvent
+// {
+//  /// Occurs when event spoken. arguments are timestamp, player, message.
+//  event eventSpoken(uint timestamp, IPlayer player, string message);
+// }
 
 
-contract IChatLog is IParticipatable, IChatable, ISpokenEvent
+contract IChatLog is IParticipatable, IChatable//, ISpokenEvent
 {
-    function GetAllMessages() public returns(ChatMessage[] memory);   // havent realized ChatMessage
+    function GetAllMessages() public returns(ChatMessage[] memory);   
     function GetNewestMessage() public returns(ChatMessage );
     function PrintSystemMessage(string memory message) public ;
 }
@@ -96,28 +114,7 @@ contract IChatLog is IParticipatable, IChatable, ISpokenEvent
 
 
 
-contract IDependencyInjection
-{
-    function BallotFactory() public returns(IBallot);
-    function ChatLogFactory() public returns(IChatLog);
-    function ChatterFactory() public returns(IChatter);
-    function ClockFactory() public returns(IClock);
-    function PlayerFactoryFactory() public returns(IPlayerFactory);
-    function PlayerManager() public returns(ITHQBY_PlayerManager);
-    //IScene SceneFactory(string name); 
-    function SettingsFactory() public returns(ITHQBY_Settings);
-    function SceneManagerFactory() public returns(ISceneManager);
-    function ParticipatableFactory() public returns(IParticipatable);
-    function RoleBidderFactory() public returns(IRoleBidder);
-    function SequentialChatterFactory() public returns(ISequentialChatter);
-    function TimeLimitableFactory() public returns(ITimeLimitable);
-    function SceneDAYFactory() public returns(SceneDAY);
-    function SceneDAY_PKFactory() public returns(SceneDAY_PK);
-    function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE);
-    function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER);
-    function Initialize() public;
-    function LateInitiizeAfterRoleBide() public;
-}
+
 
 
 contract IGameController
@@ -128,7 +125,7 @@ contract IGameController
 }
 
 
-contract IPlayer is ISpokenEvent
+contract IPlayer //is ISpokenEvent
 {
     function Senderaddress() public returns(address);
     function GetVotingWeightAsPercent() public returns(uint);
@@ -162,10 +159,7 @@ contract PlayerFactoryBase is IPlayerFactory
     }
 }
 
-contract IInitializableIPlayerArr
-{
-    function Initialize(IPlayer[] memory) public;
-}
+
 contract IPlayerManager is IInitializableIPlayerArr
 {
     function GetPlayer(uint id) public returns(IPlayer);
@@ -175,7 +169,7 @@ contract IPlayerManager is IInitializableIPlayerArr
 }
 
 
-contract IChatter is IChatLog, ITimeLimitable, IInitializableIPlayerArr
+contract IChatter is IChatLog, ITimeLimitable//, IInitializableIPlayerArr
 {
 }
 
@@ -260,6 +254,81 @@ contract ISequentialChatter is IChatter, ITimeLimitForwardable
     function GetSpeakingPlayer() public returns(IPlayer);
     function HaveEveryoneSpoke() public returns(bool);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+contract IDependencyInjection
+{
+    function BallotFactory() public returns(IBallot);
+    function ChatLogFactory() public returns(IChatLog);
+    function ChatterFactory() public returns(IChatter);
+    function ClockFactory() public returns(IClock);
+    function PlayerFactoryFactory() public returns(IPlayerFactory);
+    function PlayerManager() public returns(ITHQBY_PlayerManager);
+    //IScene SceneFactory(string name); 
+    function SettingsFactory() public returns(ITHQBY_Settings);
+    function SceneManagerFactory() public returns(ISceneManager);
+    function ParticipatableFactory() public returns(IParticipatable);
+    function RoleBidderFactory() public returns(IRoleBidder);
+    function SequentialChatterFactory() public returns(ISequentialChatter);
+    function TimeLimitableFactory() public returns(ITimeLimitable);
+    function SceneDAYFactory() public returns(SceneDAY);
+    function SceneDAY_PKFactory() public returns(SceneDAY_PK);
+    function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE);
+    function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER);
+    function Initialize() public;
+    function LateInitiizeAfterRoleBide() public;
+}
+
+/////////// implement
+
 
 
 /// @dev DN: This is an abstract contract.
@@ -478,19 +547,7 @@ contract Clock is IClock
 }
 
 
-contract ChatMessage
-{
-    uint   public  timestamp;
-    int    public  byWho;
-    string public  message;
 
-    constructor (uint ts, int bw,  string memory msg ) public
-    {
-        timestamp = ts;
-        byWho     = bw;
-        message   = msg;
-    }   
-}
 
 
 contract PlayerManager is IPlayerManager
@@ -584,9 +641,9 @@ contract THQBYRoleBidder is RoleBidderBase
     ITHQBY_Settings _settings;
     string[]        stra;
 
-    constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory) public
+    constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)  RoleBidderBase(PlayerFactory)   public
     {
-        _playerFactory = PlayerFactory;
+//      _playerFactory = PlayerFactory;
         _settings = settings;
     }
 
@@ -604,6 +661,12 @@ contract THQBYRoleBidder is RoleBidderBase
         _spotsOfRole[_settings.POLICE()]= 4;
         _spotsOfRole[_settings.CITIZEN()] =4;
         _spotsOfRole[_settings.KILLER()] =4;
+    }
+    
+    function Initialize() public
+    {
+        SetSpotsOfRoles();
+        InitRoles();
     }
 }
 
@@ -1158,17 +1221,16 @@ contract THQBY_Scene is Scene
     SceneDAY_PK       _scenePK;
     SceneNIGHT_KILLER _sceneKiller;
     SceneNIGHT_POLICE _scecenPOLICE;
-
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) 
+        , ITHQBY_Settings settings) Scene(ballot, chatter, timeLimitable, settings)
     public
     {
-        _ballot = ballot;
-        _chatter = chatter;
-        _timeLimitable = timeLimitable;
-        _settings = settings;
+//      _ballot = ballot;
+//      _chatter = chatter;
+//      _timeLimitable = timeLimitable;
+//      _settings = settings;
     }
 
     // setter
@@ -1207,16 +1269,18 @@ contract THQBY_Scene is Scene
 
 contract SceneDAY is THQBY_Scene
 {
+    
+    
     constructor (IBallot ballot
-        , ISequentialChatter chatter
+        , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) 
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
     public
     {
-        _ballot = ballot;
-        _chatter = chatter;
-        _timeLimitable = timeLimitable;
-        _settings = settings;
+//      _ballot = ballot;
+//      _chatter = chatter;
+//      _timeLimitable = timeLimitable;
+//      _settings = settings;
         _sceneName = _settings.DAY();
     }
 
@@ -1254,15 +1318,15 @@ contract SceneDAY is THQBY_Scene
 contract SceneDAY_PK is THQBY_Scene
 {
     constructor (IBallot ballot
-        , ISequentialChatter chatter
+        , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) 
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
     public
     {
-        _ballot = ballot;
-        _chatter = chatter;
-        _timeLimitable = timeLimitable;
-        _settings = settings;
+//      _ballot = ballot;
+//      _chatter = chatter;
+//      _timeLimitable = timeLimitable;
+//      _settings = settings;
         _sceneName = _settings.DAY();
     }
 
@@ -1295,13 +1359,14 @@ contract SceneNIGHT_KILLER is THQBY_Scene
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) 
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
     public
     {
-        _ballot = ballot;
-        _chatter = chatter;
-        _timeLimitable = timeLimitable;
-        _settings = settings;
+//      _ballot = ballot;
+//      _chatter = chatter;
+//      _timeLimitable = timeLimitable;
+//      _settings = settings;
+_sceneName=_settings.NIGHT_KILLER();
     }
 
     function MoreVotingResultHandler(IPlayer[] memory result) public
@@ -1341,13 +1406,14 @@ contract SceneNIGHT_POLICE is THQBY_Scene
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) 
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
     public
     {
-        _ballot = ballot;
-        _chatter = chatter;
-        _timeLimitable = timeLimitable;
-        _settings = settings;
+//      _ballot = ballot;
+//      _chatter = chatter;
+//      _timeLimitable = timeLimitable;
+//      _settings = settings;
+_sceneName=_settings.NIGHT_POLICE();
     }
 
     function GotoDayScene() public
@@ -1464,11 +1530,11 @@ contract Chatter is  IChatter
     ITimeLimitable _timeLimitable;
     IChatLog       _chatLog;
 
-    constructor (ITimeLimitable timeLimitable , IChatLog chatLog) public
-    {
-        _timeLimitable = timeLimitable;
-        _chatLog = chatLog;
-    }
+        constructor (ITimeLimitable timeLimitable , IChatLog chatLog) public
+        {
+            _timeLimitable = timeLimitable;
+            _chatLog = chatLog;
+        }
 
     function CanParticipate(IPlayer player) public returns(bool)
     {
@@ -1588,12 +1654,13 @@ contract SequentialChatter is Chatter, ISequentialChatter
 
     constructor (ITimeLimitable timeLimitable 
         , IChatLog chatLog
-        , IPlayerManager playerManager) public
+        , IPlayerManager playerManager) Chatter(timeLimitable, chatLog) public
     {
         _playerManager = playerManager;
+//      _timeLimitable = timeLimitable;
         _timeLimitable.SetTimeLimit(30);
-        _timeLimitable = timeLimitable;
-        _chatLog = chatLog;
+
+//      _chatLog = chatLog;
     }
 
     event moveForward(string);
@@ -1708,7 +1775,7 @@ contract DependencyInjection is IDependencyInjection
     // For game play
     IPlayer[]            private   _players;
 
-    constructor() internal
+    constructor() public
     {
 
     }
@@ -1744,10 +1811,10 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function SequentialChatterFactory() public returns(ISequentialChatter) 
     {
-        ITimeLimitable TimeLimitableFact = TimeLimitableFactory();
+        ITimeLimitable TimeLimitable = TimeLimitableFactory();
         IChatLog chatLog = ChatLogFactory();
         IPlayerManager playerManager = PlayerManager();
-        return new SequentialChatter(TimeLimitableFact, chatLog, playerManager);
+        return new SequentialChatter(TimeLimitable, chatLog, playerManager);
     }
 
     //AsSingle
@@ -1765,7 +1832,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER)
     {
-        if (_sceneNIGHT_KILLER == 0x0)
+        if ( address(  _sceneNIGHT_KILLER) == 0x0)
         {
             IBallot ballot = BallotFactory();
             IChatter chatter = ChatterFactory();
@@ -1779,7 +1846,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE)
     {
-        if (_nIGHT_POLICE == 0x0)
+        if (address(_nIGHT_POLICE) == 0x0)
         {
             IBallot ballot = BallotFactory();
             IChatter chatter = ChatterFactory();
@@ -1800,7 +1867,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function PlayerFactoryFactory() public returns(IPlayerFactory)
     {
-        if (_playerfact == 0x0)
+        if (address(_playerfact) == 0x0)
         {
             ITHQBY_Settings settings = SettingsFactory();
             _playerfact = new THQBY_PlayerFactory(settings);
@@ -1811,7 +1878,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function PlayerManager() public returns(ITHQBY_PlayerManager)
     {
-        if (_playerManager == 0x0)
+        if (address(_playerManager) == 0x0)
         {
             ITHQBY_Settings settings = SettingsFactory();
             _playerManager = new THQBY_PlayerManager(settings);
@@ -1822,7 +1889,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function RoleBidderFactory() public returns(IRoleBidder)
     {
-        if (_roleBidder == 0x0)
+        if (address(_roleBidder) == 0x0)
         {
             IPlayerFactory playerFactory = PlayerFactoryFactory();
             ITHQBY_Settings settings = SettingsFactory();
@@ -1834,7 +1901,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function SceneDAYFactory() public returns(SceneDAY)
     {
-        if (_sceneDAY == 0x0)
+        if (address(_sceneDAY) == 0x0)
         {
             IBallot ballot = BallotFactory();
             ISequentialChatter chatter = SequentialChatterFactory();
@@ -1848,7 +1915,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function SceneDAY_PKFactory() public returns(SceneDAY_PK)
     {
-        if (_sceneDAY_PK == 0x0)
+        if (   address(_sceneDAY_PK) == 0x0)
         {
             IBallot ballot = BallotFactory();
             ISequentialChatter chatter = SequentialChatterFactory();
@@ -1862,7 +1929,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function SceneManagerFactory() public returns(ISceneManager)
     {
-        if (_sceneManager == 0x0)
+        if (address(_sceneManager) == 0x0)
         {
             SceneDAY sceneDay = SceneDAYFactory();
             SceneDAY_PK scenePK = SceneDAY_PKFactory();
@@ -1877,7 +1944,7 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function SettingsFactory() public returns(ITHQBY_Settings)
     {
-        if (_tHQBY_Settings == 0x0)
+        if (address(_tHQBY_Settings) == 0x0)
         {
             _tHQBY_Settings = new THQBY_Settings();
         }
@@ -1904,6 +1971,12 @@ contract DependencyInjection is IDependencyInjection
     {
         
     }
+    
+    
+    function Initialize() public 
+    {
+        
+    }
 }
 
 
@@ -1912,59 +1985,59 @@ contract DependencyInjection is IDependencyInjection
 
 
 
-contract RoleBidder is IRoleBidder
-{
-    constructor() public 
-    {
+// contract RoleBidder is IRoleBidder
+// {
+//  constructor() public 
+//  {
 
-    }
+//  }
 
-    function Bid (uint playerID, string memory role, uint bidAmount)  public 
-    {
-        uint roleId = RoleToNum(role);
-    }
+//  function Bid (uint playerID, string memory role, uint bidAmount)  public 
+//  {
+//      uint roleId = RoleToNum(role);
+//  }
 
-    function CreateRoles() public returns(IPlayer[] memory)
-    {
-        // throw new NotImplementedException();
-    }
+//  function CreateRoles() public returns(IPlayer[] memory)
+//  {
+//      // throw new NotImplementedException();
+//  }
 
-    function GetIsActive() public returns(bool)
-    {
-        // throw new NotImplementedException();
-    }
+//  function GetIsActive() public returns(bool)
+//  {
+//      // throw new NotImplementedException();
+//  }
 
-    function HasEveryoneBid() public returns(bool)
-    {
-        // throw new NotImplementedException();
-    }
+//  function HasEveryoneBid() public returns(bool)
+//  {
+//      // throw new NotImplementedException();
+//  }
 
-    function SetPlayersCount(uint playersCount) public
-    {
+//  function SetPlayersCount(uint playersCount) public
+//  {
 
-    }
+//  }
 
-    function RoleToNum(string memory role) private returns(uint)
-    {
-        if (role == "POLICE")
-        { //DRY
-            return 0;
-        }
-        else if (role == "CITIZEN")
-        {
-            return 1;
-        }
-        else if (role == "KIILER")
-        {
-            return 2;
-        }
-        else
-        {
-            revert("Parameter cannot be null");
-        }
-    }
+//  function RoleToNum(string memory role) private returns(uint)
+//  {
+//      if (role == "POLICE")
+//      { //DRY
+//          return 0;
+//      }
+//      else if (role == "CITIZEN")
+//      {
+//          return 1;
+//      }
+//      else if (role == "KIILER")
+//      {
+//          return 2;
+//      }
+//      else
+//      {
+//          revert("Parameter cannot be null");
+//      }
+//  }
 
-}
+// }
 
 
 //////////////// THQBY specific code //////////////
@@ -1975,7 +2048,7 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
     ITHQBY_Settings _settings;
 
     //mannually DI
-    constructor(THQBY_Settings settings) public
+    constructor(ITHQBY_Settings settings)   PlayerFactoryBase() public
     {
         _settings = settings;
     }
@@ -2012,7 +2085,7 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 {
     ITHQBY_Settings _names;
 
-    constructor(THQBY_Settings settings) public
+    constructor(ITHQBY_Settings settings) public
     {
         _names = settings;
     }
@@ -2291,3 +2364,6 @@ contract Main is ITHQBYPlayerInterface
         }
     }
 }
+
+
+
