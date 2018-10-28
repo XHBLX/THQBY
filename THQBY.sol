@@ -290,6 +290,52 @@ contract ISequentialChatter is IChatter//, ITimeLimitForwardable
 
 
 
+contract THQBY_Settings is ITHQBY_Settings
+{
+    constructor() public
+    {
+    }
+
+    function CITIZEN() public returns(string memory )
+    {
+        return "CITIZEN";
+    }
+
+    function DAY() public returns(string memory )
+    {
+        return "DAY";
+    }
+
+    function DAY_PK() public returns(string memory )
+    {
+        return "DAY_PK";
+    }
+
+    function KILLER() public returns(string memory )
+    {
+        return "KILLER";
+    }
+
+    function NIGHT_KILLER() public returns(string memory )
+    {
+        return "NIGHT_KILLER";
+    }
+
+    function NIGHT_POLICE() public returns(string memory )
+    {
+        return "NIGHT_POLICE";
+    }
+
+    function POLICE() public returns(string memory )
+    {
+        return "POLICE";
+    }
+
+
+}
+
+
+
 
 /// @dev DN: This is an abstract contract.
 contract PlayerFactoryBase is IPlayerFactory
@@ -2178,52 +2224,6 @@ contract THQBY_SceneManager is SceneManagerBase
 }
 
 
-contract THQBY_Settings is ITHQBY_Settings
-{
-    constructor() public
-    {
-    }
-
-    function CITIZEN() public returns(string memory )
-    {
-        return "CITIZEN";
-    }
-
-    function DAY() public returns(string memory )
-    {
-        return "DAY";
-    }
-
-    function DAY_PK() public returns(string memory )
-    {
-        return "DAY_PK";
-    }
-
-    function KILLER() public returns(string memory )
-    {
-        return "KILLER";
-    }
-
-    function NIGHT_KILLER() public returns(string memory )
-    {
-        return "NIGHT_KILLER";
-    }
-
-    function NIGHT_POLICE() public returns(string memory )
-    {
-        return "NIGHT_POLICE";
-    }
-
-    function POLICE() public returns(string memory )
-    {
-        return "POLICE";
-    }
-
-
-}
-
-
-
 
 
 
@@ -2413,6 +2413,5 @@ contract Main is ITHQBYPlayerInterface
         }
     }
 }
-
 
 
