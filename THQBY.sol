@@ -169,7 +169,7 @@ contract IPlayerManager is IInitializableIPlayerArr
 }
 
 
-contract IChatter is IChatLog, ITimeLimitable//, IInitializableIPlayerArr
+contract IChatter is IChatLog, ITimeLimitForwardable//, IInitializableIPlayerArr
 {
 }
 
@@ -249,7 +249,7 @@ contract ITHQBY_Settings
 }
 
 
-contract ISequentialChatter is IChatter, ITimeLimitForwardable
+contract ISequentialChatter is IChatter//, ITimeLimitForwardable
 {
     function GetSpeakingPlayer() public returns(IPlayer);
     function HaveEveryoneSpoke() public returns(bool);
@@ -2196,7 +2196,7 @@ contract Main is ITHQBYPlayerInterface
     IDependencyInjection          _inject;
     THQBYRoleBidder               _roleBidder;
     THQBY_SceneManager            _sceneManager;
-    THQBY_PLayer[]                _tHQBY_PLayers;
+    IPlayer[]                _tHQBY_PLayers;
     ITHQBY_Settings               _settings;
     IPlayerManager                _PlayerManager;
     uint                          _curMaxId;
@@ -2240,7 +2240,7 @@ contract Main is ITHQBYPlayerInterface
         return id;
     }
 
-    function GetMyPlayer() public returns(string memory){
+    function GetMyPlayer() public returns(THQBY_PLayer ){
         checkIsBid();
         return Id2Player(getMyID());
     }   
@@ -2285,8 +2285,8 @@ contract Main is ITHQBYPlayerInterface
         checkIsBid();
         THQBY_PLayer Player = GetMyPlayer();
         IScene scene = _sceneManager.GetCurrentScene();
-        IChatter Chatter = scene.Chatter();
-        return Chatter.TryMoveForward(Player);
+        IChatter chatter = scene.Chatter();
+        return chatter.TryMoveForward(Player);
     }
 
     function TryForwardScene() public
@@ -2319,7 +2319,7 @@ contract Main is ITHQBYPlayerInterface
     function Address2ID(address playerAddress) private returns(uint)
     {
         bool addressNotContain=false;
-        for (int i=0; i< _addressSet.length; i++)
+        for (uint i=0; i< _addressSet.length; i++)
         {
             if(_addressSet[i]==playerAddress)
             {
@@ -2345,12 +2345,12 @@ contract Main is ITHQBYPlayerInterface
         return Id2Player(id);
     }
 
-    function Id2Player(uint id) private returns(IPlayer)
+    function Id2Player(uint id) private returns(THQBY_PLayer)
     {
         checkIsBid();
-        if (!_IdToPlayer.ContainsKey(id))
+        if (address(_IdToPlayer[id])==0x0)
         {
-            _IdToPlayer[id] = _tHQBY_PLayers[id];
+            _IdToPlayer[id] = THQBY_PLayer(_tHQBY_PLayers[id]);
         }
         return _IdToPlayer[id];
     }
