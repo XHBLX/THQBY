@@ -1173,7 +1173,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 
     function GetNth_day() public returns(uint)
     {
-        _timeLimitable.GetNth_day();
+        return _timeLimitable.GetNth_day();
     }
 
     function GetRealTimeInSeconds() public returns(uint)
