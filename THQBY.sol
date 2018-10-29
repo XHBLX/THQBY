@@ -978,7 +978,7 @@ contract Ballot is  ParticipatableBase, IBallot
         if (!player.GetIsAlive()) {
             return false;
         }
-        return IParticipatable.CanParticipate(player);
+        return ParticipatableBase.CanParticipate(player);
     }
 
     function GetWinners() public returns(IPlayer[] memory) 
