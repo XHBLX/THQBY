@@ -2239,7 +2239,7 @@ contract THQBY_SceneManager is SceneManagerBase
 */
 
 
-contract Main is ITHQBYPlayerInterface 
+contract Main //is ITHQBYPlayerInterface 
 {
     IDependencyInjection          _inject;
     THQBYRoleBidder               _roleBidder;
@@ -2265,8 +2265,22 @@ contract Main is ITHQBYPlayerInterface
     }
 
     //starting game
-    function Bid(uint policeAmount, uint killerAmount, uint citizenAmount) public
+    function Bid(uint policeAmount, uint killerAmount, uint citizenAmount) public payable
     {
+        uint sum= policeAmount+killerAmount+citizenAmount;
+        uint invSum=uint(1/sum);
+        uint coins= msg.value;
+        
+        pliceAmount*=coins;
+        killerAmount*=coins;
+        citizenAmount*=coins;
+        
+        pliceAmount*=invSum;
+        killerAmount*=invSum;
+        citizenAmount*=invSum;
+        
+        
+        
         uint id = getMyID();
         _roleBidder.Bid(id, _settings.POLICE(), policeAmount);
         _roleBidder.Bid(id, _settings.KILLER(), killerAmount);
