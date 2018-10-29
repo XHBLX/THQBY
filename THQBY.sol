@@ -2268,12 +2268,10 @@ contract Main //is ITHQBYPlayerInterface
     function Bid(uint policeAmount, uint killerAmount, uint citizenAmount) public payable
     {
         uint sum= policeAmount+killerAmount+citizenAmount;
-        uint invSum=uint(1/sum);
         uint coins= msg.value;
+        uint invSum=uint(coins/sum);
         
-        policeAmount*=coins;
-        killerAmount*=coins;
-        citizenAmount*=coins;
+       
         
         policeAmount*=invSum;
         killerAmount*=invSum;
