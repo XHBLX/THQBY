@@ -1280,10 +1280,10 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 
     function PrintMessagePlayerDead(IPlayer somebody) public 
     {
-        _chatter.PrintSystemMessage("______________________");
+        _chatter.PrintSystemMessage("___________");
         _chatter.PrintSystemMessage("Killed Play with ID=");
         _chatter.PrintSystemMessage(uint2str(somebody.GetId()));
-        _chatter.PrintSystemMessage("______________________");
+        _chatter.PrintSystemMessage("___________");
     }
 
 
@@ -1327,7 +1327,7 @@ contract THQBY_Scene is Scene
         _sceneDay = sceneDay;
     }
 
-    function Set__scenePK(SceneDAY_PK scenePK) public
+    function Set_scenePK(SceneDAY_PK scenePK) public
     {
         _scenePK = scenePK;
     }
@@ -1851,7 +1851,7 @@ contract DependencyInjection is IDependencyInjection
     ITHQBY_PlayerManager           _playerManager;
     IClock                         _clock;
     SceneNIGHT_KILLER              _sceneNIGHT_KILLER;
-    SceneNIGHT_POLICE              _nIGHT_POLICE;
+    SceneNIGHT_POLICE              _sceneNIGHT_POLICE;
     IPlayerFactory                 _playerfact;
     IRoleBidder                    _roleBidder;
     SceneDAY                       _sceneDAY;
@@ -1863,9 +1863,42 @@ contract DependencyInjection is IDependencyInjection
     // For game play
     IPlayer[]            private   _players;
 
+
+
+
+THQBY_Scene private scn;//helper
+
+function InitSceneHelper() private
+{
+            scn.Set_scecenPOLICE(_sceneNIGHT_POLICE);
+            scn.Set_sceneDay(_sceneDAY);
+            scn.Set_scenePK(_sceneDAY_PK);
+            scn.Set_sceneKiller(_sceneNIGHT_KILLER);
+}
+
+
     constructor() public
     {
-
+            IBallot ballot = BallotFactory();
+            IChatter chatter = ChatterFactory();
+            ITimeLimitable timeLimitable = TimeLimitableFactory();
+            ITHQBY_Settings settings = SettingsFactory();
+            _sceneNIGHT_KILLER = new SceneNIGHT_KILLER(ballot, chatter, timeLimitable, settings);
+               _sceneNIGHT_POLICE = new SceneNIGHT_POLICE(ballot, chatter, timeLimitable, settings);
+               _sceneDAY = new SceneDAY(ballot, chatter, timeLimitable, settings);
+            _sceneDAY_PK = new SceneDAY_PK(ballot, chatter, timeLimitable, settings);
+            
+           
+            scn=_sceneNIGHT_KILLER;
+            InitSceneHelper();
+            scn=_sceneNIGHT_POLICE;
+            InitSceneHelper();
+            scn=_sceneDAY;
+            InitSceneHelper();
+            scn=_sceneDAY_PK;
+            InitSceneHelper();
+           
+           
     }
 
     function Players() public returns(IPlayer[] memory)
@@ -1920,31 +1953,17 @@ contract DependencyInjection is IDependencyInjection
     //AsSingle
     function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER)
     {
-        bool xx=address(_sceneNIGHT_KILLER)==address(0x0);
-        if (  xx )
-        {
-            IBallot ballot = BallotFactory();
-            IChatter chatter = ChatterFactory();
-            ITimeLimitable timeLimitable = TimeLimitableFactory();
-            ITHQBY_Settings settings = SettingsFactory();
-            _sceneNIGHT_KILLER = new SceneNIGHT_KILLER(ballot, chatter, timeLimitable, settings);
-        }
+        
         return _sceneNIGHT_KILLER;
     }
 
     //AsSingle
     function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE)
     {
-        if (address(_nIGHT_POLICE) == address(0x0))
-        {
-            IBallot ballot = BallotFactory();
-            IChatter chatter = ChatterFactory();
-            ITimeLimitable timeLimitable = TimeLimitableFactory();
-            ITHQBY_Settings settings = SettingsFactory();
-
-            _nIGHT_POLICE = new SceneNIGHT_POLICE(ballot, chatter, timeLimitable, settings);
-        }
-        return _nIGHT_POLICE;
+       
+         
+        
+        return _sceneNIGHT_POLICE;
     }
 
     //AsTransient
@@ -1990,28 +2009,14 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function SceneDAYFactory() public returns(SceneDAY)
     {
-        if (address(_sceneDAY) == address(0x0))
-        {
-            IBallot ballot = BallotFactory();
-            ISequentialChatter chatter = SequentialChatterFactory();
-            ITimeLimitable timeLimitable = TimeLimitableFactory();
-            ITHQBY_Settings settings = SettingsFactory();
-            _sceneDAY = new SceneDAY(ballot, chatter, timeLimitable, settings);
-        }
+        
         return _sceneDAY;
     }
 
     //AsSingle
     function SceneDAY_PKFactory() public returns(SceneDAY_PK)
     {
-        if (   address(_sceneDAY_PK) == address(0x0))
-        {
-            IBallot ballot = BallotFactory();
-            ISequentialChatter chatter = SequentialChatterFactory();
-            ITimeLimitable timeLimitable = TimeLimitableFactory();
-            ITHQBY_Settings settings = SettingsFactory();
-            _sceneDAY_PK = new SceneDAY_PK(ballot, chatter, timeLimitable, settings);
-        }
+       
         return _sceneDAY_PK;    
     }
 
