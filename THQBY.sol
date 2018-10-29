@@ -2271,11 +2271,11 @@ contract Main //is ITHQBYPlayerInterface
         uint invSum=uint(1/sum);
         uint coins= msg.value;
         
-        pliceAmount*=coins;
+        policeAmount*=coins;
         killerAmount*=coins;
         citizenAmount*=coins;
         
-        pliceAmount*=invSum;
+        policeAmount*=invSum;
         killerAmount*=invSum;
         citizenAmount*=invSum;
         
