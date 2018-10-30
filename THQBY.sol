@@ -92,283 +92,276 @@ contract IChatable
 }
 
 
-// contract ISpokenEvent
-// {
-    //  /// Occurs when event spoken. arguments are timestamp, player, message.
-    //  event eventSpoken(uint timestamp, IPlayer player, string message);
-    // }
+contract IChatLog is IParticipatable, IChatable//, ISpokenEvent
+{
+    function GetAllMessages() public returns(ChatMessage[] memory);   
+    function GetNewestMessage() public returns(ChatMessage );
+    function PrintSystemMessage(string memory message) public ;
+}
 
 
-    contract IChatLog is IParticipatable, IChatable//, ISpokenEvent
+contract IGameController
+{
+    function GetLivingPlayers() public returns(IPlayer[] memory);
+    function GetDeadPlayers() public returns(IPlayer[] memory);
+    function RegisterNewPlayerAndReturnID(address player) public returns(uint); // object address
+}
+
+
+contract IPlayer //is ISpokenEvent
+{
+    function Senderaddress() public returns(address);
+    function GetVotingWeightAsPercent() public returns(uint);
+    function GetRole() public returns(string memory);
+    function GetId() public returns(uint);
+    function SetId(uint id) public ;
+    function GetIsAlive() public returns(bool);
+    function KillMe() public;
+    //function  Speak(string message) public ;
+    //bool TryVote(uint playerID) public ;
+    //  function speak (string message) public;
+    //  function TryVote (uint playerID) returns(bool);
+}
+
+
+contract IPlayerFactory 
+{
+    function Create(string memory str, address addrs) public returns(IPlayer);
+}
+
+
+contract IPlayerManager is IInitializableIPlayerArr
+{
+    function GetPlayer(uint id) public returns(IPlayer);
+    function GetAllPlayers() public returns(IPlayer[] memory);
+    function GetAllLivingPlayers() public returns(IPlayer[] memory);
+    function GetDeadPlayers() public returns(IPlayer[] memory);
+}
+
+
+contract IChatter is IChatLog, ITimeLimitForwardable//, IInitializableIPlayerArr
+{
+}
+
+contract IRoleBidder is IInitializable
+{
+    function Bid(uint playerID, string memory role, uint bidAmount) public ;
+    function HasEveryoneBid() public returns(bool);
+    function SetPlayersCount(uint playersCount) public ;
+    function CreateRoles() public returns(IPlayer[] memory);
+    function GetIsActive() public returns(bool);
+    function SetID2Address(uint id, address adrs) public;
+}
+
+
+contract IScene is ITimeLimitable, ITimeLimitForwardable
+{
+    function Initialize(ISceneManagerFriendToScene  sceneMng, IPlayer[] memory players) public ;
+    function GetSceneName() public returns(string memory);//return this.GetType().ToString();
+    function Ballot() public returns(IBallot);
+    function Chatter() public returns(IChatter);
+    function Refresh() public ;
+}
+
+
+contract IPrivateScene is IScene
+{
+    function ZeroVotingResultHandler() public ;
+    function OneVotingResultHandler(IPlayer result) public ;
+    function MoreVotingResultHandler(IPlayer[] memory result) public ;
+    function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool);
+}
+
+
+contract ISceneManager is ITimeLimitForwardable, IInitializable
+{
+    function GetCurrentScene() public returns(IScene);
+}
+
+
+contract ISceneManagerFriendToScene is ISceneManager
+{
+    function MoveForwardToNewScene(IScene newScene) public ;
+}
+
+
+contract ITHQBYPlayerInterface
+{
+    //starting game
+    function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public;
+    //accessing 
+    function getID(uint id) public returns(uint);
+    function getRole() public returns(string memory);
+    function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog);
+    //communicating
+    function TryChat(string memory message) public returns(bool);
+    //action method
+    function TryVote(uint playerID) public returns(bool);
+}
+
+
+contract ITHQBY_PlayerManager is IPlayerManager
+{
+    function GetLivingPolicePlayers() public returns(IPlayer[] memory);
+    function GetLivingCitizenPlayers() public returns(IPlayer[] memory);
+    function GetLivingKillerPlayers() public returns(IPlayer[] memory);
+    function GetPolicePlayers() public returns(IPlayer[] memory);
+    function GetCitizenPlayers() public returns(IPlayer[] memory);
+    function GetKillerPlayers() public returns(IPlayer[] memory);
+    function GetGoodRolePlayers() public returns(IPlayer[] memory);
+    function GetLivingGoodRolePlayers() public returns(IPlayer[] memory);
+}
+
+
+contract ITHQBY_Settings
+{
+    function  DAY() public  returns(string memory);
+    function  DAY_PK() public  returns(string memory);
+    function  NIGHT_KILLER() public  returns(string memory);
+    function  NIGHT_POLICE() public  returns(string memory);
+    function  POLICE() public  returns(string memory);
+    function  CITIZEN() public  returns(string memory);
+    function  KILLER() public  returns(string memory);
+}
+
+
+contract ISequentialChatter is IChatter//, ITimeLimitForwardable
+{
+    function GetSpeakingPlayer() public returns(IPlayer);
+    function HaveEveryoneSpoke() public returns(bool);
+}
+
+
+contract THQBY_Settings is ITHQBY_Settings
+{
+    constructor() public
     {
-        function GetAllMessages() public returns(ChatMessage[] memory);   
-        function GetNewestMessage() public returns(ChatMessage );
-        function PrintSystemMessage(string memory message) public ;
+    }
+
+    function CITIZEN() public returns(string memory )
+    {
+        return "CITIZEN";
+    }
+
+    function DAY() public returns(string memory )
+    {
+        return "DAY";
+    }
+
+    function DAY_PK() public returns(string memory )
+    {
+        return "DAY_PK";
+    }
+
+    function KILLER() public returns(string memory )
+    {
+        return "KILLER";
+    }
+
+    function NIGHT_KILLER() public returns(string memory )
+    {
+        return "NIGHT_KILLER";
+    }
+
+    function NIGHT_POLICE() public returns(string memory )
+    {
+        return "NIGHT_POLICE";
+    }
+
+    function POLICE() public returns(string memory )
+    {
+        return "POLICE";
     }
 
 
-    contract IGameController
+}
+
+
+
+
+/// @dev DN: This is an abstract contract.
+contract PlayerFactoryBase is IPlayerFactory
+{
+    uint        _idCounter = 0;
+
+    function Create(string memory role, address addrs) public returns(IPlayer);
+
+    constructor () public
     {
-        function GetLivingPlayers() public returns(IPlayer[] memory);
-        function GetDeadPlayers() public returns(IPlayer[] memory);
-        function RegisterNewPlayerAndReturnID(address player) public returns(uint); // object address
+
     }
+}
 
 
-    contract IPlayer //is ISpokenEvent
+contract IDependencyInjection
+{
+    function BallotFactory() public returns(IBallot);
+    function ChatLogFactory() public returns(IChatLog);
+    function ChatterFactory() public returns(IChatter);
+    function ClockFactory() public returns(IClock);
+    function PlayerFactoryFactory() public returns(IPlayerFactory);
+    function PlayerManager() public returns(ITHQBY_PlayerManager);
+    //IScene SceneFactory(string name); 
+    function SettingsFactory() public returns(ITHQBY_Settings);
+    function SceneManagerFactory() public returns(ISceneManager);
+    function ParticipatableFactory() public returns(IParticipatable);
+    function RoleBidderFactory() public returns(IRoleBidder);
+    function SequentialChatterFactory() public returns(ISequentialChatter);
+    function TimeLimitableFactory() public returns(ITimeLimitable);
+    function SceneDAYFactory() public returns(SceneDAY);
+    function SceneDAY_PKFactory() public returns(SceneDAY_PK);
+    function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE);
+    function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER);
+    function Initialize() public;
+    function LateInitiizeAfterRoleBide() public;
+}
+
+/////////// implement
+
+contract StrArr
+{ 
+    string[]  _strArr;
+
+    constructor() public
     {
-        function Senderaddress() public returns(address);
-        function GetVotingWeightAsPercent() public returns(uint);
-        function GetRole() public returns(string memory);
-        function GetId() public returns(uint);
-        function SetId(uint id) public ;
-        function GetIsAlive() public returns(bool);
-        function KillMe() public;
-        //function  Speak(string message) public ;
-        //bool TryVote(uint playerID) public ;
-        //  function speak (string message) public;
-        //  function TryVote (uint playerID) returns(bool);
-    }
-
-
-    contract IPlayerFactory 
-    {
-        function Create(string memory str, address addrs) public returns(IPlayer);
-    }
-
-
-    contract IPlayerManager is IInitializableIPlayerArr
-    {
-        function GetPlayer(uint id) public returns(IPlayer);
-        function GetAllPlayers() public returns(IPlayer[] memory);
-        function GetAllLivingPlayers() public returns(IPlayer[] memory);
-        function GetDeadPlayers() public returns(IPlayer[] memory);
-    }
-
-
-    contract IChatter is IChatLog, ITimeLimitForwardable//, IInitializableIPlayerArr
-    {
-    }
-
-    contract IRoleBidder is IInitializable
-    {
-        function Bid(uint playerID, string memory role, uint bidAmount) public ;
-        function HasEveryoneBid() public returns(bool);
-        function SetPlayersCount(uint playersCount) public ;
-        function CreateRoles() public returns(IPlayer[] memory);
-        function GetIsActive() public returns(bool);
-        function SetID2Address(uint id, address adrs) public;
-    }
-
-
-    contract IScene is ITimeLimitable, ITimeLimitForwardable
-    {
-        function Initialize(ISceneManagerFriendToScene  sceneMng, IPlayer[] memory players) public ;
-        function GetSceneName() public returns(string memory);//return this.GetType().ToString();
-        function Ballot() public returns(IBallot);
-        function Chatter() public returns(IChatter);
-        function Refresh() public ;
-    }
-
-
-    contract IPrivateScene is IScene
-    {
-        function ZeroVotingResultHandler() public ;
-        function OneVotingResultHandler(IPlayer result) public ;
-        function MoreVotingResultHandler(IPlayer[] memory result) public ;
-        function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool);
-    }
-
-
-    contract ISceneManager is ITimeLimitForwardable, IInitializable
-    {
-        function GetCurrentScene() public returns(IScene);
-    }
-
-
-    contract ISceneManagerFriendToScene is ISceneManager
-    {
-        function MoveForwardToNewScene(IScene newScene) public ;
-    }
-
-
-    contract ITHQBYPlayerInterface
-    {
-        //starting game
-        function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public;
-        //accessing 
-        function getID(uint id) public returns(uint);
-        function getRole() public returns(string memory);
-        function getChatLog(ChatMessage[] memory msgs) public returns(IChatLog);
-        //communicating
-        function TryChat(string memory message) public returns(bool);
-        //action method
-        function TryVote(uint playerID) public returns(bool);
-    }
-
-
-    contract ITHQBY_PlayerManager is IPlayerManager
-    {
-        function GetLivingPolicePlayers() public returns(IPlayer[] memory);
-        function GetLivingCitizenPlayers() public returns(IPlayer[] memory);
-        function GetLivingKillerPlayers() public returns(IPlayer[] memory);
-        function GetPolicePlayers() public returns(IPlayer[] memory);
-        function GetCitizenPlayers() public returns(IPlayer[] memory);
-        function GetKillerPlayers() public returns(IPlayer[] memory);
-        function GetGoodRolePlayers() public returns(IPlayer[] memory);
-        function GetLivingGoodRolePlayers() public returns(IPlayer[] memory);
-    }
-
-
-    contract ITHQBY_Settings
-    {
-        function  DAY() public  returns(string memory);
-        function  DAY_PK() public  returns(string memory);
-        function  NIGHT_KILLER() public  returns(string memory);
-        function  NIGHT_POLICE() public  returns(string memory);
-        function  POLICE() public  returns(string memory);
-        function  CITIZEN() public  returns(string memory);
-        function  KILLER() public  returns(string memory);
-    }
-
-
-    contract ISequentialChatter is IChatter//, ITimeLimitForwardable
-    {
-        function GetSpeakingPlayer() public returns(IPlayer);
-        function HaveEveryoneSpoke() public returns(bool);
-    }
-
-
-    contract THQBY_Settings is ITHQBY_Settings
-    {
-        constructor() public
-        {
-        }
-
-        function CITIZEN() public returns(string memory )
-        {
-            return "CITIZEN";
-        }
-
-        function DAY() public returns(string memory )
-        {
-            return "DAY";
-        }
-
-        function DAY_PK() public returns(string memory )
-        {
-            return "DAY_PK";
-        }
-
-        function KILLER() public returns(string memory )
-        {
-            return "KILLER";
-        }
-
-        function NIGHT_KILLER() public returns(string memory )
-        {
-            return "NIGHT_KILLER";
-        }
-
-        function NIGHT_POLICE() public returns(string memory )
-        {
-            return "NIGHT_POLICE";
-        }
-
-        function POLICE() public returns(string memory )
-        {
-            return "POLICE";
-        }
-
 
     }
 
-
-
-
-    /// @dev DN: This is an abstract contract.
-    contract PlayerFactoryBase is IPlayerFactory
+    function GetStrI(uint i) returns(string)
     {
-        uint        _idCounter = 0;
-
-        function Create(string memory role, address addrs) public returns(IPlayer);
-
-        constructor () public
-        {
-
-        }
+        return _strArr[i];
     }
 
-
-    contract IDependencyInjection
+    function GetLength() returns (uint)
     {
-        function BallotFactory() public returns(IBallot);
-        function ChatLogFactory() public returns(IChatLog);
-        function ChatterFactory() public returns(IChatter);
-        function ClockFactory() public returns(IClock);
-        function PlayerFactoryFactory() public returns(IPlayerFactory);
-        function PlayerManager() public returns(ITHQBY_PlayerManager);
-        //IScene SceneFactory(string name); 
-        function SettingsFactory() public returns(ITHQBY_Settings);
-        function SceneManagerFactory() public returns(ISceneManager);
-        function ParticipatableFactory() public returns(IParticipatable);
-        function RoleBidderFactory() public returns(IRoleBidder);
-        function SequentialChatterFactory() public returns(ISequentialChatter);
-        function TimeLimitableFactory() public returns(ITimeLimitable);
-        function SceneDAYFactory() public returns(SceneDAY);
-        function SceneDAY_PKFactory() public returns(SceneDAY_PK);
-        function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE);
-        function NIGHT_KILLER_Factory() public returns(SceneNIGHT_KILLER);
-        function Initialize() public;
-        function LateInitiizeAfterRoleBide() public;
+        return _strArr.length;
     }
 
-    /////////// implement
-
-    contract StrArr
-    { 
-        string[]  _strArr;
-
-        constructor() public
-        {
-
-        }
-
-        function GetStrI(uint i) returns(string)
-        {
-            return _strArr[i];
-        }
-
-        function GetLength() returns (uint)
-        {
-            return _strArr.length;
-        }
-
-        function PushStr(string str) public
-        {
-            _strArr.push(str);
-        }
-    }
-
-    /// @dev DN: This is an abstract contract.
-    contract RoleBidderBase is IRoleBidder 
+    function PushStr(string str) public
     {
-        IPlayerFactory               _playerFactory;
-        bool                         _isClassActive    = true; //init usable 
-        uint                         _playerCount;
-        uint                         _numRoles;
-        int[][]                      _matrix;
-        bool[]                       isVote;
-        mapping(uint => string)      _roleOfPlayerID;
-        mapping(string => uint[])    _string2RoleIndx;
-        mapping(int => string)       _roleIndx2String;
-        mapping(string => uint)      _spotsOfRole;
-        mapping(uint=> address)      _id2address;
+        _strArr.push(str);
+    }
+}
 
-        function SetID2Address(uint id, address adrs) public
-        {
-            _id2address[id]=adrs;
-        }
+/// @dev DN: This is an abstract contract.
+contract RoleBidderBase is IRoleBidder 
+{
+    IPlayerFactory               _playerFactory;
+    bool                         _isClassActive    = true; //init usable 
+    uint                         _playerCount;
+    uint                         _numRoles;
+    int[][]                      _matrix;
+    bool[]                       isVote;
+    mapping(uint => string)      _roleOfPlayerID;
+    mapping(string => uint[])    _string2RoleIndx;
+    mapping(int => string)       _roleIndx2String;
+    mapping(string => uint)      _spotsOfRole;
+    mapping(uint=> address)      _id2address;
+
+    function SetID2Address(uint id, address adrs) public
+    {
+        _id2address[id]=adrs;
+    }
 
     /*
     * Abstract Contracts
@@ -1253,10 +1246,7 @@ contract THQBY_Scene is Scene
         , ITHQBY_Settings settings) Scene(ballot, chatter, timeLimitable, settings)
     public
     {
-        //      _ballot = ballot;
-        //      _chatter = chatter;
-        //      _timeLimitable = timeLimitable;
-        //      _settings = settings;
+
     }
 
     // setter
@@ -1532,7 +1522,7 @@ contract SceneManagerBase is  ITimeLimitForwardable, ISceneManager, ISceneManage
 }
 
 
-contract Chatter is  IChatter
+contract Chatter is IChatter
 {
     ITimeLimitable _timeLimitable;
     IChatLog       _chatLog;
@@ -2312,7 +2302,7 @@ contract Main
 
     function DistributeFromPool() private
     {
-        
+
     }
 
     // 该命令仅作为保护机制
