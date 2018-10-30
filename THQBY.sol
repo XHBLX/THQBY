@@ -212,6 +212,9 @@ contract IChatable
         function GetLivingPolicePlayers() public returns(IPlayer[] memory);
         function GetLivingCitizenPlayers() public returns(IPlayer[] memory);
         function GetLivingKillerPlayers() public returns(IPlayer[] memory);
+        function GetPolicePlayers() public returns(IPlayer[] memory);
+        function GetCitizenPlayers() public returns(IPlayer[] memory);
+        function GetKillerPlayers() public returns(IPlayer[] memory);
     }
 
 
@@ -581,7 +584,7 @@ contract PlayerManager is IPlayerManager
 
     // 之前的 players 作为状态变量是有什么用么？如果有的话那我就改成两个吧
     IPlayer[] OneSideLivingPlayers;
-    IPlayer[] OneSidePlayers
+    IPlayer[] OneSidePlayers;
 
     constructor()  public 
     {
@@ -660,9 +663,10 @@ contract PlayerManager is IPlayerManager
             string memory b = desiredRoleName;
             if (keccak256(a) == keccak256(b))
             {
-
+                OneSidePlayers.push(_curPlayer);
             }
         }
+        return OneSidePlayers;
     }
 }
 
@@ -2029,7 +2033,22 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
     function GetLivingPolicePlayers() public returns (IPlayer[] memory )
     {
         return FindLivingByRole(_names.POLICE());
-    }   
+    }
+
+    function GetPolicePlayers() public returns(IPlayer[] memory)
+    {
+        return FindByRole(_names.POLICE());
+    }
+
+    function GetCitizenPlayers() public returns(IPlayer[] memory)
+    {
+        return FindByRole(_names.CITIZEN());
+    }
+
+    function GetKillerPlayers() public returns(IPlayer[] memory)
+    {
+        return FindByRole(_names.KILLER());
+    }
 
 }
 
