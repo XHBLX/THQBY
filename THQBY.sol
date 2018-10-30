@@ -2306,9 +2306,8 @@ contract Main
         } 
         else if (_goodPeopleWin) // 举条件做保护
         {
-
+            _winnerPlayers = _tHQBY_PlayerManager.GetGoodRolePlayers();
         }
-
     }
 
     function DistributeFromPool() private
