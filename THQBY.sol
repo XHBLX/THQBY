@@ -2069,12 +2069,21 @@ contract Main
     IPlayer[]                     _tHQBY_PLayers;
     ITHQBY_Settings               _settings;
     IPlayerManager                _PlayerManager;
+
     uint                          _curMaxId;
     mapping(address => uint)      _AddrToId;
     mapping(uint => THQBY_PLayer) _IdToPlayer;
     mapping(uint => address)      _IdToAddr;
     mapping(uint => bool)         _isBid;     
     address[]                     _addressSet;
+
+    // Primary game state
+    uint                          _policeAmount;
+    uint                          _killerAmount;
+    uint                          _citizenAmount;
+    bool                          _killerWin;
+    bool                          _goodPeopleWin;                 
+
 
     constructor() payable public
     {
@@ -2196,6 +2205,8 @@ contract Main
     }
 
 
+
+    // This function is private only called upon state change
     function TryEndGame() private returns(bool) 
     {
         if (_EndGameConditionsMet()) 
@@ -2211,7 +2222,14 @@ contract Main
 
     function _EndGameConditionsMet() private returns(bool)
     {
-
+        if (_killerAmount >= (_policeAmount + _citizenAmount))
+        {
+            _killerWin = true;
+        }
+        else if (_killerAmount == 0)
+        {
+            _goodPeopleWin = true;
+        }
     }
 
     function _distributeFromPool() private
