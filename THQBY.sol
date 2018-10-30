@@ -215,6 +215,7 @@ contract IChatable
         function GetPolicePlayers() public returns(IPlayer[] memory);
         function GetCitizenPlayers() public returns(IPlayer[] memory);
         function GetKillerPlayers() public returns(IPlayer[] memory);
+        function GetGoodPeoplePlayers() public returns(IPlayer[] memory);
     }
 
 
@@ -2005,10 +2006,7 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
         _idCounter++;
         return ans;
     }
-
-
 }
-
 
 
 contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
@@ -2049,7 +2047,6 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
     {
         return FindByRole(_names.KILLER());
     }
-
 }
 
 
@@ -2272,19 +2269,20 @@ contract Main
     }
 
     function SetWinnerPlayers() private returns(IPlayer[] memory) {
-
-    }
-
-    function DistributeFromPool() private
-    {
         if (_killerWin) 
         {
-
+            _winnerPlayers = _tHQBY_PlayerManager.GetKillerPlayers();
         } 
         else if (_goodPeopleWin) // 举条件做保护
         {
 
         }
+
+    }
+
+    function DistributeFromPool() private
+    {
+        
     }
 
     // 该命令仅作为保护机制
