@@ -578,7 +578,10 @@ contract PlayerManager is IPlayerManager
 {
     IPlayer[] _players;
     IPlayer[] _tempPlayersList;
-    IPlayer[] players;
+
+    // 之前的 players 作为状态变量是有什么用么？如果有的话那我就改成两个吧
+    IPlayer[] OneSideLivingPlayers;
+    IPlayer[] OneSidePlayers
 
     constructor()  public 
     {
@@ -629,34 +632,37 @@ contract PlayerManager is IPlayerManager
     }
     
 
-    function FindByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
+    function FindLivingByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
     {
-
-        IPlayer[] memory all     = GetAllPlayers();
-        bool mustBeAlive       = true; // Initialized as that in original file
+        IPlayer[] memory all = GetAllPlayers();
         for (uint i = 0; i < all.length; i++)
         {
-            IPlayer x = all[i];
+            IPlayer _curPlayer = all[i];
             string memory a;
             string memory b;
-            a = x.GetRole();
+            a = _curPlayer.GetRole();
             b = desiredRoleName;
-            if (keccak256(a)==keccak256(b)) 
-            {
-                if (mustBeAlive) 
-                {
-                    if (x.GetIsAlive()) 
-                    {
-                        players.push(x);
-                    }
-                } 
-                else 
-                {
-                    players.push(x);
-                }
+            if (keccak256(a) == keccak256(b) && _curPlayer.GetIsAlive()) 
+            {        
+                OneSideLivingPlayers.push(_curPlayer);
             }
         }
-        return players;
+        return OneSideLivingPlayers;
+    }
+
+    function FindByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
+    {
+        IPlayer[] memory all = GetAllPlayers();
+        for (uint i = 0; i < all.length; i++)
+        {
+            IPlayer _curPlayer = all[i];
+            string memory a = _curPlayer.GetRole();
+            string memory b = desiredRoleName;
+            if (keccak256(a) == keccak256(b))
+            {
+
+            }
+        }
     }
 }
 
@@ -2012,17 +2018,17 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 
     function GetLivingCitizenPlayers() public returns (IPlayer[] memory )
     {
-        return FindByRole(_names.CITIZEN());
+        return FindLivingByRole(_names.CITIZEN());
     }
 
     function GetLivingKillerPlayers() public returns (IPlayer[] memory )
     {
-        return FindByRole(_names.KILLER());
+        return FindLivingByRole(_names.KILLER());
     }
 
     function GetLivingPolicePlayers() public returns (IPlayer[] memory )
     {
-        return FindByRole(_names.POLICE());
+        return FindLivingByRole(_names.POLICE());
     }   
 
 }
@@ -2069,6 +2075,7 @@ contract Main
     IPlayer[]                     _tHQBY_PLayers;
     ITHQBY_Settings               _settings;
     IPlayerManager                _PlayerManager;
+    THQBY_PlayerManager           _tHQBY_PlayerManager;
 
     uint                          _curMaxId;
     mapping(address => uint)      _AddrToId;
@@ -2078,13 +2085,14 @@ contract Main
     address[]                     _addressSet;
     address                       _GameManager;
 
-    // Primary game state
+    // Game state
     uint                          _policeAmount;
     uint                          _killerAmount;
     uint                          _citizenAmount;
     bool                          _killerWin;
     bool                          _goodPeopleWin; 
-    bool                          _endGameOrderFromManager;                
+    bool                          _endGameOrderFromManager;  
+    IPlayer[]                     _winnerPlayers;              
 
 
     constructor() payable public
@@ -2244,9 +2252,20 @@ contract Main
         return false;
     }
 
+    function SetWinnerPlayers() private returns(IPlayer[] memory) {
+
+    }
+
     function DistributeFromPool() private
     {
+        if (_killerWin) 
+        {
 
+        } 
+        else if (_goodPeopleWin) // 举条件做保护
+        {
+
+        }
     }
 
     // 该命令仅作为保护机制
@@ -2273,12 +2292,12 @@ contract Main
 
     function Address2ID(address playerAddress) private returns(uint)
     {
-        bool addressNotContain=false;
-        for (uint i=0; i< _addressSet.length; i++)
+        bool addressNotContain = false;
+        for (uint i = 0; i< _addressSet.length; i++)
         {
-            if(_addressSet[i]==playerAddress)
+            if(_addressSet[i] == playerAddress)
             {
-                addressNotContain=true;
+                addressNotContain = true;
                 break;
             }
         }
@@ -2303,7 +2322,7 @@ contract Main
     function Id2Player(uint id) private returns(THQBY_PLayer)
     {
         checkIsBid();
-        if (address(_IdToPlayer[id])==0x0)
+        if (address(_IdToPlayer[id]) == 0x0)
         {
             _IdToPlayer[id] = THQBY_PLayer(_tHQBY_PLayers[id]);
         }
