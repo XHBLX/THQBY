@@ -4,7 +4,6 @@
 ## General Issues:
 - all contracts and functions need to be optimized
 <br/>
-
 ## EndGame的问题：
 **能够终止游戏`TryEndGame == true`的条件（其中之一）:**
 - `EndGameCondition` Met
@@ -17,15 +16,14 @@
 <br/>
 
 **终止游戏方式：** <br/>
-通过判断TryEndGame，`selfdestruct`或其他非自毁合约的锁定方式
+- 通过判断`TryEndGame`，用`selfdestruct`或其他非自毁合约的锁定方式
 <br/>
 
 **何时调用终止游戏（call `EndGame`)：** <br/>
-在玩家人数发生改变的时候
+- 在玩家人数发生改变的时候
 <br/>
 
-**问题：** <br/>
-
+**问题：**
 - 需要考虑玩家退出的问题么?
 - 如何捕捉玩家人数发生改变的状态？
 
