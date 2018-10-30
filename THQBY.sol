@@ -4,11 +4,6 @@
 pragma solidity ^0.4.25;
 //pragma experimental ABIEncoderV2;
 
-/*
-* The following contracts should be categorized as 'abstract contract'
-* rather than 'interface' since interface cannot inherit any other 
-* contract or interface.
-*/
 
 /////////////////////////////////////////////////////////////////////////
 ////////////////////////// Abstact Contracts ////////////////////////////
@@ -19,14 +14,15 @@ contract ChatMessage
     int    public  byWho;
     string public  message;
 
-    constructor (uint ts, int bw,  string memory msg ) public
+    constructor (uint ts, int bw ,  string memory msg ) public
     {
         timestamp = ts;
         byWho     = bw;
         message   = msg;
     }   
 }
-// this abstact contract should be added by field to implement 'null' case 
+
+
 contract IClock
 {
     function GetNth_day() public returns(uint);
@@ -49,10 +45,12 @@ contract ITimeLimitForwardable is ITimeLimitable
     function TryMoveForward(IPlayer player) public returns(bool);
 }
 
+
 contract IVoteHistory
 {
     function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
 }
+
 
 contract IInitializable
 {
@@ -64,15 +62,13 @@ contract IInitializableIPlayerArr
 }
 
 
-
-
 contract IParticipatable is IInitializableIPlayerArr
 {
     function GetParticipants() public returns(IPlayer[] memory);
-    function EnableParticipant(IPlayer player)  public ;
-    function DisableParticipant(IPlayer player) public ;
-    function DisableAllParticipants() public ;
-    function EnableAllParticipants() public ;
+    function EnableParticipant(IPlayer player)  public;
+    function DisableParticipant(IPlayer player) public;
+    function DisableAllParticipants() public;
+    function EnableAllParticipants() public;
     function IsRegisteredParticipant(IPlayer player) public  returns(bool);
     function CanParticipate(IPlayer player) public  returns(bool);
     function ParticipatablePlayersCount()  public returns(uint);
@@ -111,12 +107,6 @@ contract IChatLog is IParticipatable, IChatable//, ISpokenEvent
 }
 
 
-
-
-
-
-
-
 contract IGameController
 {
     function GetLivingPlayers() public returns(IPlayer[] memory);
@@ -133,7 +123,7 @@ contract IPlayer //is ISpokenEvent
     function GetId() public returns(uint);
     function SetId(uint id) public ;
     function GetIsAlive() public returns(bool);
-    function KillMe() public ;
+    function KillMe() public;
     //function  Speak(string message) public ;
     //bool TryVote(uint playerID) public ;
     //  function speak (string message) public;
@@ -145,8 +135,6 @@ contract IPlayerFactory
 {
     function Create(string memory str, address addrs) public returns(IPlayer);
 }
-
-
 
 
 contract IPlayerManager is IInitializableIPlayerArr
@@ -246,50 +234,6 @@ contract ISequentialChatter is IChatter//, ITimeLimitForwardable
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 contract THQBY_Settings is ITHQBY_Settings
 {
     constructor() public
@@ -377,8 +321,7 @@ contract IDependencyInjection
 /////////// implement
 
 contract StrArr
-{
-    
+{ 
     string[]  _strArr;
     
     constructor() public
@@ -2234,9 +2177,6 @@ contract THQBY_SceneManager is SceneManagerBase
 
 
 /////////////////////// Main Function To Be ReModeled ////////////////////
-/*
-*
-*/
 
 
 contract Main //is ITHQBYPlayerInterface 
@@ -2254,7 +2194,7 @@ contract Main //is ITHQBYPlayerInterface
     mapping(uint => bool)         _isBid;      //map<id, bidOrNot>
     address[]                     _addressSet;
 
-    constructor() public
+    constructor() payable public
     {
         IDependencyInjection _inject = new DependencyInjection();
         _settings = _inject.SettingsFactory();
@@ -2271,13 +2211,9 @@ contract Main //is ITHQBYPlayerInterface
         uint coins= msg.value;
         uint invSum=uint(coins/sum);
         
-       
-        
         policeAmount*=invSum;
         killerAmount*=invSum;
         citizenAmount*=invSum;
-        
-        
         
         uint id = getMyID();
         _roleBidder.Bid(id, _settings.POLICE(), policeAmount);
@@ -2376,6 +2312,32 @@ contract Main //is ITHQBYPlayerInterface
         IPlayer p = _sceneManager.GetCurrentScene().Ballot().WhoDidThePlayerVote(Id2Player(playerID));
         return p.GetId();
     }
+
+
+    function TryEndGame() private returns(bool) 
+    {
+        if (_EndGameConditionsMet()) 
+        {
+            _distributeFromPool();
+            return true;
+        } 
+        else
+        {
+            return false;
+        }
+    }
+
+    function _EndGameConditionsMet() private returns(bool)
+    {
+        
+    }
+
+    function _distributeFromPool() private
+    {
+        
+    }
+
+    
 
 
     /*
