@@ -114,7 +114,7 @@ contract IPlayer //is ISpokenEvent
     function GetVotingWeightAsPercent() public returns(uint);
     function GetRole() public returns(string memory);
     function GetId() public returns(uint);
-    function SetId(uint id) internal ;
+    function SetId(uint id) public ;
     function GetIsAlive() public returns(bool);
     function KillMe() public;
     //function  Speak(string message) public ;
@@ -448,9 +448,9 @@ contract RoleBidderBase is IRoleBidder
         }
         _isClassActive = false;
         
-                for (uint i=0; i<res.length; i++)
+                for (uint ii=0; ii<res.length; ii++)
     {
-        res[i].SetId(i);
+        res[ii].SetId(ii);
     }
         return res;
     }
@@ -546,7 +546,7 @@ contract Player is IPlayer
     }
 
 
-    function SetId(uint id) internal
+    function SetId(uint id) public
     {
         _id = id;
     }
