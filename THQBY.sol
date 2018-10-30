@@ -447,6 +447,11 @@ contract RoleBidderBase is IRoleBidder
 
         }
         _isClassActive = false;
+        
+                for (uint i=0; i<res.length; i++)
+    {
+        res[i].SetId(i);
+    }
         return res;
     }
 
