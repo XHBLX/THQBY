@@ -215,7 +215,8 @@ contract IChatable
         function GetPolicePlayers() public returns(IPlayer[] memory);
         function GetCitizenPlayers() public returns(IPlayer[] memory);
         function GetKillerPlayers() public returns(IPlayer[] memory);
-        function GetGoodPeoplePlayers() public returns(IPlayer[] memory);
+        function GetGoodRolePlayers() public returns(IPlayer[] memory);
+        function GetLivingGoodRolePlayers() public returns(IPlayer[] memory);
     }
 
 
@@ -2046,6 +2047,36 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
     function GetKillerPlayers() public returns(IPlayer[] memory)
     {
         return FindByRole(_names.KILLER());
+    }
+    function GetGoodRolePlayers() public returns(IPlayer[] memory)
+    {
+        IPlayer[] memory _citizens = GetCitizenPlayers();
+        IPlayer[] memory _polices = GetPolicePlayers();
+        IPlayer[] _sumGoodRoles;
+        for (uint i = 0; i < _citizens.length; i++) 
+        {
+            _sumGoodRoles.push(_citizens[i]);
+        }
+        for (uint j = 0; j < _polices.length; j++) 
+        {
+            _sumGoodRoles.push(_polices[j]);
+        }
+        return _sumGoodRoles;
+    }
+    function GetLivingGoodRolePlayers() public returns(IPlayer[] memory)
+    {
+        IPlayer[] memory _livingCitizens = GetLivingCitizenPlayers();
+        IPlayer[] memory _livingPolices = GetLivingPolicePlayers();
+        IPlayer[] _sumLivingGoodRoles;
+        for (uint i = 0; i < _livingCitizens.length; i++) 
+        {
+            _sumLivingGoodRoles.push(_livingCitizens[i]);
+        }
+        for (uint j = 0; j < _livingPolices.length; j++) 
+        {
+            _sumLivingGoodRoles.push(_livingPolices[j]);
+        }
+        return _sumLivingGoodRoles;
     }
 }
 
