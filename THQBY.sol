@@ -2076,13 +2076,15 @@ contract Main
     mapping(uint => address)      _IdToAddr;
     mapping(uint => bool)         _isBid;     
     address[]                     _addressSet;
+    address                       _GameManager;
 
     // Primary game state
     uint                          _policeAmount;
     uint                          _killerAmount;
     uint                          _citizenAmount;
     bool                          _killerWin;
-    bool                          _goodPeopleWin;                 
+    bool                          _goodPeopleWin; 
+    bool                          _endGameOrderFromManager;                
 
 
     constructor() payable public
@@ -2206,35 +2208,60 @@ contract Main
 
 
 
-    // This function is private only called upon state change
+    /*
+    * 终止游戏pattern
+    */
+
+    // 语意上来讲，TryEndGame 应根据3种状态返回两种结果
     function TryEndGame() private returns(bool) 
     {
-        if (_EndGameConditionsMet()) 
+        if (EndGameConditionsMet()) 
         {
-            _distributeFromPool();
+            DistributeFromPool();
             return true;
         } 
+        else if (_endGameOrderFromManager) {
+            return true;
+        }
         else
         {
             return false;
         }
     }
 
-    function _EndGameConditionsMet() private returns(bool)
+    function EndGameConditionsMet() private returns(bool)
     {
         if (_killerAmount >= (_policeAmount + _citizenAmount))
         {
             _killerWin = true;
+            return true;
         }
         else if (_killerAmount == 0)
         {
             _goodPeopleWin = true;
+            return true;
         }
+        return false;
     }
 
-    function _distributeFromPool() private
+    function DistributeFromPool() private
     {
 
+    }
+
+    // 该命令仅作为保护机制
+    function SendEndGameOrder() public
+    {
+        require(msg.sender == _GameManager, "You cannot do this");
+        _endGameOrderFromManager = true;
+    }
+
+    // 根据 TryEndGame 结果自动调用
+    function EndGame() private 
+    {
+        if (TryEndGame()) {   
+            // selfdestruct(owner);
+        }
     }
 
 
