@@ -505,13 +505,6 @@ contract Player is IPlayer
     {
         _address = addresss;
     }
-
-    /*
-     *   该部分需参照C#原文档对应合约性质处理
-     *
-    public event Action<uint, IPlayer, string> eventSpoken;
-
-    */
     
     function Senderaddress() public returns(address)
     {
@@ -543,12 +536,10 @@ contract Player is IPlayer
         _isAlive = false;
     }
 
-
     function SetId(uint id) public
     {
         _id = id;
     }
-    
     
 }
 
@@ -1785,7 +1776,7 @@ contract DependencyInjection is IDependencyInjection
         scn.Set_sceneKiller(_sceneNIGHT_KILLER);
     }
 
-    constructor() public
+    constructor() payable public
     {
         IBallot ballot               = BallotFactory();
         IChatter chatter             = ChatterFactory();
@@ -2306,13 +2297,13 @@ contract Main
         }
     }
 
-    function SendCoinsFromPool() private
+    function DistributeFromPool() private
     {
         uint CoinsInFund = GetBalance();
         uint CoinsForEveryWinner = uint(CoinsInFund / _winnerPlayers.length);
         for (uint i = 0; i < _winnerPlayers.length; i++)
         {
-            _winnerPlayers[i]._address.transfer(CoinsForEveryWinner);
+            _winnerPlayers[i].Senderaddress().transfer(CoinsForEveryWinner);
         }
         IPlayer[] tempPlayers;
         _winnerPlayers = tempPlayers;
