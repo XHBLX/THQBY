@@ -49,34 +49,40 @@
 - PlayerManager
 - THQBY_Settings
 
-
-**Clock**
-
-
 **SceneNIGHT_KILLER**
+- THQBY_Scene
 
 **SceneNIGHT_POLICE**
+- THQBY_Scene
 
-**PlayerFactory**
+**PlayerFactoryBase**
 
 **RoleBidder**
+- PlayerFactoryBase
 
 **SceneDAY**
+- THQBY_Scene
 
 **SceneDAY_PK**
+- THQBY_Scene
 
-**SceneManager**
+**SceneManagerBase**
+- Scene
 
 **PlayerManager**
 - Player
 
-
 **THQBY_Settings**
-
 
 **Player**
 - ChatLog
 - Ballot
+
+**Scene**
+- Chatter
+- TimeLimitable
+- SceneManagerFriendToScene
+
 
 
 
