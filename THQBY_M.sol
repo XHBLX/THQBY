@@ -47,14 +47,14 @@ contract ITimeLimitable is IClock
 contract ITimeLimitForwardable is ITimeLimitable
 {
     function() public payable { }  
-    function TryMoveForward(IPlayer player) public returns(bool);
+    function TryMoveForward(Player player) public returns(bool);
 }
 
 
 contract IVoteHistory
 {
     function() public payable { }  
-    function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
+    function WhoDidThePlayerVote(Player player) public returns(Player);
 }
 
 
@@ -66,20 +66,20 @@ contract IInitializable
 contract IInitializableIPlayerArr
 {
     function() public payable { }  
-    function Initialize(IPlayer[] memory participants) public;
+    function Initialize(Player[] memory participants) public;
 }
 
 
 contract IParticipatable is IInitializableIPlayerArr
 {
     function() public payable { }  
-    function GetParticipants() public returns(IPlayer[] memory);
-    function EnableParticipant(IPlayer player)  public;
-    function DisableParticipant(IPlayer player) public;
+    function GetParticipants() public returns(Player[] memory);
+    function EnableParticipant(Player player)  public;
+    function DisableParticipant(Player player) public;
     function DisableAllParticipants() public;
     function EnableAllParticipants() public;
-    function IsRegisteredParticipant(IPlayer player) public  returns(bool);
-    function CanParticipate(IPlayer player) public  returns(bool);
+    function IsRegisteredParticipant(Player player) public  returns(bool);
+    function CanParticipate(Player player) public  returns(bool);
     function ParticipatablePlayersCount()  public returns(uint);
 }
 
@@ -87,9 +87,9 @@ contract IParticipatable is IInitializableIPlayerArr
 contract IBallot is IVoteHistory, IParticipatable
 {
     function() public payable { }  
-    function DidVote(IPlayer player) public returns(bool);
-    function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool);
-    function GetWinners() public returns(IPlayer[] memory);
+    function DidVote(Player player) public returns(bool);
+    function TryVote(Player byWho, IPlayer toWho) public returns(bool);
+    function GetWinners() public returns(Player[] memory);
     function IsSoloWinder() public returns(bool);
     function IsZeroWinders() public returns(bool);
     function IsEveryVotableOnesVoted() public returns(bool);
@@ -99,7 +99,7 @@ contract IBallot is IVoteHistory, IParticipatable
 contract IChatable
 {
     function() public payable { }  
-    function TryChat(IPlayer player, string memory message) public returns(bool);
+    function TryChat(Player player, string memory message) public returns(bool);
 }
 
 
@@ -115,8 +115,8 @@ contract IChatLog is IParticipatable, IChatable//, ISpokenEvent
 contract IGameController
 {
     function() public payable { }  
-    function GetLivingPlayers() public returns(IPlayer[] memory);
-    function GetDeadPlayers() public returns(IPlayer[] memory);
+    function GetLivingPlayers() public returns(Player[] memory);
+    function GetDeadPlayers() public returns(Player[] memory);
     function RegisterNewPlayerAndReturnID(address player) public returns(uint); // object address
 }
 
@@ -141,17 +141,17 @@ contract IPlayer //is ISpokenEvent
 contract IPlayerFactory 
 {
     function() public payable { }  
-    function Create(string memory str, address addrs) public returns(IPlayer);
+    function Create(string memory str, address addrs) public returns(Player);
 }
 
 
 contract IPlayerManager is IInitializableIPlayerArr
 {
     function() public payable { }  
-    function GetPlayer(uint id) public returns(IPlayer);
-    function GetAllPlayers() public returns(IPlayer[] memory);
-    function GetAllLivingPlayers() public returns(IPlayer[] memory);
-    function GetDeadPlayers() public returns(IPlayer[] memory);
+    function GetPlayer(uint id) public returns(Player);
+    function GetAllPlayers() public returns(Player[] memory);
+    function GetAllLivingPlayers() public returns(Player[] memory);
+    function GetDeadPlayers() public returns(Player[] memory);
 }
 
 
@@ -166,7 +166,7 @@ contract IRoleBidder is IInitializable
     function Bid(uint playerID, string memory role, uint bidAmount) public ;
     function HasEveryoneBid() public returns(bool);
     function SetPlayersCount(uint playersCount) public ;
-    function CreateRoles() public returns(IPlayer[] memory);
+    function CreateRoles() public returns(Player[] memory);
     function GetIsActive() public returns(bool);
     function SetID2Address(uint id, address adrs) public;
 }
@@ -257,7 +257,7 @@ contract ISequentialChatter is IChatter//, ITimeLimitForwardable
     function HaveEveryoneSpoke() public returns(bool);
 }
 
-// no problem
+
 contract THQBY_Settings is ITHQBY_Settings
 {
     constructor() payable public
@@ -310,7 +310,7 @@ contract PlayerFactoryBase is IPlayerFactory
 {
     uint        _idCounter = 0;
 
-    function Create(string memory role, address addrs) public returns(IPlayer);
+    function Create(string memory role, address addrs) public returns(Player);
 
     constructor () payable public
     {
@@ -324,19 +324,19 @@ contract PlayerFactoryBase is IPlayerFactory
 contract IDependencyInjection
 {
     function() public payable { }  
-    function BallotFactory() public returns(IBallot);
-    function ChatLogFactory() public returns(IChatLog);
-    function ChatterFactory() public returns(IChatter);
-    function ClockFactory() public returns(IClock);
-    function PlayerFactoryFactory() public returns(IPlayerFactory);
-    function PlayerManager() public returns(ITHQBY_PlayerManager);
+    function BallotFactory() public returns(Ballot);
+    function ChatLogFactory() public returns(ChatLog);
+    function ChatterFactory() public returns(Chatter);
+    function ClockFactory() public returns(Clock);
+    function PlayerFactoryFactory() public returns(PlayerFactoryBase);
+    function PlayerManager() public returns(THQBY_PlayerManager);
     //IScene SceneFactory(string name); 
-    function SettingsFactory() public returns(ITHQBY_Settings);
-    function SceneManagerFactory() public returns(ISceneManager);
+    function SettingsFactory() public returns(THQBY_Settings);
+    function SceneManagerFactory() public returns(SceneManagerBase);
     function ParticipatableFactory() public returns(IParticipatable);
     function RoleBidderFactory() public returns(IRoleBidder);
-    function SequentialChatterFactory() public returns(ISequentialChatter);
-    function TimeLimitableFactory() public returns(ITimeLimitable);
+    function SequentialChatterFactory() public returns(SequentialChatter);
+    function TimeLimitableFactory() public returns(TimeLimitable);
     function SceneDAYFactory() public returns(SceneDAY);
     function SceneDAY_PKFactory() public returns(SceneDAY_PK);
     function NIGHT_POLICE_Factory() public returns(SceneNIGHT_POLICE);
@@ -377,7 +377,7 @@ contract StrArr
 /// @dev DN: This is an abstract contract.
 contract RoleBidderBase is IRoleBidder 
 {
-    IPlayerFactory               _playerFactory;
+    PlayerFactoryBase               _playerFactory;
     bool                         _isClassActive    = true; //init usable 
     uint                         _playerCount;
     uint                         _numRoles;
@@ -406,7 +406,7 @@ contract RoleBidderBase is IRoleBidder
     /*
     * Public finctions
     */
-    constructor (IPlayerFactory playerFactory) payable public {
+    constructor (PlayerFactoryBase playerFactory) payable public {
         _playerFactory = playerFactory;
     }
 
@@ -447,24 +447,27 @@ contract RoleBidderBase is IRoleBidder
         uint             totalRole       = 0;
         uint             maxRoleNum      = FindMaxNumRole();
         uint             totalIteration  = maxRoleNum * _numRoles;
-        IPlayer[] memory res             = new IPlayer[](_playerCount);
+        Player[] memory res             = new IPlayer[](_playerCount);
         bool[]    memory isAssignedRole  = new bool[](_playerCount);
         uint[]    memory numRoleAssigned = new uint[](_numRoles);
         uint             curRoleIndex    = 0;
         uint             matrixColumn    = 0;
 
-        for (uint i = 0; i < _numRoles; i++) {
+        for (uint i = 0; i < _numRoles; i++) 
+        {
             totalRole += _spotsOfRole[_roleIndx2String[int(i)]];
         }
         require(totalRole == _playerCount, "numbers of role != numbers of players");
-        for (uint j = 0; j < totalIteration; j++) {
+        for (uint j = 0; j < totalIteration; j++) 
+        {
             int  tempMax = -1;
             uint tempID = 2**256-1;
             curRoleIndex = j % _numRoles; // //0->police; 1->citi; 2->killer
             if (numRoleAssigned[curRoleIndex] >= _spotsOfRole[_roleIndx2String[int(curRoleIndex)]]) {
                 continue;
             }
-            for (uint k = 0; k < _playerCount; k++) {
+            for (uint k = 0; k < _playerCount; k++) 
+            {
                 if (!isAssignedRole[k] && (_matrix[k][matrixColumn] > tempMax))
                 {
                     tempMax = _matrix[k][matrixColumn];
@@ -472,7 +475,7 @@ contract RoleBidderBase is IRoleBidder
                 }
             }
             isAssignedRole[tempID] = true;
-            IPlayer p = _playerFactory.Create(_roleIndx2String[int(curRoleIndex)], _id2address[tempID]);
+            Player p = _playerFactory.Create(_roleIndx2String[int(curRoleIndex)], _id2address[tempID]);
             p.SetId(tempID);
             res[tempID] = p;
             numRoleAssigned[curRoleIndex]++;
@@ -481,10 +484,10 @@ contract RoleBidderBase is IRoleBidder
         }
         _isClassActive = false;
         
-                for (uint ii=0; ii<res.length; ii++)
-    {
-        res[ii].SetId(ii);
-    }
+        for (uint ii = 0; ii < res.length; ii++)
+        {
+            res[ii].SetId(ii);
+        }
         return res;
     }
 
@@ -527,8 +530,8 @@ contract RoleBidderBase is IRoleBidder
 
 contract Player is IPlayer
 {
-    IChatLog          _chatLog;
-    IBallot           _ballot;
+    ChatLog          _chatLog;
+    Ballot           _ballot;
 
     bool     internal _isAlive = true;
     uint     internal _id;
@@ -607,12 +610,12 @@ contract Clock is IClock
 
 contract PlayerManager is IPlayerManager
 {
-    IPlayer[] _players;
-    IPlayer[] _tempPlayersList;
+    Player[] _players;
+    Player[] _tempPlayersList;
 
     // 之前的 players 作为状态变量是有什么用么？如果有的话那我就改成两个吧
-    IPlayer[] OneSideLivingPlayers;
-    IPlayer[] OneSidePlayers;
+    Player[] OneSideLivingPlayers;
+    Player[] OneSidePlayers;
 
     constructor() payable public 
     {
@@ -621,12 +624,12 @@ contract PlayerManager is IPlayerManager
 
     function() public payable { }  
 
-    function GetAllLivingPlayers() public returns(IPlayer[] memory)
+    function GetAllLivingPlayers() public returns(Player[] memory)
     {
         //_tempPlayersList
         for (uint i = 0; i < _players.length; i++)
         {
-            IPlayer player = _players[i];
+            Player player = _players[i];
             if (player.GetIsAlive())
             {
                 _tempPlayersList.push(player);
@@ -635,17 +638,17 @@ contract PlayerManager is IPlayerManager
         return _tempPlayersList;
     }
 
-    function GetAllPlayers() public returns(IPlayer[] memory)
+    function GetAllPlayers() public returns(Player[] memory)
     {
         return _players;
     }
 
-    function GetDeadPlayers() public returns(IPlayer[] memory)
+    function GetDeadPlayers() public returns(Player[] memory)
     {
         //_tempPlayersList = new IPlayer[];
         for (uint i = 0; i < _players.length; i++)
         {
-            IPlayer player = _players[i];
+            Player player = _players[i];
             if (!player.GetIsAlive())
             {
                 _tempPlayersList.push(player);
@@ -654,23 +657,23 @@ contract PlayerManager is IPlayerManager
         return _tempPlayersList;
     }
 
-    function GetPlayer(uint id) public returns (IPlayer )
+    function GetPlayer(uint id) public returns (Player )
     {
         return _players[id];
     }
 
-    function Initialize(IPlayer[] memory players) public 
+    function Initialize(Player[] memory players) public 
     {
         _players = players;
     }
     
 
-    function FindLivingByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
+    function FindLivingByRole(string memory desiredRoleName) internal returns(Player[] memory)
     {
-        IPlayer[] memory all = GetAllPlayers();
+        Player[] memory all = GetAllPlayers();
         for (uint i = 0; i < all.length; i++)
         {
-            IPlayer _curPlayer = all[i];
+            Player _curPlayer = all[i];
             string memory a;
             string memory b;
             a = _curPlayer.GetRole();
@@ -683,9 +686,9 @@ contract PlayerManager is IPlayerManager
         return OneSideLivingPlayers;
     }
 
-    function FindByRole(string memory desiredRoleName) internal returns(IPlayer[] memory)
+    function FindByRole(string memory desiredRoleName) internal returns(Player[] memory)
     {
-        IPlayer[] memory all = GetAllPlayers();
+        Player[] memory all = GetAllPlayers();
         for (uint i = 0; i < all.length; i++)
         {
             IPlayer _curPlayer = all[i];
@@ -706,7 +709,7 @@ contract THQBYRoleBidder is RoleBidderBase
     ITHQBY_Settings _settings;
     StrArr       stra;
 
-    constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)  RoleBidderBase(PlayerFactory) payable public
+    constructor(THQBY_Settings settings, PlayerFactoryBase PlayerFactory)  RoleBidderBase(PlayerFactory) payable public
     {
         //      _playerFactory = PlayerFactory;
         _settings = settings;
@@ -742,7 +745,7 @@ contract THQBYRoleBidder is RoleBidderBase
 
 contract THQBY_PLayer is Player
 {
-    constructor(ITHQBY_Settings settings, address addresss) Player(addresss) payable public
+    constructor(THQBY_Settings settings, address addresss) Player(addresss) payable public
     {
     }
 
@@ -752,7 +755,7 @@ contract THQBY_PLayer is Player
 
 contract Police is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
+    constructor(THQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.POLICE();
@@ -764,7 +767,7 @@ contract Police is THQBY_PLayer
 
 contract Killer is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
+    constructor(THQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.KILLER();
@@ -776,7 +779,7 @@ contract Killer is THQBY_PLayer
 
 contract Citizen is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
+    constructor(THQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.CITIZEN();
@@ -788,22 +791,22 @@ contract Citizen is THQBY_PLayer
 
 contract ParticipatableBase is IParticipatable
 {
-    IPlayer[]                internal  _players;
+    Player[]                internal  _players;
     mapping(address => bool) internal  _canParticipate; 
 
     function() public payable { }  
 
-    function  GetParticipants() public returns(IPlayer[] memory)
+    function  GetParticipants() public returns(Player[] memory)
     {
         return _players;
     }
 
-    function  EnableParticipant(IPlayer player)  public 
+    function  EnableParticipant(Player player)  public 
     {
         _canParticipate[player.Senderaddress()] = true;
     }
 
-    function  DisableParticipant(IPlayer player) public 
+    function  DisableParticipant(Player player) public 
     {
         _canParticipate[player.Senderaddress()] = false;
     }
@@ -826,19 +829,19 @@ contract ParticipatableBase is IParticipatable
         }
     }
 
-    function Initialize(IPlayer[] memory players) public 
+    function Initialize(Player[] memory players) public 
     {
         _players = players;
 
         EnableAllParticipants();
     }
 
-    function  IsRegisteredParticipant(IPlayer player) public  returns(bool)
+    function  IsRegisteredParticipant(Player player) public  returns(bool)
     {
         //  return _players.Contains(player);
         for (uint i = 0; i< _players.length; i++)
         {
-            if    (_players[i]==player)
+            if    (_players[i] == player)
             {return true;}
         }
         return false;
@@ -871,7 +874,7 @@ contract ParticipatableBase is IParticipatable
 
 contract TimeLimitable is IClock, ITimeLimitable
 {
-    IClock  _clock;
+    Clock  _clock;
     uint    _startingTimeInSeconds;
     uint    _timeLimitInSeconds;
 
@@ -933,15 +936,15 @@ contract Ballot is  ParticipatableBase, IBallot
     // 对于部分需判断合约（类）的存在性而创建的structure
     struct IPlayerVoted {
         bool     _voted;
-        IPlayer  _votedIPlayer;
+        Player  _votedIPlayer;
     }
 
     mapping(address => IPlayerVoted)  _playerVotedwho;
     mapping(address => uint)          _votesReceivedByPlayer;
-    IPlayerManager                    _playerManager;
-    IPlayer[]                         _winniers;
+    PlayerManager                    _playerManager;
+    Player[]                         _winniers;
 
-    constructor (IPlayerManager playerManager) payable public
+    constructor (PlayerManager playerManager) payable public
     {
         _playerManager = playerManager;
     }
@@ -949,18 +952,18 @@ contract Ballot is  ParticipatableBase, IBallot
     function() public payable { }  
 
     // Function overriden
-    function Initialize(IPlayer[] memory participants) public
+    function Initialize(Player[] memory participants) public
     {
         // Here modifying the fucnction upon logic, while not confirmed yet.
         ParticipatableBase.Initialize(participants);
-        IPlayer[] memory allplayers = _playerManager.GetAllPlayers();
+        Player[] memory allplayers = _playerManager.GetAllPlayers();
         for (uint i = 0; i < allplayers.length; i++) {
             _votesReceivedByPlayer[allplayers[i].Senderaddress()] = 0;
             _playerVotedwho[allplayers[i].Senderaddress()]._voted = false;
         }
     }
 
-    function CanParticipate(IPlayer player) public returns (bool)
+    function CanParticipate(Player player) public returns (bool)
     {
         if (!player.GetIsAlive()) {
             return false;
@@ -968,7 +971,7 @@ contract Ballot is  ParticipatableBase, IBallot
         return ParticipatableBase.CanParticipate(player);
     }
 
-    function GetWinners() public returns(IPlayer[] memory) 
+    function GetWinners() public returns(Player[] memory) 
     {
         uint             max  =  0;
         for (uint i = 0; i < _players.length; i++) 
@@ -977,7 +980,7 @@ contract Ballot is  ParticipatableBase, IBallot
             if (maxCandidate > max)
             {
                 max = maxCandidate;
-                IPlayer[] memory tempIPlayer;
+                Player[] memory tempIPlayer;
                 _winniers = tempIPlayer;
                 _winniers.push(_players[i]);
             }
@@ -995,7 +998,7 @@ contract Ballot is  ParticipatableBase, IBallot
         return VotedPlayerCount() == ParticipatablePlayersCount();
     }
 
-    function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool)
+    function TryVote(Player byWho, Player toWho) public returns(bool)
     {   
         if (DidVote(byWho))
         {
@@ -1015,7 +1018,7 @@ contract Ballot is  ParticipatableBase, IBallot
         uint ans = 0;
         for (uint i = 0; i < _players.length; i++)
         {
-            IPlayer player = _players[i];
+            Player player = _players[i];
             if (DidVote(player))
             {
                 ans++;
@@ -1024,7 +1027,7 @@ contract Ballot is  ParticipatableBase, IBallot
         return ans;
     }
 
-    function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer)
+    function WhoDidThePlayerVote(Player player) public returns(Player)
     {
         if (_playerVotedwho[player.Senderaddress()]._voted == true) {
             return _playerVotedwho[player.Senderaddress()]._votedIPlayer;
@@ -1037,7 +1040,7 @@ contract Ballot is  ParticipatableBase, IBallot
         }
     }
 
-    function DidVote(IPlayer player) public returns(bool)
+    function DidVote(Player player) public returns(bool)
     {
         return _playerVotedwho[player.Senderaddress()]._voted == true;
     }
@@ -1059,7 +1062,7 @@ contract ChatLog is ParticipatableBase, IChatLog
     ChatMessage[] _messages;
     uint _messageCount = 0;
 
-    IClock _clock;
+    Clock _clock;
     constructor(IClock clock) payable public
     {
         _clock = clock;
@@ -1114,18 +1117,18 @@ contract ChatLog is ParticipatableBase, IChatLog
 contract Scene is ITimeLimitable, IScene, IPrivateScene 
 {
     uint                       roundTime       = 60 seconds;
-    IBallot                    _ballot;
-    IChatter                   _chatter;
-    ITimeLimitable             _timeLimitable;
-    ITHQBY_Settings            _settings;
-    ISceneManagerFriendToScene _sceneManager;
+    Ballot                    _ballot;
+    Chatter                   _chatter;
+    TimeLimitable             _timeLimitable;
+    THQBY_Settings            _settings;
+    SceneManagerFriendToScene _sceneManager;
     string                     _sceneName;
 
     // public event Action movedForward;
     event                      movedForward(string);
     event                      print(string);
 
-    constructor(IBallot ballot, IChatter chatter, ITimeLimitable timeLimitable, ITHQBY_Settings settings) payable public
+    constructor(Ballot ballot, Chatter chatter, TimeLimitable timeLimitable, THQBY_Settings settings) payable public
     {
         _ballot = ballot;
         _chatter = chatter;
@@ -1137,15 +1140,15 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
 
     function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool);
     function ZeroVotingResultHandler() public;
-    function OneVotingResultHandler(IPlayer result) public;
-    function MoreVotingResultHandler(IPlayer[] memory result) public;
+    function OneVotingResultHandler(Player result) public;
+    function MoreVotingResultHandler(Player[] memory result) public;
 
-    function Ballot() public returns(IBallot)
+    function Ballot() public returns(Ballot)
     {
         return _ballot;
     }
 
-    function Chatter() public returns(IChatter)
+    function Chatter() public returns(Chatter)
     {
         return _chatter;
     }
@@ -1171,7 +1174,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
         return _sceneName;
     }
 
-    function Initialize(ISceneManagerFriendToScene sceneManager, IPlayer[] memory participants) public
+    function Initialize(SceneManagerFriendToScene sceneManager, Player[] memory participants) public
     {
         _sceneManager = sceneManager;
         _ballot.Initialize(participants); // 
@@ -1193,7 +1196,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
         _timeLimitable.SetTimerOn();
     }
 
-    function TryMoveForward(IPlayer player) public returns(bool)
+    function TryMoveForward(Player player) public returns(bool)
     {
         if (IsOverTime())
         {
@@ -1228,7 +1231,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
         }
     }
 
-    function VotingResult() public returns(IPlayer[] memory)
+    function VotingResult() public returns(Player[] memory)
     {
         return Ballot().GetWinners();
     }
@@ -1238,7 +1241,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
         return VotingResult().length;
     }
 
-    function KillSomebody(IPlayer somebody) public
+    function KillSomebody(Player somebody) public
     {
         somebody.KillMe();
         PrintMessagePlayerDead(somebody);
@@ -1263,7 +1266,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
         return string(bstr);
     }
 
-    function PrintMessagePlayerDead(IPlayer somebody) public 
+    function PrintMessagePlayerDead(Player somebody) public 
     {
         _chatter.PrintSystemMessage("___________");
         _chatter.PrintSystemMessage("Killed Play with ID=");
@@ -1292,10 +1295,10 @@ contract THQBY_Scene is Scene
     SceneDAY_PK       _scenePK;
     SceneNIGHT_KILLER _sceneKiller;
     SceneNIGHT_POLICE _scecenPOLICE;
-    constructor (IBallot ballot
-        , IChatter chatter
-        , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) Scene(ballot, chatter, timeLimitable, settings) 
+    constructor (Ballot ballot
+        , Chatter chatter
+        , TimeLimitable timeLimitable
+        , THQBY_Settings settings) Scene(ballot, chatter, timeLimitable, settings) 
     payable public
     {
 
@@ -1324,12 +1327,12 @@ contract THQBY_Scene is Scene
         _scecenPOLICE = scecenPOLICE;
     }
 
-    function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns (bool)
+    function DoesPlayerHavePrivilageToMoveForward(Player player) public returns (bool)
     {
         return _ballot.IsEveryVotableOnesVoted();
     }
 
-    function KillSomebody(IPlayer someobdy) public
+    function KillSomebody(Player someobdy) public
     {
         super.KillSomebody(someobdy);
     }
@@ -1339,10 +1342,10 @@ contract THQBY_Scene is Scene
 
 contract SceneDAY is THQBY_Scene
 {
-    constructor (IBallot ballot
-        , IChatter chatter
-        , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+    constructor (Ballot ballot
+        , Chatter chatter
+        , TimeLimitable timeLimitable
+        , THQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
     payable public
     {
         _sceneName = _settings.DAY();
@@ -1350,19 +1353,19 @@ contract SceneDAY is THQBY_Scene
 
     function() public payable { }  
 
-    function MoreVotingResultHandler(IPlayer[] memory result) public
+    function MoreVotingResultHandler(Player[] memory result) public
     {
         _sceneManager.MoveForwardToNewScene(_scenePK);
         //must do after scene change
         _scenePK.Chatter().DisableAllParticipants();
         for (uint i = 0; i < result.length; i++)
         {
-            IPlayer player = result[i];
+            Player player = result[i];
             _scenePK.Chatter().EnableParticipant(player);
         }
     }
 
-    function OneVotingResultHandler(IPlayer result) public
+    function OneVotingResultHandler(Player result) public
     {
         KillSomebody(result);
         GotoKillerScene();
@@ -1382,10 +1385,10 @@ contract SceneDAY is THQBY_Scene
 
 contract SceneDAY_PK is THQBY_Scene
 {
-    constructor (IBallot ballot
-        , IChatter chatter
-        , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+    constructor (Ballot ballot
+        , Chatter chatter
+        , TimeLimitable timeLimitable
+        , THQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
     payable public
     {
         _sceneName = _settings.DAY();
@@ -1393,12 +1396,12 @@ contract SceneDAY_PK is THQBY_Scene
 
     function() public payable { }  
 
-    function MoreVotingResultHandler(IPlayer[] memory result) public
+    function MoreVotingResultHandler(Player[] memory result) public
     {
         GotoKillerScene();
     }
 
-    function OneVotingResultHandler(IPlayer result) public
+    function OneVotingResultHandler(Player result) public
     {
         KillSomebody(result);
         GotoKillerScene();
@@ -1419,23 +1422,23 @@ contract SceneDAY_PK is THQBY_Scene
 
 contract SceneNIGHT_KILLER is THQBY_Scene
 {
-    constructor (IBallot ballot
-        , IChatter chatter
-        , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+    constructor (Ballot ballot
+        , Chatter chatter
+        , TimeLimitable timeLimitable
+        , THQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
     payable public
     {
-        _sceneName=_settings.NIGHT_KILLER();
+        _sceneName =_settings.NIGHT_KILLER();
     }
 
     function() public payable { }  
 
-    function MoreVotingResultHandler(IPlayer[] memory result) public
+    function MoreVotingResultHandler(Player[] memory result) public
     {
         GotoKillerScene();
     }
 
-    function OneVotingResultHandler(IPlayer result) public
+    function OneVotingResultHandler(Player result) public
     {
         KillSomebody(result);
         _sceneDay.KillSomebody(result);
@@ -1465,9 +1468,9 @@ contract SceneNIGHT_KILLER is THQBY_Scene
 contract SceneNIGHT_POLICE is THQBY_Scene
 {
     constructor (IBallot ballot
-        , IChatter chatter
-        , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+        , Chatter chatter
+        , TimeLimitable timeLimitable
+        , THQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
     payable public
     {
         _sceneName=_settings.NIGHT_POLICE();
@@ -1481,12 +1484,12 @@ contract SceneNIGHT_POLICE is THQBY_Scene
         DayPlusPlus();
     }
 
-    function MoreVotingResultHandler(IPlayer[] memory result) public
+    function MoreVotingResultHandler(Player[] memory result) public
     {
         GotoDayScene();
     }
 
-    function OneVotingResultHandler(IPlayer result) public
+    function OneVotingResultHandler(Player result) public
     {
         _chatter.PrintSystemMessage(result.GetRole());
         GotoDayScene();
@@ -1511,7 +1514,7 @@ contract SceneNIGHT_POLICE is THQBY_Scene
 // This is an abstract contract
 contract SceneManagerBase is  ITimeLimitForwardable, ISceneManager, ISceneManagerFriendToScene
 {
-    IScene _currentScene;
+    Scene _currentScene;
 
     constructor() payable public
     {
@@ -1552,7 +1555,7 @@ contract SceneManagerBase is  ITimeLimitForwardable, ISceneManager, ISceneManage
         _currentScene.SetTimerOn();
     }
 
-    function TryMoveForward(IPlayer player) public returns (bool)
+    function TryMoveForward(Player player) public returns (bool)
     {
         return _currentScene.TryMoveForward(player);
     }
@@ -1561,12 +1564,12 @@ contract SceneManagerBase is  ITimeLimitForwardable, ISceneManager, ISceneManage
     {
     }
 
-    function GetCurrentScene() public returns (IScene)
+    function GetCurrentScene() public returns (Scene)
     {
         return _currentScene;
     }
 
-    function MoveForwardToNewScene(IScene newScene)  public
+    function MoveForwardToNewScene(Scene newScene)  public
     {
         _currentScene = newScene;
         _currentScene.Refresh();
@@ -1583,10 +1586,10 @@ contract SceneManagerBase is  ITimeLimitForwardable, ISceneManager, ISceneManage
 
 contract Chatter is IChatter
 {
-    ITimeLimitable _timeLimitable;
-    IChatLog       _chatLog;
+    TimeLimitable _timeLimitable;
+    ChatLog       _chatLog;
 
-    constructor (ITimeLimitable timeLimitable , IChatLog chatLog) payable public 
+    constructor (TimeLimitable timeLimitable , ChatLog chatLog) payable public 
     {
         _timeLimitable = timeLimitable;
         _chatLog = chatLog;
@@ -1594,7 +1597,7 @@ contract Chatter is IChatter
 
     function() public payable { }  
 
-    function CanParticipate(IPlayer player) public returns(bool)
+    function CanParticipate(Player player) public returns(bool)
     {
         return _chatLog.CanParticipate(player);
     }
@@ -1609,7 +1612,7 @@ contract Chatter is IChatter
         _chatLog.DisableAllParticipants();
     }
 
-    function DisableParticipant(IPlayer player) public 
+    function DisableParticipant(Player player) public 
     {
         _chatLog.DisableParticipant(player);
     }
@@ -1619,7 +1622,7 @@ contract Chatter is IChatter
         _chatLog.EnableAllParticipants();
     }
 
-    function EnableParticipant(IPlayer player) public
+    function EnableParticipant(Player player) public
     {
         _chatLog.EnableParticipant(player);
     }
@@ -1639,7 +1642,7 @@ contract Chatter is IChatter
         return _timeLimitable.GetNth_day();
     }
 
-    function GetParticipants() public returns(IPlayer[] memory)
+    function GetParticipants() public returns(Player[] memory)
     {
         return _chatLog.GetParticipants();
     }
@@ -1654,7 +1657,7 @@ contract Chatter is IChatter
         _timeLimitable.IncrementTimeLimit(secondss);
     }
 
-    function Initialize(IPlayer[] memory participants) public
+    function Initialize(Player[] memory participants) public
     {
         _chatLog.Initialize(participants);
     }
@@ -1664,7 +1667,7 @@ contract Chatter is IChatter
         return _timeLimitable.IsOverTime();
     }
 
-    function IsRegisteredParticipant(IPlayer player) public returns(bool)
+    function IsRegisteredParticipant(Player player) public returns(bool)
     {
         return _chatLog.IsRegisteredParticipant(player);
     }
@@ -1689,12 +1692,12 @@ contract Chatter is IChatter
         _timeLimitable.SetTimerOn();
     }
 
-    function TryChat(IPlayer player, string memory message) public returns (bool)
+    function TryChat(Player player, string memory message) public returns (bool)
     {
         return _chatLog.TryChat(player, message);
     }
 
-    function TryMoveForward(IPlayer player) public returns (bool) 
+    function TryMoveForward(Player player) public returns (bool) 
     {
         return false;
     }
@@ -1705,14 +1708,14 @@ contract Chatter is IChatter
 contract SequentialChatter is Chatter, ISequentialChatter
 {
     uint           _onePlayerSpeakingTime = 60 seconds;
-    IPlayerManager _playerManager;
-    IPlayer        _speakingPlayer;
+    PlayerManager _playerManager;
+    Player        _speakingPlayer;
     int            _spokenPlayersCount    = -1;
     int            _speakingPlayerIndex   = -1;
 
-    constructor (ITimeLimitable timeLimitable 
-        , IChatLog chatLog
-        , IPlayerManager playerManager) Chatter(timeLimitable, chatLog) payable public
+    constructor (TimeLimitable timeLimitable 
+        , ChatLog chatLog
+        , PlayerManager playerManager) Chatter(timeLimitable, chatLog) payable public
     {
         _playerManager = playerManager;
         //      _timeLimitable = timeLimitable;
@@ -1728,7 +1731,7 @@ contract SequentialChatter is Chatter, ISequentialChatter
         //movedForward?.Invoke();
     }
 
-    function GetSpeakingPlayer() public returns(IPlayer)
+    function GetSpeakingPlayer() public returns(Player)
     {
         return _speakingPlayer;
     }
@@ -1740,7 +1743,7 @@ contract SequentialChatter is Chatter, ISequentialChatter
         return ans1 && ans2;
     }
 
-    function Initialize(IPlayer[] memory participants) public 
+    function Initialize(Player[] memory participants) public 
     {
         Chatter.Initialize(participants);
         _spokenPlayersCount = -1;
@@ -1748,12 +1751,12 @@ contract SequentialChatter is Chatter, ISequentialChatter
         MoveForwardActionCore();
     }
 
-    function ParticipatingPlayers() public returns(IPlayer[] memory)
+    function ParticipatingPlayers() public returns(Player[] memory)
     {
         return _chatLog.GetParticipants();
     }
 
-    function TryMoveForward(IPlayer player) public returns(bool)
+    function TryMoveForward(Player player) public returns(bool)
     {
         if (IsOverTime())
         {
@@ -1794,18 +1797,18 @@ contract SequentialChatter is Chatter, ISequentialChatter
         OnNextPlayer();
     }
 
-    function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool)
+    function DoesPlayerHavePrivilageToMoveForward(Player player) public returns(bool)
     {
         return player == _speakingPlayer;
     }
 
-    function EnableParticipant(IPlayer player) public
+    function EnableParticipant(Player player) public
     {
         Chatter.EnableParticipant(player);
         _timeLimitable.IncrementTimeLimit(int(_onePlayerSpeakingTime));
     }
 
-    function DisableParticipant(IPlayer player) public
+    function DisableParticipant(Player player) public
     {
         Chatter.DisableParticipant(player);
         _timeLimitable.IncrementTimeLimit(int(-_onePlayerSpeakingTime));
@@ -1818,19 +1821,19 @@ contract SequentialChatter is Chatter, ISequentialChatter
 
 contract DependencyInjection is IDependencyInjection
 {
-    ITHQBY_PlayerManager           _playerManager;
-    IClock                         _clock;
+    THQBY_PlayerManager           _playerManager;
+    Clock                         _clock;
     SceneNIGHT_KILLER              _sceneNIGHT_KILLER;
     SceneNIGHT_POLICE              _sceneNIGHT_POLICE;
-    IPlayerFactory                 _playerfact;
-    IRoleBidder                    _roleBidder;
+    PlayerFactoryBase                 _playerfact;
+    RoleBidder                    _roleBidder;
     SceneDAY                       _sceneDAY;
     SceneDAY_PK                    _sceneDAY_PK;
-    ISceneManager                  _sceneManager;
-    ITHQBY_Settings                _tHQBY_Settings;
+    SceneManagerBase                  _sceneManager;
+    THQBY_Settings                _tHQBY_Settings;
 
     // For game play
-    IPlayer[]            private   _players;
+    Player[]            private   _players;
 
 
     THQBY_Scene private scn;//helper
@@ -1845,10 +1848,10 @@ contract DependencyInjection is IDependencyInjection
 
     constructor() payable public
     {
-        IBallot ballot               = BallotFactory();
-        IChatter chatter             = ChatterFactory();
-        ITimeLimitable timeLimitable = TimeLimitableFactory();
-        ITHQBY_Settings settings     = SettingsFactory();
+        Ballot ballot               = BallotFactory();
+        Chatter chatter             = ChatterFactory();
+        TimeLimitable timeLimitable = TimeLimitableFactory();
+        THQBY_Settings settings     = SettingsFactory();
         _sceneNIGHT_KILLER           = new SceneNIGHT_KILLER(ballot, chatter, timeLimitable, settings);
         _sceneNIGHT_POLICE           = new SceneNIGHT_POLICE(ballot, chatter, timeLimitable, settings);
         _sceneDAY                    = new SceneDAY(ballot, chatter, timeLimitable, settings);
@@ -1866,7 +1869,7 @@ contract DependencyInjection is IDependencyInjection
 
     function() public payable { }  
 
-    function Players() public returns(IPlayer[] memory)
+    function Players() public returns(Player[] memory)
     {
         return _players;
     }
@@ -1874,31 +1877,31 @@ contract DependencyInjection is IDependencyInjection
     // AsTransient 
     function BallotFactory() public returns(IBallot)
     {
-        IPlayerManager playerManager = PlayerManager();
+        PlayerManager playerManager = PlayerManager();
         return new Ballot(playerManager);
     }
 
     // AsTransient
-    function ChatLogFactory() public returns(IChatLog)
+    function ChatLogFactory() public returns(ChatLog)
     {
-        IClock clock = ClockFactory();
+        Clock clock = ClockFactory();
         return new ChatLog(clock);
     }
 
     //AsTransient
     function ChatterFactory() public returns(IChatter)
     {
-        ITimeLimitable TimeLimitableFact = TimeLimitableFactory();
-        IChatLog chatLog = ChatLogFactory();
+        TimeLimitable TimeLimitableFact = TimeLimitableFactory();
+        ChatLog chatLog = ChatLogFactory();
         return new Chatter(TimeLimitableFact, chatLog);
     }
 
     //AsTransient
-    function SequentialChatterFactory() public returns(ISequentialChatter) 
+    function SequentialChatterFactory() public returns(SequentialChatter) 
     {
-        ITimeLimitable TimeLimitable = TimeLimitableFactory();
-        IChatLog chatLog = ChatLogFactory();
-        IPlayerManager playerManager = PlayerManager();
+        TimeLimitable TimeLimitable = TimeLimitableFactory();
+        ChatLog chatLog = ChatLogFactory();
+        PlayerManager playerManager = PlayerManager();
         return new SequentialChatter(TimeLimitable, chatLog, playerManager);
     }
 
@@ -1927,40 +1930,40 @@ contract DependencyInjection is IDependencyInjection
     }
 
     //AsTransient
-    function ParticipatableFactory() public returns(IParticipatable)
+    function ParticipatableFactory() public returns(Participatable)
     {
         return new ParticipatableBase();
     }
 
     //AsTransient
-    function PlayerFactoryFactory() public returns(IPlayerFactory)
+    function PlayerFactoryFactory() public returns(PlayerFactoryBase)
     {
         if (address(_playerfact) == address(0x0))
         {
-            ITHQBY_Settings settings = SettingsFactory();
+            THQBY_Settings settings = SettingsFactory();
             _playerfact = new THQBY_PlayerFactory(settings);
         }
         return _playerfact;
     }
 
     //AsTransient
-    function PlayerManager() public returns(ITHQBY_PlayerManager)
+    function PlayerManager() public returns(THQBY_PlayerManager)
     {
         if (address(_playerManager) == address(0x0))
         {
-            ITHQBY_Settings settings = SettingsFactory();
+            THQBY_Settings settings = SettingsFactory();
             _playerManager = new THQBY_PlayerManager(settings);
         }
         return _playerManager;
     }
 
     //AsTransient
-    function RoleBidderFactory() public returns(IRoleBidder)
+    function RoleBidderFactory() public returns(RoleBidder)
     {
         if (address(_roleBidder) == address(0x0))
         {
-            IPlayerFactory playerFactory = PlayerFactoryFactory();
-            ITHQBY_Settings settings = SettingsFactory();
+            PlayerFactoryBase playerFactory = PlayerFactoryFactory();
+            THQBY_Settings settings = SettingsFactory();
             _roleBidder = new THQBYRoleBidder(settings, playerFactory);
         }
         return _roleBidder;
@@ -1979,7 +1982,7 @@ contract DependencyInjection is IDependencyInjection
     }
 
     //AsSingle
-    function SceneManagerFactory() public returns(ISceneManager)
+    function SceneManagerFactory() public returns(SceneManagerBase)
     {
         if (address(_sceneManager) == address(0x0))
         {
@@ -1987,14 +1990,14 @@ contract DependencyInjection is IDependencyInjection
             SceneDAY_PK scenePK = SceneDAY_PKFactory();
             SceneNIGHT_KILLER sceneNIGHT_KILLER = NIGHT_KILLER_Factory();
             SceneNIGHT_POLICE sceneNIGHT_POLICE = NIGHT_POLICE_Factory();
-            ITHQBY_PlayerManager playerManager = PlayerManager();
+            THQBY_PlayerManager playerManager = PlayerManager();
             _sceneManager = new THQBY_SceneManager(sceneDay, scenePK, sceneNIGHT_KILLER, sceneNIGHT_POLICE, playerManager);
         }
         return _sceneManager;
     }
 
     //AsSingle
-    function SettingsFactory() public returns(ITHQBY_Settings)
+    function SettingsFactory() public returns(THQBY_Settings)
     {
         if (address(_tHQBY_Settings) ==address(0x0))
         {
@@ -2006,7 +2009,7 @@ contract DependencyInjection is IDependencyInjection
     //AsTransient
     function TimeLimitableFactory() public returns(ITimeLimitable)
     {
-        IClock clock = ClockFactory();
+        Clock clock = ClockFactory();
         return new TimeLimitable(clock);
     }
 
@@ -2030,19 +2033,19 @@ contract DependencyInjection is IDependencyInjection
 
 contract THQBY_PlayerFactory is PlayerFactoryBase
 {
-    ITHQBY_Settings _settings;
+    THQBY_Settings _settings;
 
     //mannually DI
-    constructor(ITHQBY_Settings settings)   PlayerFactoryBase() payable public
+    constructor(THQBY_Settings settings) PlayerFactoryBase() payable public
     {
         _settings = settings;
     }
 
     function() public payable { }  
 
-    function Create(string memory role, address addrs) public returns(IPlayer)
+    function Create(string memory role, address addrs) public returns(Player)
     {
-        IPlayer ans;
+        Player ans;
         if ( keccak256(role) ==  keccak256(_settings.CITIZEN()))
         {
             ans = new Citizen(_settings,addrs);
@@ -2067,49 +2070,49 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
 
 contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 {
-    ITHQBY_Settings _names;
+    THQBY_Settings _names;
 
-    constructor(ITHQBY_Settings settings) payable public
+    constructor(THQBY_Settings settings) payable public
     {
         _names = settings;
     }
 
     function() public payable { }  
 
-    function GetLivingCitizenPlayers() public returns (IPlayer[] memory )
+    function GetLivingCitizenPlayers() public returns (Player[] memory )
     {
         return FindLivingByRole(_names.CITIZEN());
     }
 
-    function GetLivingKillerPlayers() public returns (IPlayer[] memory )
+    function GetLivingKillerPlayers() public returns (Player[] memory )
     {
         return FindLivingByRole(_names.KILLER());
     }
 
-    function GetLivingPolicePlayers() public returns (IPlayer[] memory )
+    function GetLivingPolicePlayers() public returns (Player[] memory )
     {
         return FindLivingByRole(_names.POLICE());
     }
 
-    function GetPolicePlayers() public returns(IPlayer[] memory)
+    function GetPolicePlayers() public returns(Player[] memory)
     {
         return FindByRole(_names.POLICE());
     }
 
-    function GetCitizenPlayers() public returns(IPlayer[] memory)
+    function GetCitizenPlayers() public returns(Player[] memory)
     {
         return FindByRole(_names.CITIZEN());
     }
 
-    function GetKillerPlayers() public returns(IPlayer[] memory)
+    function GetKillerPlayers() public returns(Player[] memory)
     {
         return FindByRole(_names.KILLER());
     }
-    function GetGoodRolePlayers() public returns(IPlayer[] memory)
+    function GetGoodRolePlayers() public returns(Player[] memory)
     {
-        IPlayer[] memory _citizens = GetCitizenPlayers();
-        IPlayer[] memory _polices = GetPolicePlayers();
-        IPlayer[] _sumGoodRoles;
+        Player[] memory _citizens = GetCitizenPlayers();
+        Player[] memory _polices = GetPolicePlayers();
+        Player[] _sumGoodRoles;
         for (uint i = 0; i < _citizens.length; i++) 
         {
             _sumGoodRoles.push(_citizens[i]);
@@ -2120,11 +2123,11 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
         }
         return _sumGoodRoles;
     }
-    function GetLivingGoodRolePlayers() public returns(IPlayer[] memory)
+    function GetLivingGoodRolePlayers() public returns(Player[] memory)
     {
-        IPlayer[] memory _livingCitizens = GetLivingCitizenPlayers();
-        IPlayer[] memory _livingPolices = GetLivingPolicePlayers();
-        IPlayer[] _sumLivingGoodRoles;
+        Player[] memory _livingCitizens = GetLivingCitizenPlayers();
+        Player[] memory _livingPolices = GetLivingPolicePlayers();
+        Player[] _sumLivingGoodRoles;
         for (uint i = 0; i < _livingCitizens.length; i++) 
         {
             _sumLivingGoodRoles.push(_livingCitizens[i]);
@@ -2175,12 +2178,12 @@ contract THQBY_SceneManager is SceneManagerBase
 
 contract Main
 {
-    IDependencyInjection          _inject;
+    DependencyInjection           _inject;
     THQBYRoleBidder               _roleBidder;
     THQBY_SceneManager            _sceneManager;
-    IPlayer[]                     _tHQBY_PLayers;
-    ITHQBY_Settings               _settings;
-    IPlayerManager                _PlayerManager;
+    Player[]                      _tHQBY_PLayers;
+    THQBY_Settings                _settings;
+    PlayerManager                 _PlayerManager;
     THQBY_PlayerManager           _tHQBY_PlayerManager;
 
     uint                          _curMaxId;
@@ -2198,7 +2201,7 @@ contract Main
     bool                          _killerWin;
     bool                          _goodPeopleWin; 
     bool                          _endGameOrderFromManager;  
-    IPlayer[]                     _winnerPlayers;    
+    Player[]                      _winnerPlayers;    
 
 
     function() public payable { }          
@@ -2206,7 +2209,6 @@ contract Main
 
     constructor() payable public
     {
-        _inject = new IDependencyInjection();
         _settings = _inject.SettingsFactory();
         _sceneManager = THQBY_SceneManager(_inject.SceneManagerFactory());
         _roleBidder = THQBYRoleBidder(_inject.RoleBidderFactory());
@@ -2296,8 +2298,8 @@ contract Main
     {
         checkIsBid();
         THQBY_PLayer Player = GetMyPlayer();
-        IScene scene = _sceneManager.GetCurrentScene();
-        IChatter chatter = scene.Chatter();
+        Scene scene = _sceneManager.GetCurrentScene();
+        Chatter chatter = scene.Chatter();
         return chatter.TryMoveForward(Player);
     }
 
@@ -2311,7 +2313,7 @@ contract Main
     function TryVote(uint playerID) public returns(bool)
     {
         checkIsBid();
-        IPlayer toWhoPlayer = Id2Player(playerID);
+        Player toWhoPlayer = Id2Player(playerID);
         THQBY_PLayer Player = GetMyPlayer();
         return _sceneManager.GetCurrentScene().Ballot().TryVote(Player, toWhoPlayer);
     }
@@ -2319,7 +2321,7 @@ contract Main
     function WhoDidThisPlayerVote(uint playerID) public returns(uint)
     {
         checkIsBid();
-        IPlayer p = _sceneManager.GetCurrentScene().Ballot().WhoDidThePlayerVote(Id2Player(playerID));
+        Player p = _sceneManager.GetCurrentScene().Ballot().WhoDidThePlayerVote(Id2Player(playerID));
         return p.GetId();
     }
 
@@ -2364,7 +2366,7 @@ contract Main
         return false;
     }
 
-    function SetWinnerPlayers() private returns(IPlayer[] memory) {
+    function SetWinnerPlayers() private returns(Player[] memory) {
         if (_killerWin) 
         {
             _winnerPlayers = _tHQBY_PlayerManager.GetKillerPlayers();
@@ -2383,7 +2385,7 @@ contract Main
         {
             _winnerPlayers[i].Senderaddress().transfer(CoinsForEveryWinner);
         }
-        IPlayer[] tempPlayers;
+        Player[] tempPlayers;
         _winnerPlayers = tempPlayers;
     }
 
