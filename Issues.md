@@ -31,4 +31,54 @@
 
 
 
+## 关系树 ##
+
+**DependencyInjection**
+- THQBY_PlayerManager
+- Clock
+- SceneNIGHT_KILLER
+- SceneNIGHT_POLICE
+- PlayerFactory
+- RoleBidder 
+- SceneDAY
+- SceneDAY_PK
+- SceneManager
+- THQBY_Settings
+
+**THQBY_PlayerManager**
+- PlayerManager
+- THQBY_Settings
+
+
+**Clock**
+
+
+**SceneNIGHT_KILLER**
+
+**SceneNIGHT_POLICE**
+
+**PlayerFactory**
+
+**RoleBidder**
+
+**SceneDAY**
+
+**SceneDAY_PK**
+
+**SceneManager**
+
+**PlayerManager**
+- Player
+
+
+**THQBY_Settings**
+
+
+**Player**
+- ChatLog
+- Ballot
+
+
+
+
 

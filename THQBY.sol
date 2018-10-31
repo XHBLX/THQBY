@@ -257,7 +257,7 @@ contract ISequentialChatter is IChatter//, ITimeLimitForwardable
     function HaveEveryoneSpoke() public returns(bool);
 }
 
-
+// no problem
 contract THQBY_Settings is ITHQBY_Settings
 {
     constructor() payable public
