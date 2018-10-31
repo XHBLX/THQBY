@@ -19,12 +19,15 @@ contract ChatMessage
         timestamp = ts;
         byWho     = bw;
         message   = msg;
-    }   
+    }  
+    
+    function() public payable { }   
 }
 
 
 contract IClock
 {
+    function() public payable { }  
     function GetNth_day() public returns(uint);
     function DayPlusPlus() public;
     function GetRealTimeInSeconds() public returns(uint);
@@ -33,6 +36,7 @@ contract IClock
 
 contract ITimeLimitable is IClock
 {
+    function() public payable { }  
     function  IsOverTime() public returns(bool);
     function  SetTimeLimit(uint secondss) public ;
     function  IncrementTimeLimit(int secondss) public ;
@@ -42,28 +46,33 @@ contract ITimeLimitable is IClock
 
 contract ITimeLimitForwardable is ITimeLimitable
 {
+    function() public payable { }  
     function TryMoveForward(IPlayer player) public returns(bool);
 }
 
 
 contract IVoteHistory
 {
+    function() public payable { }  
     function WhoDidThePlayerVote(IPlayer player) public returns(IPlayer);
 }
 
 
 contract IInitializable
 {
+    function() public payable { }  
     function Initialize() public;
 }
 contract IInitializableIPlayerArr
 {
+    function() public payable { }  
     function Initialize(IPlayer[] memory participants) public;
 }
 
 
 contract IParticipatable is IInitializableIPlayerArr
 {
+    function() public payable { }  
     function GetParticipants() public returns(IPlayer[] memory);
     function EnableParticipant(IPlayer player)  public;
     function DisableParticipant(IPlayer player) public;
@@ -77,6 +86,7 @@ contract IParticipatable is IInitializableIPlayerArr
 
 contract IBallot is IVoteHistory, IParticipatable
 {
+    function() public payable { }  
     function DidVote(IPlayer player) public returns(bool);
     function TryVote(IPlayer byWho, IPlayer toWho) public returns(bool);
     function GetWinners() public returns(IPlayer[] memory);
@@ -88,12 +98,14 @@ contract IBallot is IVoteHistory, IParticipatable
 
 contract IChatable
 {
+    function() public payable { }  
     function TryChat(IPlayer player, string memory message) public returns(bool);
 }
 
 
 contract IChatLog is IParticipatable, IChatable//, ISpokenEvent
 {
+    function() public payable { }  
     function GetAllMessages() public returns(ChatMessage[] memory);   
     function GetNewestMessage() public returns(ChatMessage );
     function PrintSystemMessage(string memory message) public ;
@@ -102,6 +114,7 @@ contract IChatLog is IParticipatable, IChatable//, ISpokenEvent
 
 contract IGameController
 {
+    function() public payable { }  
     function GetLivingPlayers() public returns(IPlayer[] memory);
     function GetDeadPlayers() public returns(IPlayer[] memory);
     function RegisterNewPlayerAndReturnID(address player) public returns(uint); // object address
@@ -110,6 +123,7 @@ contract IGameController
 
 contract IPlayer //is ISpokenEvent
 {
+    function() public payable { }  
     function Senderaddress() public returns(address);
     function GetVotingWeightAsPercent() public returns(uint);
     function GetRole() public returns(string memory);
@@ -126,12 +140,14 @@ contract IPlayer //is ISpokenEvent
 
 contract IPlayerFactory 
 {
+    function() public payable { }  
     function Create(string memory str, address addrs) public returns(IPlayer);
 }
 
 
 contract IPlayerManager is IInitializableIPlayerArr
 {
+    function() public payable { }  
     function GetPlayer(uint id) public returns(IPlayer);
     function GetAllPlayers() public returns(IPlayer[] memory);
     function GetAllLivingPlayers() public returns(IPlayer[] memory);
@@ -141,10 +157,12 @@ contract IPlayerManager is IInitializableIPlayerArr
 
 contract IChatter is IChatLog, ITimeLimitForwardable//, IInitializableIPlayerArr
 {
+    function() public payable { }  
 }
 
 contract IRoleBidder is IInitializable
 {
+    function() public payable { }  
     function Bid(uint playerID, string memory role, uint bidAmount) public ;
     function HasEveryoneBid() public returns(bool);
     function SetPlayersCount(uint playersCount) public ;
@@ -156,6 +174,7 @@ contract IRoleBidder is IInitializable
 
 contract IScene is ITimeLimitable, ITimeLimitForwardable
 {
+    function() public payable { }  
     function Initialize(ISceneManagerFriendToScene  sceneMng, IPlayer[] memory players) public ;
     function GetSceneName() public returns(string memory);//return this.GetType().ToString();
     function Ballot() public returns(IBallot);
@@ -166,6 +185,7 @@ contract IScene is ITimeLimitable, ITimeLimitForwardable
 
 contract IPrivateScene is IScene
 {
+    function() public payable { }  
     function ZeroVotingResultHandler() public ;
     function OneVotingResultHandler(IPlayer result) public ;
     function MoreVotingResultHandler(IPlayer[] memory result) public ;
@@ -175,18 +195,21 @@ contract IPrivateScene is IScene
 
 contract ISceneManager is ITimeLimitForwardable, IInitializable
 {
+    function() public payable { }  
     function GetCurrentScene() public returns(IScene);
 }
 
 
 contract ISceneManagerFriendToScene is ISceneManager
 {
+    function() public payable { }  
     function MoveForwardToNewScene(IScene newScene) public ;
 }
 
 
 contract ITHQBYPlayerInterface
 {
+    function() public payable { }  
     //starting game
     function Bid(uint pliceAmount, uint KillerAmount, uint citizenAmount) public;
     //accessing 
@@ -202,6 +225,7 @@ contract ITHQBYPlayerInterface
 
 contract ITHQBY_PlayerManager is IPlayerManager
 {
+    function() public payable { }  
     function GetLivingPolicePlayers() public returns(IPlayer[] memory);
     function GetLivingCitizenPlayers() public returns(IPlayer[] memory);
     function GetLivingKillerPlayers() public returns(IPlayer[] memory);
@@ -215,6 +239,7 @@ contract ITHQBY_PlayerManager is IPlayerManager
 
 contract ITHQBY_Settings
 {
+    function() public payable { }  
     function  DAY() public  returns(string memory);
     function  DAY_PK() public  returns(string memory);
     function  NIGHT_KILLER() public  returns(string memory);
@@ -227,6 +252,7 @@ contract ITHQBY_Settings
 
 contract ISequentialChatter is IChatter//, ITimeLimitForwardable
 {
+    function() public payable { }  
     function GetSpeakingPlayer() public returns(IPlayer);
     function HaveEveryoneSpoke() public returns(bool);
 }
@@ -234,9 +260,11 @@ contract ISequentialChatter is IChatter//, ITimeLimitForwardable
 
 contract THQBY_Settings is ITHQBY_Settings
 {
-    constructor() public
+    constructor() payable public
     {
     }
+
+    function() public payable { }  
 
     function CITIZEN() public returns(string memory )
     {
@@ -288,11 +316,14 @@ contract PlayerFactoryBase is IPlayerFactory
     {
 
     }
+
+    function() public payable { }  
 }
 
 
 contract IDependencyInjection
 {
+    function() public payable { }  
     function BallotFactory() public returns(IBallot);
     function ChatLogFactory() public returns(IChatLog);
     function ChatterFactory() public returns(IChatter);
@@ -320,10 +351,12 @@ contract StrArr
 { 
     string[]  _strArr;
 
-    constructor() public
+    constructor() payable public
     {
 
     }
+
+    function() public payable { }  
 
     function GetStrI(uint i) returns(string)
     {
@@ -355,6 +388,8 @@ contract RoleBidderBase is IRoleBidder
     mapping(int => string)       _roleIndx2String;
     mapping(string => uint)      _spotsOfRole;
     mapping(uint=> address)      _id2address;
+
+    function() public payable { }  
 
     function SetID2Address(uint id, address adrs) public
     {
@@ -505,6 +540,8 @@ contract Player is IPlayer
     {
         _address = addresss;
     }
+
+    function() public payable { }  
     
     function Senderaddress() public returns(address)
     {
@@ -549,6 +586,8 @@ contract Clock is IClock
     uint _day               = 0;
     uint _realTimeInSeconds = 0;
 
+    function() public payable { }  
+
     function  GetNth_day() public returns(uint)
     {
         return _day;
@@ -575,10 +614,12 @@ contract PlayerManager is IPlayerManager
     IPlayer[] OneSideLivingPlayers;
     IPlayer[] OneSidePlayers;
 
-    constructor()  public 
+    constructor() payable public 
     {
 
     }
+
+    function() public payable { }  
 
     function GetAllLivingPlayers() public returns(IPlayer[] memory)
     {
@@ -672,6 +713,8 @@ contract THQBYRoleBidder is RoleBidderBase
         stra=new StrArr();
     }
 
+    function() public payable { }  
+
     function InitRoles() internal 
     {
         stra.PushStr(_settings.POLICE());
@@ -702,6 +745,8 @@ contract THQBY_PLayer is Player
     constructor(ITHQBY_Settings settings, address addresss) Player(addresss) public
     {
     }
+
+    function() public payable { }  
 }
 
 
@@ -712,6 +757,8 @@ contract Police is THQBY_PLayer
         // base(settings) from THQBY_PLayer
         _role = settings.POLICE();
     }
+
+    function() public payable { }  
 }
 
 
@@ -722,6 +769,8 @@ contract Killer is THQBY_PLayer
         // base(settings) from THQBY_PLayer
         _role = settings.KILLER();
     }
+
+    function() public payable { }  
 }
 
 
@@ -732,6 +781,8 @@ contract Citizen is THQBY_PLayer
         // base(settings) from THQBY_PLayer
         _role = settings.CITIZEN();
     }
+
+    function() public payable { }  
 }
 
 
@@ -739,6 +790,8 @@ contract ParticipatableBase is IParticipatable
 {
     IPlayer[]                internal  _players;
     mapping(address => bool) internal  _canParticipate; 
+
+    function() public payable { }  
 
     function  GetParticipants() public returns(IPlayer[] memory)
     {
@@ -827,6 +880,8 @@ contract TimeLimitable is IClock, ITimeLimitable
         _clock = clock;
     }
 
+    function() public payable { }  
+
     function  GetNth_day() public returns(uint)
     {
         return _clock.GetNth_day();
@@ -890,6 +945,8 @@ contract Ballot is  ParticipatableBase, IBallot
     {
         _playerManager = playerManager;
     }
+
+    function() public payable { }  
 
     // Function overriden
     function Initialize(IPlayer[] memory participants) public
@@ -1010,6 +1067,8 @@ contract ChatLog is ParticipatableBase, IChatLog
         _messageCount=0;
     }
 
+    function() public payable { }  
+
     function  TryChat(IPlayer player, string memory message) public returns(bool)
     {
         if (!CanParticipate(player))
@@ -1074,6 +1133,8 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
         _timeLimitable = timeLimitable;
         _settings = settings;
     }
+
+    function() public payable { }  
 
     function DoesPlayerHavePrivilageToMoveForward(IPlayer player) public returns(bool);
     function ZeroVotingResultHandler() public;
@@ -1211,8 +1272,6 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
         _chatter.PrintSystemMessage("___________");
     }
 
-
-
     function IncrementTimeLimit(int secondss) public
     {
         _timeLimitable.IncrementTimeLimit(secondss);
@@ -1242,6 +1301,8 @@ contract THQBY_Scene is Scene
     {
 
     }
+
+    function() public payable { }  
 
     // setter
     function Set_sceneDay(SceneDAY sceneDay) public
@@ -1279,8 +1340,6 @@ contract THQBY_Scene is Scene
 
 contract SceneDAY is THQBY_Scene
 {
-
-
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
@@ -1289,6 +1348,8 @@ contract SceneDAY is THQBY_Scene
     {
         _sceneName = _settings.DAY();
     }
+
+    function() public payable { }  
 
     function MoreVotingResultHandler(IPlayer[] memory result) public
     {
@@ -1331,6 +1392,8 @@ contract SceneDAY_PK is THQBY_Scene
         _sceneName = _settings.DAY();
     }
 
+    function() public payable { }  
+
     function MoreVotingResultHandler(IPlayer[] memory result) public
     {
         GotoKillerScene();
@@ -1365,6 +1428,8 @@ contract SceneNIGHT_KILLER is THQBY_Scene
     {
         _sceneName=_settings.NIGHT_KILLER();
     }
+
+    function() public payable { }  
 
     function MoreVotingResultHandler(IPlayer[] memory result) public
     {
@@ -1409,6 +1474,8 @@ contract SceneNIGHT_POLICE is THQBY_Scene
         _sceneName=_settings.NIGHT_POLICE();
     }
 
+    function() public payable { }  
+
     function GotoDayScene() public
     {
         _sceneManager.MoveForwardToNewScene(_sceneDay);
@@ -1447,13 +1514,12 @@ contract SceneManagerBase is  ITimeLimitForwardable, ISceneManager, ISceneManage
 {
     IScene _currentScene;
 
-    constructor() public
+    constructor() payable public
     {
 
     }
 
-    event movedForward(string);
-    event sceneUpdated(string);
+    function() public payable { }  
 
     function Initialize() public;
 
@@ -1526,6 +1592,8 @@ contract Chatter is IChatter
         _timeLimitable = timeLimitable;
         _chatLog = chatLog;
     }
+
+    function() public payable { }  
 
     function CanParticipate(IPlayer player) public returns(bool)
     {
@@ -1654,7 +1722,7 @@ contract SequentialChatter is Chatter, ISequentialChatter
         //      _chatLog = chatLog;
     }
 
-    event moveForward(string);
+    function() public payable { }  
 
     function OnNextPlayer() internal 
     {
@@ -1796,6 +1864,8 @@ contract DependencyInjection is IDependencyInjection
         scn = _sceneDAY_PK;
         InitSceneHelper();
     }
+
+    function() public payable { }  
 
     function Players() public returns(IPlayer[] memory)
     {
@@ -1969,6 +2039,8 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
         _settings = settings;
     }
 
+    function() public payable { }  
+
     function Create(string memory role, address addrs) public returns(IPlayer)
     {
         IPlayer ans;
@@ -2002,6 +2074,8 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
     {
         _names = settings;
     }
+
+    function() public payable { }  
 
     function GetLivingCitizenPlayers() public returns (IPlayer[] memory )
     {
@@ -2083,6 +2157,8 @@ contract THQBY_SceneManager is SceneManagerBase
         sceneNIGHT_POLICE.Initialize(this, playerManager.GetLivingPolicePlayers());
     }
 
+    function() public payable { }  
+
     function Initialize() public 
     {
         MoveForwardToNewScene(_sceneDay);
@@ -2123,7 +2199,10 @@ contract Main
     bool                          _killerWin;
     bool                          _goodPeopleWin; 
     bool                          _endGameOrderFromManager;  
-    IPlayer[]                     _winnerPlayers;              
+    IPlayer[]                     _winnerPlayers;    
+
+
+    function() public payable { }          
 
 
     constructor() payable public
