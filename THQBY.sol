@@ -14,13 +14,13 @@ contract ChatMessage
     int    public  byWho;
     string public  message;
 
-    constructor (uint ts, int bw ,  string memory msg ) public
+    constructor (uint ts, int bw ,  string memory msg ) payable public 
     {
         timestamp = ts;
         byWho     = bw;
         message   = msg;
     }  
-    
+
     function() public payable { }   
 }
 
@@ -312,7 +312,7 @@ contract PlayerFactoryBase is IPlayerFactory
 
     function Create(string memory role, address addrs) public returns(IPlayer);
 
-    constructor () public
+    constructor () payable public
     {
 
     }
@@ -406,7 +406,7 @@ contract RoleBidderBase is IRoleBidder
     /*
     * Public finctions
     */
-    constructor (IPlayerFactory playerFactory) public {
+    constructor (IPlayerFactory playerFactory) payable public {
         _playerFactory = playerFactory;
     }
 
@@ -536,7 +536,7 @@ contract Player is IPlayer
     uint     internal _votingWeight = 100;
     address  internal _address;
 
-    constructor(address addresss)  public
+    constructor(address addresss) payable public
     {
         _address = addresss;
     }
@@ -706,7 +706,7 @@ contract THQBYRoleBidder is RoleBidderBase
     ITHQBY_Settings _settings;
     StrArr       stra;
 
-    constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)  RoleBidderBase(PlayerFactory)   public
+    constructor(ITHQBY_Settings settings, IPlayerFactory PlayerFactory)  RoleBidderBase(PlayerFactory) payable public
     {
         //      _playerFactory = PlayerFactory;
         _settings = settings;
@@ -742,7 +742,7 @@ contract THQBYRoleBidder is RoleBidderBase
 
 contract THQBY_PLayer is Player
 {
-    constructor(ITHQBY_Settings settings, address addresss) Player(addresss) public
+    constructor(ITHQBY_Settings settings, address addresss) Player(addresss) payable public
     {
     }
 
@@ -752,7 +752,7 @@ contract THQBY_PLayer is Player
 
 contract Police is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) public
+    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.POLICE();
@@ -764,7 +764,7 @@ contract Police is THQBY_PLayer
 
 contract Killer is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) public
+    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.KILLER();
@@ -776,7 +776,7 @@ contract Killer is THQBY_PLayer
 
 contract Citizen is THQBY_PLayer
 {
-    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) public
+    constructor(ITHQBY_Settings settings, address addresss) THQBY_PLayer(settings,addresss) payable public
     {
         // base(settings) from THQBY_PLayer
         _role = settings.CITIZEN();
@@ -875,7 +875,7 @@ contract TimeLimitable is IClock, ITimeLimitable
     uint    _startingTimeInSeconds;
     uint    _timeLimitInSeconds;
 
-    constructor(IClock clock) public
+    constructor(IClock clock) payable public
     {
         _clock = clock;
     }
@@ -941,7 +941,7 @@ contract Ballot is  ParticipatableBase, IBallot
     IPlayerManager                    _playerManager;
     IPlayer[]                         _winniers;
 
-    constructor (IPlayerManager playerManager) public
+    constructor (IPlayerManager playerManager) payable public
     {
         _playerManager = playerManager;
     }
@@ -1060,7 +1060,7 @@ contract ChatLog is ParticipatableBase, IChatLog
     uint _messageCount = 0;
 
     IClock _clock;
-    constructor(IClock clock) public
+    constructor(IClock clock) payable public
     {
         _clock = clock;
         //_messages = new List<ChatMessage>();
@@ -1125,8 +1125,7 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
     event                      movedForward(string);
     event                      print(string);
 
-    constructor(IBallot ballot, IChatter chatter, ITimeLimitable timeLimitable, ITHQBY_Settings settings)
-    public
+    constructor(IBallot ballot, IChatter chatter, ITimeLimitable timeLimitable, ITHQBY_Settings settings) payable public
     {
         _ballot = ballot;
         _chatter = chatter;
@@ -1296,8 +1295,8 @@ contract THQBY_Scene is Scene
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) Scene(ballot, chatter, timeLimitable, settings)
-    public
+        , ITHQBY_Settings settings) Scene(ballot, chatter, timeLimitable, settings) 
+    payable public
     {
 
     }
@@ -1343,8 +1342,8 @@ contract SceneDAY is THQBY_Scene
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
-    public
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+    payable public
     {
         _sceneName = _settings.DAY();
     }
@@ -1386,8 +1385,8 @@ contract SceneDAY_PK is THQBY_Scene
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
-    public
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+    payable public
     {
         _sceneName = _settings.DAY();
     }
@@ -1423,8 +1422,8 @@ contract SceneNIGHT_KILLER is THQBY_Scene
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
-    public
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+    payable public
     {
         _sceneName=_settings.NIGHT_KILLER();
     }
@@ -1468,8 +1467,8 @@ contract SceneNIGHT_POLICE is THQBY_Scene
     constructor (IBallot ballot
         , IChatter chatter
         , ITimeLimitable timeLimitable
-        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings)
-    public
+        , ITHQBY_Settings settings) THQBY_Scene(ballot, chatter, timeLimitable, settings) 
+    payable public
     {
         _sceneName=_settings.NIGHT_POLICE();
     }
@@ -1587,7 +1586,7 @@ contract Chatter is IChatter
     ITimeLimitable _timeLimitable;
     IChatLog       _chatLog;
 
-    constructor (ITimeLimitable timeLimitable , IChatLog chatLog) public
+    constructor (ITimeLimitable timeLimitable , IChatLog chatLog) payable public 
     {
         _timeLimitable = timeLimitable;
         _chatLog = chatLog;
@@ -1713,7 +1712,7 @@ contract SequentialChatter is Chatter, ISequentialChatter
 
     constructor (ITimeLimitable timeLimitable 
         , IChatLog chatLog
-        , IPlayerManager playerManager) Chatter(timeLimitable, chatLog) public
+        , IPlayerManager playerManager) Chatter(timeLimitable, chatLog) payable public
     {
         _playerManager = playerManager;
         //      _timeLimitable = timeLimitable;
@@ -2034,7 +2033,7 @@ contract THQBY_PlayerFactory is PlayerFactoryBase
     ITHQBY_Settings _settings;
 
     //mannually DI
-    constructor(ITHQBY_Settings settings)   PlayerFactoryBase() public
+    constructor(ITHQBY_Settings settings)   PlayerFactoryBase() payable public
     {
         _settings = settings;
     }
@@ -2070,7 +2069,7 @@ contract THQBY_PlayerManager is PlayerManager, ITHQBY_PlayerManager
 {
     ITHQBY_Settings _names;
 
-    constructor(ITHQBY_Settings settings) public
+    constructor(ITHQBY_Settings settings) payable public
     {
         _names = settings;
     }
@@ -2147,8 +2146,8 @@ contract THQBY_SceneManager is SceneManagerBase
         , SceneDAY_PK scenePK
         , SceneNIGHT_KILLER sceneNIGHT_KILLER
         , SceneNIGHT_POLICE sceneNIGHT_POLICE
-        , ITHQBY_PlayerManager playerManager) 
-    public
+        , ITHQBY_PlayerManager playerManager)  
+    payable public
     {
         _sceneDay = sceneDay;
         sceneDay.Initialize(this, playerManager.GetAllPlayers());
