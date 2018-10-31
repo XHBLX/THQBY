@@ -1,5 +1,5 @@
 # THQBY
-天黑请闭眼
+天黑请闭眼:
 
 To play the game, launch the Main Contract // don't worry about other auxiliary contracts 
 you must find 12 players to start playing: 4 polices, 4 killers, 4 normal citizens.
