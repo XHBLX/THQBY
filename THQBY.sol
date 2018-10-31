@@ -272,8 +272,6 @@ contract THQBY_Settings is ITHQBY_Settings
     {
         return "POLICE";
     }
-
-
 }
 
 
@@ -501,11 +499,11 @@ contract Player is IPlayer
     uint     internal _id;
     string   internal _role;
     uint     internal _votingWeight = 100;
-    address internal _address;
+    address  internal _address;
 
     constructor(address addresss)  public
     {
-        _address=addresss;
+        _address = addresss;
     }
 
     /*
@@ -2256,7 +2254,10 @@ contract Main
         return p.GetId();
     }
 
-
+    function GetBalance() public returns(uint)
+    {
+        return this.balance;
+    }
 
     /*
     * 终止游戏pattern
@@ -2305,9 +2306,16 @@ contract Main
         }
     }
 
-    function DistributeFromPool() private
+    function SendCoinsFromPool() private
     {
-
+        uint CoinsInFund = GetBalance();
+        uint CoinsForEveryWinner = uint(CoinsInFund / _winnerPlayers.length);
+        for (uint i = 0; i < _winnerPlayers.length; i++)
+        {
+            _winnerPlayers[i]._address.transfer(CoinsForEveryWinner);
+        }
+        IPlayer[] tempPlayers;
+        _winnerPlayers = tempPlayers;
     }
 
     // 该命令仅作为保护机制
