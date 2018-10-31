@@ -2206,7 +2206,6 @@ contract Main
 
     constructor() payable public
     {
-        IDependencyInjection _inject = new DependencyInjection();
         _settings = _inject.SettingsFactory();
         _sceneManager = THQBY_SceneManager(_inject.SceneManagerFactory());
         _roleBidder = THQBYRoleBidder(_inject.RoleBidderFactory());
