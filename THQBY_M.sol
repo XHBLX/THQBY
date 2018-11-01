@@ -177,8 +177,8 @@ contract IScene is ITimeLimitable, ITimeLimitForwardable
     function() public payable { }  
     function Initialize(ISceneManagerFriendToScene  sceneMng, IPlayer[] memory players) public ;
     function GetSceneName() public returns(string memory);//return this.GetType().ToString();
-    function Ballot() public returns(IBallot);
-    function Chatter() public returns(IChatter);
+    function CreateBallot() public returns(Ballot);
+    function CreateChatter() public returns(Chatter);
     function Refresh() public ;
 }
 
@@ -1124,10 +1124,6 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
     SceneManagerFriendToScene _sceneManager;
     string                     _sceneName;
 
-    // public event Action movedForward;
-    event                      movedForward(string);
-    event                      print(string);
-
     constructor(Ballot ballot, Chatter chatter, TimeLimitable timeLimitable, THQBY_Settings settings) payable public
     {
         _ballot = ballot;
@@ -1143,12 +1139,12 @@ contract Scene is ITimeLimitable, IScene, IPrivateScene
     function OneVotingResultHandler(Player result) public;
     function MoreVotingResultHandler(Player[] memory result) public;
 
-    function Ballot() public returns(Ballot)
+    function CreateBallot() public returns(Ballot)
     {
         return _ballot;
     }
 
-    function Chatter() public returns(Chatter)
+    function CreateChatter() public returns(Chatter)
     {
         return _chatter;
     }
@@ -1826,7 +1822,7 @@ contract DependencyInjection is IDependencyInjection
     SceneNIGHT_KILLER              _sceneNIGHT_KILLER;
     SceneNIGHT_POLICE              _sceneNIGHT_POLICE;
     PlayerFactoryBase                 _playerfact;
-    RoleBidder                    _roleBidder;
+    RoleBidderBase                    _roleBidder;
     SceneDAY                       _sceneDAY;
     SceneDAY_PK                    _sceneDAY_PK;
     SceneManagerBase                  _sceneManager;
@@ -1875,9 +1871,9 @@ contract DependencyInjection is IDependencyInjection
     }
 
     // AsTransient 
-    function BallotFactory() public returns(IBallot)
+    function BallotFactory() public returns(Ballot)
     {
-        PlayerManager playerManager = PlayerManager();
+        ITHQBY_PlayerManager playerManager = PlayerManager();
         return new Ballot(playerManager);
     }
 
@@ -1930,7 +1926,7 @@ contract DependencyInjection is IDependencyInjection
     }
 
     //AsTransient
-    function ParticipatableFactory() public returns(Participatable)
+    function ParticipatableFactory() public returns(ParticipatableBase)
     {
         return new ParticipatableBase();
     }
@@ -1958,7 +1954,7 @@ contract DependencyInjection is IDependencyInjection
     }
 
     //AsTransient
-    function RoleBidderFactory() public returns(RoleBidder)
+    function RoleBidderFactory() public returns(RoleBidderBase)
     {
         if (address(_roleBidder) == address(0x0))
         {
