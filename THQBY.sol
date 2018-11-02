@@ -1851,13 +1851,6 @@ contract DependencyInjection is IDependencyInjection
         ITimeLimitable timeLimitable = TimeLimitableFactory();
         ITHQBY_Settings settings     = SettingsFactory();
 
-        _playerManager               = PlayerManager();
-        _clock                       = ClockFactory();
-        _playerfact                  = PlayerFactoryFactory();
-        _roleBidder                  = RoleBidderFactory();
-        _sceneManager                = SceneManagerFactory();
-        _tHQBY_Settings              = SettingsFactory();
-
         _sceneNIGHT_KILLER           = new SceneNIGHT_KILLER(ballot, chatter, timeLimitable, settings);
         _sceneNIGHT_POLICE           = new SceneNIGHT_POLICE(ballot, chatter, timeLimitable, settings);
         _sceneDAY                    = new SceneDAY(ballot, chatter, timeLimitable, settings);
