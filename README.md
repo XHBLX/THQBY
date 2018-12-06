@@ -45,7 +45,7 @@ IChatLog allows players to speak and also hear what others are speaking.
 
 IGameController manages the players.
 
-IPlayer is a interface for each player. Players can view their own information here, such as their address and ID and whether is alive.
+IPlayer is a interface for each player. Players can view their own information here, such as their address and ID and whether is alive. This is a great advantage of blockchain, each player is represented by an random string of address in a huge address space that's nearly impossible to collide, which made the real identity of the player nearly untracable. So if a lucky player always wins, a jealous player couldn't track the playr down to his house to kill him. 
 
 IPlayerFactory creates players with various rols: police, killer, citizen, and more in the future improved THQBY versions.
 
@@ -83,4 +83,8 @@ and all other contract simply implements the interfaces above.
 
 
 
+# Hidden Player Identity & Security
 
+As a great advantage of blockchain, each player is represented by an random string of address in a huge address space that's nearly impossible to collide, which made the real identity of the player nearly untracable. So if a lucky player always wins, a jealous player couldn't track the playr down to his house to kill him. 
+
+As a chatting game, if the chatting information somehow leaked, other players's identity will be revealed and the game is no longer fun and fair. So with blockchain security, the access of certain information is strictly enforces by the contract which cannot be hacked. 
